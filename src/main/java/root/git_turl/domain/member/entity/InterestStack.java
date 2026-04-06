@@ -20,6 +20,7 @@ public class InterestStack {
     private Long id;
 
     @Column(name = "name")
+    @Enumerated(EnumType.STRING)
     private TechStack techStack;
 
     @ManyToOne(fetch = FetchType.LAZY)

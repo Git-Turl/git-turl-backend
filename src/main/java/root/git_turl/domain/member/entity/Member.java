@@ -38,9 +38,11 @@ public class Member extends BaseEntity {
     private String profileImage;
 
     @Column(name = "job_type")
+    @Enumerated(EnumType.STRING)
     private JobType jobType;
 
     @Column(name = "status")
+    @Enumerated(EnumType.STRING)
     private Status status = Status.ACTIVATE;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
