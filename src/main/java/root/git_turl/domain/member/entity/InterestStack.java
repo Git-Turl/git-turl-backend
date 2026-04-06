@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import root.git_turl.domain.enums.TechStack;
+import root.git_turl.domain.member.enums.TechStack;
 
 @Entity
 @Builder
