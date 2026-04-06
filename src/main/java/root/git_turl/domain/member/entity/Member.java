@@ -7,7 +7,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import root.git_turl.domain.enums.JobType;
 import root.git_turl.domain.enums.Status;
+import root.git_turl.domain.enums.TechStack;
 import root.git_turl.global.entity.BaseEntity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Builder
@@ -39,4 +43,15 @@ public class Member extends BaseEntity {
     @Column(name = "status")
     private Status status = Status.ACTIVATE;
 
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<InterestStack> interestStacks = new ArrayList<>();
+
+    public void addInterestStack(TechStack techStack) {
+        InterestStack interestStack = InterestStack.builder()
+                .techStack(techStack)
+                .build();
+
+        interestStacks.add(interestStack);
+        interestStack.assignMember(this);
+    }
 }
