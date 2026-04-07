@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Builder
@@ -24,9 +24,20 @@ public class RefreshToken {
     private String token;
 
     @Column(name = "expire_date", nullable = false)
-    private LocalDate expireDate;
+    private LocalDateTime expireDate;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    public RefreshToken(String token, Member member, LocalDateTime expireDate) {
+        this.token = token;
+        this.member = member;
+        this.expireDate = expireDate;
+    }
+
+    public void update(String newToken, LocalDateTime newExpireDate) {
+        this.token = newToken;
+        this.expireDate = newExpireDate;
+    }
 }

@@ -31,10 +31,13 @@ public class Member extends BaseEntity {
     @Column(name = "nickname", length = 20, unique = true)
     private String nickname;
 
-    @Column(name = "github_id")
+    @Column(name = "github_id", nullable = false )
     private String githubId;
 
-    @Column(name = "profile_image")
+    @Column(name = "social_uid", nullable = false)
+    private String socialUid;
+
+    @Column(name = "profile_image", nullable = false)
     private String profileImage;
 
     @Column(name = "job_type")
@@ -55,5 +58,11 @@ public class Member extends BaseEntity {
 
         interestStacks.add(interestStack);
         interestStack.assignMember(this);
+    }
+
+    public void updateGithubInfo(String githubId, String profileImage, String email) {
+        this.githubId = githubId;
+        this.profileImage = profileImage;
+        this.email = email;
     }
 }
