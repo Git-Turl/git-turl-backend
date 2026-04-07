@@ -36,7 +36,7 @@ public class CustomOAuthService extends DefaultOAuth2UserService {
                 .map(existingMember -> {
                     existingMember.updateGithubInfo(login, profileImage, email);
                     memberRepository.save(existingMember);
-                    return new OAuthMember(existingMember, attributes, false);
+                    return new OAuthMember(existingMember, false);
                 })
                 .orElseGet(() -> {
                     Member newMember = Member.builder()
@@ -47,7 +47,7 @@ public class CustomOAuthService extends DefaultOAuth2UserService {
                             .build();
 
                     Member savedMember = memberRepository.save(newMember);
-                    return new OAuthMember(savedMember, attributes, true);
+                    return new OAuthMember(savedMember, true);
                 });
     }
 }
