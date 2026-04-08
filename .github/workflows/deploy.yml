@@ -2,7 +2,7 @@ name: Spring Boot Docker CI/CD
 
 on:
   push:
-    branches: [ "main", "develop" ]
+    branches: [ "main" ]
 
 jobs:
   build-and-deploy:
@@ -24,6 +24,11 @@ jobs:
       - name: Spring Boot jar 빌드
         run: ./gradlew clean bootJar -x test
 
+      - name: 빌드 결과 확인
+        run: |
+          ls -al build/libs
+          unzip -p build/libs/app.jar META-INF/MANIFEST.MF || true
+
       - name: Docker Hub 로그인
         uses: docker/login-action@v3
         with:
@@ -32,8 +37,21 @@ jobs:
 
       - name: Docker 이미지 빌드 및 Push
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/git-turl-backend:latest .
+          docker build --no-cache -t ${{ secrets.DOCKERHUB_USERNAME }}/git-turl-backend:latest .
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/git-turl-backend:latest
+
+      - name: Docker 이미지 내부 JAR 확인
+        run: |
+          docker run --rm ${{ secrets.DOCKERHUB_USERNAME }}/git-turl-backend:latest sh -c "unzip -p /app/app.jar META-INF/MANIFEST.MF || true"
+
+      - name: docker-compose.yml 파일 EC2로 복사
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "docker-compose.yml"
+          target: "/home/ubuntu/app"
 
       - name: EC2 서버에서 .env 생성 + 최신 이미지 배포
         uses: appleboy/ssh-action@v1.0.3
@@ -43,6 +61,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             mkdir -p ~/app
+
             cat > ~/app/.env <<EOF
             DB_URL=${{ secrets.DB_URL }}
             DB_USERNAME=${{ secrets.DB_USERNAME }}
@@ -54,6 +73,9 @@ jobs:
             EOF
 
             cd ~/app
+
+            docker rm -f git-turl-backend || true
+
             if docker compose version > /dev/null 2>&1; then
               docker compose --env-file .env pull
               docker compose --env-file .env down
@@ -64,4 +86,5 @@ jobs:
               docker-compose --env-file .env up -d
             fi
 
-            docker image prune -f
+            docker image prune -af
+            docker ps -a
