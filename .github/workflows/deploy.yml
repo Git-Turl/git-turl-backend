@@ -60,9 +60,8 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            mkdir -p ~/app
-
-            cat > ~/app/.env <<EOF
+            mkdir -p /home/ubuntu/app
+            cat > /home/ubuntu/app/.env <<EOF
             DB_URL=${{ secrets.DB_URL }}
             DB_USERNAME=${{ secrets.DB_USERNAME }}
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
@@ -72,19 +71,22 @@ jobs:
             OAUTH_GITHUB_CLIENT_SECRET=${{ secrets.OAUTH_GITHUB_CLIENT_SECRET }}
             EOF
 
-            cd ~/app
+            cd /home/ubuntu/app
 
-            docker rm -f git-turl-backend || true
+            echo "===== .env 확인 ====="
+            cat .env | sed 's/=.*/=***HIDDEN***/' || true
 
-            if docker compose version > /dev/null 2>&1; then
-              docker compose --env-file .env pull
-              docker compose --env-file .env down
-              docker compose --env-file .env up -d
-            else
-              docker-compose --env-file .env pull
-              docker-compose --env-file .env down
-              docker-compose --env-file .env up -d
-            fi
+            echo "===== docker-compose.yml 확인 ====="
+            cat docker-compose.yml || true
 
-            docker image prune -af
+            docker compose --env-file .env pull
+            docker compose --env-file .env down
+            docker compose --env-file .env up -d
+
+            echo "===== 컨테이너 상태 ====="
             docker ps -a
+
+            echo "===== 앱 로그 ====="
+            docker compose --env-file .env logs --tail=100
+
+            docker image prune -f
