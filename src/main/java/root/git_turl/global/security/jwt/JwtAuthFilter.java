@@ -9,7 +9,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
-import root.git_turl.domain.member.entity.Member;
 import root.git_turl.global.apiPayload.ApiResponse;
 import root.git_turl.global.apiPayload.code.BaseErrorCode;
 import root.git_turl.global.apiPayload.code.GeneralErrorCode;
@@ -33,7 +32,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         try{
-
             String token = request.getHeader("Authorization");
             if (token == null || !token.startsWith("Bearer ")) {
                 filterChain.doFilter(request, response);
