@@ -11,7 +11,11 @@ public enum MemberErrorCode implements BaseErrorCode {
 
     NOT_FOUND(HttpStatus.NOT_FOUND,
             "MEMBER404_1",
-            "존재하지 않는 사용자입니다.");
+            "존재하지 않는 사용자입니다."),
+
+    PROFILE_BAD_REQUEST(HttpStatus.BAD_REQUEST,
+            "MEMBER400_1",
+            "필수 입력 항목이 입력되지 않았습니다.");
 
     private final HttpStatus status;
     private final String code;

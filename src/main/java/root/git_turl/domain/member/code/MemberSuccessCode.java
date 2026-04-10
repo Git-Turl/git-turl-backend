@@ -9,6 +9,10 @@ import root.git_turl.global.apiPayload.code.BaseSuccessCode;
 @RequiredArgsConstructor
 public enum MemberSuccessCode implements BaseSuccessCode {
 
+    ONBOARDING_PATCH_OK(HttpStatus.OK,
+            "MEMBER200_1",
+            "프로필이 저장되었습니다."),
+
     PROFILE_IMAGE_GET_OK(HttpStatus.OK,
             "MEMBER200_6",
             "프로필 사진이 조회되었습니다.");

@@ -4,10 +4,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import root.git_turl.domain.member.code.MemberSuccessCode;
+import root.git_turl.domain.member.dto.MemberReqDto;
 import root.git_turl.domain.member.dto.MemberResDto;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.member.service.MemberService;
@@ -27,5 +26,14 @@ public class MemberController implements MemberControllerDocs{
             @CurrentUser @Parameter(hidden = true) Member member
     ) {
         return ApiResponse.onSuccess(MemberSuccessCode.PROFILE_IMAGE_GET_OK, memberService.getProfileImage(member));
+    }
+
+    @PatchMapping("/me/onboarding")
+    public ApiResponse<Void> saveProfile (
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @RequestBody MemberReqDto.Onboarding request
+    ) {
+        memberService.saveProfile(member, request);
+        return ApiResponse.onSuccess(MemberSuccessCode.ONBOARDING_PATCH_OK, null);
     }
 }
