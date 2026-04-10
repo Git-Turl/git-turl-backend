@@ -15,7 +15,16 @@ public enum MemberErrorCode implements BaseErrorCode {
 
     PROFILE_BAD_REQUEST(HttpStatus.BAD_REQUEST,
             "MEMBER400_1",
-            "필수 입력 항목이 입력되지 않았습니다.");
+            "필수 입력 항목이 입력되지 않았습니다."),
+
+    FILE_TYPE_ERROR(HttpStatus.BAD_REQUEST,
+                "FILE400",
+                    "이미지 파일만 업로드 가능합니다."),
+
+    IMAGE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR,
+                "FILE404",
+                    "프로필 이미지 업로드에 실패하였습니다."
+    );
 
     private final HttpStatus status;
     private final String code;
