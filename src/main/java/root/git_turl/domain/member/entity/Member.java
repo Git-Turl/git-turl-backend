@@ -65,4 +65,34 @@ public class Member extends BaseEntity {
         this.profileImage = profileImage;
         this.email = email;
     }
+
+    public void updateProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
+
+    public void saveProfile(String nickname, JobType jobType, List<TechStack> techStackList) {
+        this.nickname = nickname;
+        this.jobType = jobType;
+        if (!techStackList.isEmpty()) {
+            for (TechStack techStack : techStackList) {
+                addInterestStack(techStack);
+            }
+        }
+    }
+
+    public void updateProfile(String nickname, JobType jobType, List<TechStack> techStackList) {
+        if (nickname != null) {
+            this.nickname = nickname;
+        }
+        if (jobType != null) {
+            this.jobType = jobType;
+        }
+        if (techStackList != null) {
+            this.interestStacks.clear();
+
+            for (TechStack techStack : techStackList) {
+                addInterestStack(techStack);
+            }
+        }
+    }
 }

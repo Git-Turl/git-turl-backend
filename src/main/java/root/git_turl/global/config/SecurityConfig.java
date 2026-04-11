@@ -30,7 +30,8 @@ public class SecurityConfig {
             "/swagger-resources/**",
             "/v3/api-docs/**",
             "/login/oauth2/**",
-            "/oauth2/**"
+            "/oauth2/**",
+            "/api/v1/members/*/profile"
     };
 
 
