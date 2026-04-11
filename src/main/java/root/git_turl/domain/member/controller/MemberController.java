@@ -55,4 +55,11 @@ public class MemberController implements MemberControllerDocs{
         memberService.updateProfile(member, request);
         return ApiResponse.onSuccess(MemberSuccessCode.PROFILE_INFO_PATCH_OK, null);
     }
+
+    @GetMapping("/me/profile")
+    public ApiResponse<MemberResDto.ProfileInfo> getMyProfile (
+            @CurrentUser @Parameter(hidden = true) Member member
+    ) {
+        return ApiResponse.onSuccess(MemberSuccessCode.PROFILE_INFO_GET_OK,  memberService.getMyProfile(member));
+    }
 }

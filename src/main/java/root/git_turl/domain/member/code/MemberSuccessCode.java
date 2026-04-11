@@ -17,6 +17,10 @@ public enum MemberSuccessCode implements BaseSuccessCode {
             "MEMBER200_2",
             "프로필이 수정되었습니다."),
 
+    PROFILE_INFO_GET_OK(HttpStatus.OK,
+            "MEMBER200_3",
+            "프로필 정보를 조회했습니다."),
+
     PROFILE_IMAGE_GET_OK(HttpStatus.OK,
             "MEMBER200_6",
             "프로필 사진이 조회되었습니다."),

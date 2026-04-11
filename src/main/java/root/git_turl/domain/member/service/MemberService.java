@@ -69,4 +69,11 @@ public class MemberService {
 
         member.updateProfile(dto.getNickname(), dto.getJobType(), dto.getTechStackList());
     }
+
+    @Transactional(readOnly = true)
+    public MemberResDto.ProfileInfo getMyProfile(Member currentMember) {
+        Member member = memberRepository.findById(currentMember.getId())
+                .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
+        return MemberConverter.ProfileInfo(member);
+    }
 }

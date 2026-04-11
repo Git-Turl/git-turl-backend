@@ -50,4 +50,12 @@ public interface MemberControllerDocs {
             @CurrentUser @Parameter(hidden = true) Member member,
             @RequestBody @Valid MemberReqDto.ProfileInfo request
     );
+
+    @Operation(
+            summary = "내 프로필 정보 조회",
+            description = "내 프로필 정보를 조회합니다."
+    )
+    public ApiResponse<MemberResDto.ProfileInfo> getMyProfile (
+            @CurrentUser @Parameter(hidden = true) Member member
+    );
 }
