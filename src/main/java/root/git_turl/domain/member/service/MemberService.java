@@ -76,4 +76,11 @@ public class MemberService {
                 .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
         return MemberConverter.ProfileInfo(member);
     }
+
+    @Transactional(readOnly = true)
+    public MemberResDto.ProfileInfo getMemberProfile(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
+        return MemberConverter.ProfileInfo(member);
+    }
 }

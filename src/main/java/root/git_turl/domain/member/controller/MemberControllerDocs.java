@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 import root.git_turl.domain.member.dto.MemberReqDto;
@@ -57,5 +58,13 @@ public interface MemberControllerDocs {
     )
     public ApiResponse<MemberResDto.ProfileInfo> getMyProfile (
             @CurrentUser @Parameter(hidden = true) Member member
+    );
+
+    @Operation(
+            summary = "타인 프로필 정보 조회",
+            description = "타인 프로필 정보를 조회합니다."
+    )
+    public ApiResponse<MemberResDto.ProfileInfo> getMemberProfile (
+            @PathVariable Long memberId
     );
 }

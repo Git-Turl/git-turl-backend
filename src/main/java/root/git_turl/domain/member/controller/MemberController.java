@@ -62,4 +62,11 @@ public class MemberController implements MemberControllerDocs{
     ) {
         return ApiResponse.onSuccess(MemberSuccessCode.PROFILE_INFO_GET_OK,  memberService.getMyProfile(member));
     }
+
+    @GetMapping("/{memberId}/profile")
+    public ApiResponse<MemberResDto.ProfileInfo> getMemberProfile (
+            @PathVariable Long memberId
+    ) {
+        return ApiResponse.onSuccess(MemberSuccessCode.PROFILE_INFO_GET_OK,  memberService.getMemberProfile(memberId));
+    }
 }
