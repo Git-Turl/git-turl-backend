@@ -66,10 +66,11 @@ public class Member extends BaseEntity {
         this.email = email;
     }
 
-    public void saveProfile(String nickname, String profileImage, JobType jobType, List<TechStack> techStackList) {
-        if (profileImage != null) {
-            this.profileImage = profileImage;
-        }
+    public void updateProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
+
+    public void saveProfile(String nickname, JobType jobType, List<TechStack> techStackList) {
         this.nickname = nickname;
         this.jobType = jobType;
         if (!techStackList.isEmpty()) {

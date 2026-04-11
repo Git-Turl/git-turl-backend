@@ -2,6 +2,12 @@ package root.git_turl.domain.member.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
+import root.git_turl.domain.member.dto.MemberReqDto;
 import root.git_turl.domain.member.dto.MemberResDto;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.global.annotation.CurrentUser;
@@ -15,5 +21,23 @@ public interface MemberControllerDocs {
     )
     public ApiResponse<MemberResDto.ProfileImage> getProfileImage (
             @CurrentUser @Parameter(hidden = true) Member member
+    );
+
+    @Operation(
+            summary = "프로필 이미지 수정",
+            description = "프로필 이미지를 수정합니다."
+    )
+    public ApiResponse<Void> updateProfileImage (
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @ModelAttribute MemberReqDto.ProfileImage profileImage
+    );
+
+    @Operation(
+            summary = "프로필 정보 설정",
+            description = "첫 가입 후 프로필 정보를 설정합니다."
+    )
+    public ApiResponse<Void> saveProfile (
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @RequestBody MemberReqDto.Onboarding request
     );
 }

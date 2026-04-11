@@ -1,10 +1,12 @@
 package root.git_turl.domain.member.controller;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import root.git_turl.domain.member.code.MemberSuccessCode;
 import root.git_turl.domain.member.dto.MemberReqDto;
 import root.git_turl.domain.member.dto.MemberResDto;
@@ -26,6 +28,15 @@ public class MemberController implements MemberControllerDocs{
             @CurrentUser @Parameter(hidden = true) Member member
     ) {
         return ApiResponse.onSuccess(MemberSuccessCode.PROFILE_IMAGE_GET_OK, memberService.getProfileImage(member));
+    }
+
+    @PatchMapping(value = "/me/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<Void> updateProfileImage (
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @ModelAttribute MemberReqDto.ProfileImage profileImage
+    ) {
+        memberService.updateProfileImage(member, profileImage);
+        return ApiResponse.onSuccess(MemberSuccessCode.PROFILE_IMAGE_PATCH_OK, null);
     }
 
     @PatchMapping("/me/onboarding")

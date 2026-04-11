@@ -15,7 +15,11 @@ public enum MemberSuccessCode implements BaseSuccessCode {
 
     PROFILE_IMAGE_GET_OK(HttpStatus.OK,
             "MEMBER200_6",
-            "프로필 사진이 조회되었습니다.");
+            "프로필 사진이 조회되었습니다."),
+
+    PROFILE_IMAGE_PATCH_OK(HttpStatus.OK,
+            "MEMBER200_7",
+            "프로필 사진이 수정되었습니다.");
 
     private final HttpStatus status;
     private final String code;

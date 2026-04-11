@@ -2,7 +2,9 @@ package root.git_turl.domain.member.dto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
 import lombok.Getter;
+import org.springframework.web.multipart.MultipartFile;
 import root.git_turl.domain.member.enums.JobType;
 import root.git_turl.domain.member.enums.TechStack;
 
@@ -16,13 +18,17 @@ public class MemberReqDto {
         @Size(max=20)
         private String nickname;
 
-        private String profileImage;
-
         @NotNull
         private JobType jobType;
 
         @NotNull
         private List<TechStack> techStackList;
 
+    }
+
+    @Data
+    public static class ProfileImage {
+        @NotNull
+        MultipartFile profileImage;
     }
 }

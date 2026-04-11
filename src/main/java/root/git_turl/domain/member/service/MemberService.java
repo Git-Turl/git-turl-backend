@@ -1,9 +1,9 @@
 package root.git_turl.domain.member.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import root.git_turl.domain.member.code.MemberErrorCode;
 import root.git_turl.domain.member.converter.MemberConverter;
 import root.git_turl.domain.member.dto.MemberReqDto;
@@ -11,16 +11,39 @@ import root.git_turl.domain.member.dto.MemberResDto;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.member.exception.MemberException;
 import root.git_turl.domain.member.repository.MemberRepository;
+import root.git_turl.global.aws.AwsFileService;
+
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final AwsFileService awsFileService;
 
     @Transactional(readOnly = true)
     public MemberResDto.ProfileImage getProfileImage(Member member) {
         return MemberConverter.ProfileImage(member.getProfileImage());
+    }
+
+    @Transactional
+    public void updateProfileImage(Member currentMember, MemberReqDto.ProfileImage profileImage) {
+        MultipartFile image = profileImage.getProfileImage();
+        if  (image == null) {
+            throw new MemberException(MemberErrorCode.PROFILE_BAD_REQUEST);
+        }
+
+        Member member = memberRepository.findById(currentMember.getId())
+                .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
+
+        try {
+            String imageUrl = awsFileService.saveProfileImg(image, member.getId());
+            member.updateProfileImage(imageUrl);
+
+        } catch (IOException e) {
+            throw new MemberException(MemberErrorCode.IMAGE_UPLOAD_FAIL);
+        }
     }
 
     @Transactional
@@ -32,6 +55,6 @@ public class MemberService {
         Member member = memberRepository.findById(currentMember.getId())
                 .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
 
-        member.saveProfile(dto.getNickname(), dto.getProfileImage(), dto.getJobType(), dto.getTechStackList());
+        member.saveProfile(dto.getNickname(), dto.getJobType(), dto.getTechStackList());
     }
 }
