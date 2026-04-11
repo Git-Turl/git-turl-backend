@@ -79,4 +79,20 @@ public class Member extends BaseEntity {
             }
         }
     }
+
+    public void updateProfile(String nickname, JobType jobType, List<TechStack> techStackList) {
+        if (nickname != null) {
+            this.nickname = nickname;
+        }
+        if (jobType != null) {
+            this.jobType = jobType;
+        }
+        if (techStackList != null) {
+            this.interestStacks.clear();
+
+            for (TechStack techStack : techStackList) {
+                addInterestStack(techStack);
+            }
+        }
+    }
 }

@@ -2,6 +2,7 @@ package root.git_turl.domain.member.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -39,5 +40,14 @@ public interface MemberControllerDocs {
     public ApiResponse<Void> saveProfile (
             @CurrentUser @Parameter(hidden = true) Member member,
             @RequestBody MemberReqDto.Onboarding request
+    );
+
+    @Operation(
+            summary = "프로필 정보 수정",
+            description = "프로필 정보를 수정합니다."
+    )
+    public ApiResponse<Void> updateProfile (
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @RequestBody @Valid MemberReqDto.ProfileInfo request
     );
 }

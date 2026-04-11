@@ -17,6 +17,10 @@ public enum MemberErrorCode implements BaseErrorCode {
             "MEMBER400_1",
             "필수 입력 항목이 입력되지 않았습니다."),
 
+    NO_EDIT(HttpStatus.BAD_REQUEST,
+            "MEMBER400_2",
+            "수정 사항이 없습니다."),
+
     FILE_TYPE_ERROR(HttpStatus.BAD_REQUEST,
                 "FILE400",
                     "이미지 파일만 업로드 가능합니다."),

@@ -57,4 +57,16 @@ public class MemberService {
 
         member.saveProfile(dto.getNickname(), dto.getJobType(), dto.getTechStackList());
     }
+
+    @Transactional
+    public void updateProfile(Member currentMember, MemberReqDto.ProfileInfo dto) {
+        if (dto.getNickname() == null && dto.getJobType()==null && dto.getTechStackList()==null) {
+            throw new MemberException(MemberErrorCode.NO_EDIT);
+        }
+
+        Member member = memberRepository.findById(currentMember.getId())
+                .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
+
+        member.updateProfile(dto.getNickname(), dto.getJobType(), dto.getTechStackList());
+    }
 }

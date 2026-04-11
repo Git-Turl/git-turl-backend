@@ -31,4 +31,15 @@ public class MemberReqDto {
         @NotNull
         MultipartFile profileImage;
     }
+
+    @Getter
+    public static class ProfileInfo {
+        @Size(max=20)
+        private String nickname;
+
+        private JobType jobType;
+
+        private List<TechStack> techStackList;
+
+    }
 }
