@@ -48,6 +48,9 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Status status = Status.ACTIVATE;
 
+    @Column(name = "github_access_token")
+    private String githubAccessToken;
+
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<InterestStack> interestStacks = new ArrayList<>();
 
@@ -94,5 +97,9 @@ public class Member extends BaseEntity {
                 addInterestStack(techStack);
             }
         }
+    }
+
+    public void updateGithubToken(String token) {
+        this.githubAccessToken = token;
     }
 }
