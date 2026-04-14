@@ -31,6 +31,9 @@ public class Member extends BaseEntity {
     @Column(name = "nickname", length = 20, unique = true)
     private String nickname;
 
+    @Column(name = "github_name")
+    private String githubName;
+
     @Column(name = "github_id", nullable = false )
     private String githubId;
 
@@ -44,6 +47,7 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private JobType jobType;
 
+    @Builder.Default
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private Status status = Status.ACTIVATE;
@@ -51,6 +55,7 @@ public class Member extends BaseEntity {
     @Column(name = "github_access_token")
     private String githubAccessToken;
 
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<InterestStack> interestStacks = new ArrayList<>();
 
@@ -63,8 +68,9 @@ public class Member extends BaseEntity {
         interestStack.assignMember(this);
     }
 
-    public void updateGithubInfo(String githubId, String profileImage, String email) {
+    public void updateGithubInfo(String githubId, String githubName, String profileImage, String email) {
         this.githubId = githubId;
+        this.githubName = githubName;
         this.profileImage = profileImage;
         this.email = email;
     }
