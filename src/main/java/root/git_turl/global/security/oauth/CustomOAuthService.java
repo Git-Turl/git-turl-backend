@@ -31,10 +31,11 @@ public class CustomOAuthService extends DefaultOAuth2UserService {
         String login = (String) attributes.get("login");
         String profileImage = (String) attributes.get("avatar_url");
         String email = (String) attributes.get("email");
+        String name = (String) attributes.get("name");
 
         return memberRepository.findBySocialUid(socialUid)
                 .map(existingMember -> {
-                    existingMember.updateGithubInfo(login, profileImage, email);
+                    existingMember.updateGithubInfo(login, profileImage, name, email);
                     memberRepository.save(existingMember);
                     return new OAuthMember(existingMember, false);
                 })
@@ -44,6 +45,7 @@ public class CustomOAuthService extends DefaultOAuth2UserService {
                             .githubId(login)
                             .profileImage(profileImage)
                             .email(email)
+                            .githubName(name)
                             .build();
 
                     Member savedMember = memberRepository.save(newMember);
