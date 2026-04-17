@@ -9,7 +9,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class GitCommit {
     private String hash;
-    private String author;
+    private String authorName;
+    private String authorEmail;
     private LocalDate date;
     private String message;
 }

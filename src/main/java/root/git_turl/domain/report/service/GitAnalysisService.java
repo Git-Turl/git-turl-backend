@@ -6,6 +6,7 @@ import root.git_turl.domain.report.dto.commit.CommitTypeCount;
 import root.git_turl.domain.report.dto.GitAnalysisResult;
 import root.git_turl.domain.report.dto.commit.GitCommit;
 import root.git_turl.domain.report.dto.commit.MajorCommit;
+import root.git_turl.global.util.GithubUserMapper;
 import root.git_turl.infrastructure.github.GitLogService;
 
 import java.time.LocalDate;
@@ -17,8 +18,9 @@ import java.util.stream.Collectors;
 public class GitAnalysisService {
 
     private final GitLogService gitLogService;
+    private final GithubUserMapper githubUserMapper;
 
-    public GitAnalysisResult analyze(String repoPath, List<GitCommit> commits, List<GitCommit> userCommits) {
+    public GitAnalysisResult analyze(String repoFullName, List<GitCommit> commits, List<GitCommit> userCommits) {
 
         int totalCommits = commits.size();
         int userTotalCommits = userCommits.size();
@@ -66,7 +68,7 @@ public class GitAnalysisService {
                 .map(entry -> {
                     GitCommit commit = entry.getKey();
 
-                    String diff = gitLogService.getCommitDiff(repoPath, commit.getHash());
+                    String diff = gitLogService.getCommitDiff(repoFullName, commit.getHash());
 
                     return MajorCommit.builder()
                             .hash(commit.getHash())
@@ -79,7 +81,7 @@ public class GitAnalysisService {
         // 사용자별 커밋
         Map<String, Long> contributionAnalyze = commits.stream()
                 .collect(Collectors.groupingBy(
-                        GitCommit::getAuthor,
+                        c -> githubUserMapper.resolveLogin(c.getAuthorEmail(), repoFullName),
                         Collectors.counting()
                 ));
 

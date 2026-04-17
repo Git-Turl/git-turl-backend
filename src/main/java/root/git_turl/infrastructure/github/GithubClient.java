@@ -11,6 +11,7 @@ import java.util.*;
 public class GithubClient {
 
     private final RestClient restClient;
+    private static String GITHUB_API = "https://api.github.com";
 
     public GithubClient(RestClient.Builder builder) {
         this.restClient = builder.build();
@@ -49,7 +50,7 @@ public class GithubClient {
         """;
 
         Map<String, Object> response = restClient.post()
-                .uri("https://api.github.com/graphql")
+                .uri(GITHUB_API+"/graphql")
                 .header("Authorization", "Bearer " + accessToken)
                 .body(Map.of("query", query))
                 .retrieve()
