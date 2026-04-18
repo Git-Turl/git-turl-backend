@@ -1,10 +1,7 @@
 package root.git_turl.domain.member.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import root.git_turl.domain.member.enums.JobType;
 import root.git_turl.domain.member.enums.Status;
 import root.git_turl.domain.member.enums.TechStack;
@@ -25,6 +22,7 @@ public class Member extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
     @Column(name = "email", unique = true)
     private String email;
 

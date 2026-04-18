@@ -1,8 +1,12 @@
 package root.git_turl.infrastructure.github;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
+import root.git_turl.domain.member.code.MemberErrorCode;
+import root.git_turl.domain.member.exception.MemberException;
 import root.git_turl.domain.report.dto.GithubRepoResponse;
 
 import java.util.*;
@@ -15,6 +19,22 @@ public class GithubClient {
 
     public GithubClient(RestClient.Builder builder) {
         this.restClient = builder.build();
+    }
+
+    public String getEmail(String accessToken) {
+        List<Map<String, Object>> response = restClient.get()
+                .uri(GITHUB_API + "/user/emails")
+                .header("Authorization", "Bearer " + accessToken)
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {});
+
+        for (Map<String, Object> emailInfo : response) {
+            if (Boolean.TRUE.equals(emailInfo.get("primary"))) {
+                return (String) emailInfo.get("email");
+            }
+        }
+
+        return null;
     }
 
     public List<GithubRepoResponse> getRepos(String accessToken) {
