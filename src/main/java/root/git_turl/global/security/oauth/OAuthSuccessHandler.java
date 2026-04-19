@@ -34,9 +34,9 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
         String accessToken = tokenDto.getAccessToken();
 
         if (oAuthMember.isNew()) {
-            response.sendRedirect("http://localhost:5173/signup?token=" + accessToken);
+            response.sendRedirect("http://localhost:5173/login/loading?route=signup&token=" + accessToken);
         } else {
-            response.sendRedirect("http://localhost:5173/home?token=" + accessToken);
+            response.sendRedirect("http://localhost:5173/login/loading?route=home&token=" + accessToken);
         }
     }
 }
