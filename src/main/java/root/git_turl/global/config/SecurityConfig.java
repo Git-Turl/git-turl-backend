@@ -12,6 +12,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import root.git_turl.global.security.CustomUserDetailsService;
 import root.git_turl.global.security.jwt.JwtAuthFilter;
 import root.git_turl.global.security.jwt.JwtUtil;
@@ -38,6 +39,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, CustomOAuthService oAuth2UserCustomService, OAuthSuccessHandler oAuth2SuccessHandler, ObjectMapper objectMapper) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(allowUris).permitAll()
                         .anyRequest().authenticated()
@@ -67,6 +69,30 @@ public class SecurityConfig {
     @Bean
     public JwtAuthFilter jwtAuthFilter() {
         return new JwtAuthFilter(jwtUtil, customUserDetailsService);
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        // 프론트엔드 주소 허용
+        configuration.addAllowedOrigin("https://localhost:5173");
+        configuration.addAllowedOrigin("http://localhost:5173");
+
+        // 허용할 헤더와 메서드
+        configuration.addAllowedHeader("*");
+        configuration.addAllowedMethod("*");
+
+        // 쿠키(Credential)를 서로 주고받을 수 있게 허용
+        configuration.setAllowCredentials(true);
+
+        // 헤더에 Authorization(JWT) 같은 게 있어도 읽을 수 있게 허용
+        configuration.addExposedHeader("Authorization");
+        configuration.addExposedHeader("Set-Cookie");
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
 }
