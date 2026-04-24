@@ -20,7 +20,7 @@ public class GitAnalysisService {
     private final GitLogService gitLogService;
     private final GithubUserMapper githubUserMapper;
 
-    public GitAnalysisResult analyze(String repoFullName, List<GitCommit> commits, List<GitCommit> userCommits) {
+    public GitAnalysisResult analyze(String repoFullName, String repoPath, List<GitCommit> commits, List<GitCommit> userCommits) {
 
         int totalCommits = commits.size();
         int userTotalCommits = userCommits.size();
@@ -61,14 +61,36 @@ public class GitAnalysisService {
             scoreMap.put(commit, score);
         }
 
+        List<GitCommit> candidates = scoreMap.entrySet().stream()
+                .sorted((a, b) -> b.getValue() - a.getValue())
+                .limit(30)
+                .map(Map.Entry::getKey)
+                .toList();
+
+        Map<GitCommit, Integer> finalScoreMap = new HashMap<>();
+        Map<String, String> diffCache = new HashMap<>();
+
+        // diff 기반 점수 추가
+        for (GitCommit commit : candidates) {
+            int score = scoreMap.get(commit);
+
+            String diff = diffCache.computeIfAbsent(
+                    commit.getHash(),
+                    h -> gitLogService.getCommitDiff(repoPath, h)
+            );
+
+            int diffScore = calculateDiffScore(diff);
+
+            finalScoreMap.put(commit, score + diffScore);
+        }
+
         // 상위 커밋
-        List<MajorCommit> majorCommits = scoreMap.entrySet().stream()
+        List<MajorCommit> majorCommits = finalScoreMap.entrySet().stream()
                 .sorted((a, b) -> b.getValue() - a.getValue())
                 .limit(5)
                 .map(entry -> {
                     GitCommit commit = entry.getKey();
-
-                    String diff = gitLogService.getCommitDiff(repoFullName, commit.getHash());
+                    String diff = diffCache.get(commit.getHash());
 
                     return MajorCommit.builder()
                             .hash(commit.getHash())
@@ -106,5 +128,37 @@ public class GitAnalysisService {
                 .majorCommits(majorCommits)
                 .contributionAnalyze(contributionAnalyze)
                 .build();
+    }
+
+    // diff 점수 계산
+    private int calculateDiffScore(String diff) {
+        if (diff == null || diff.isBlank()) return 0;
+
+        int added = 0;
+        int deleted = 0;
+        int files = 0;
+
+        for (String line : diff.split("\n")) {
+            if (line.startsWith("diff --git")) files++;
+            else if (line.startsWith("+") && !line.startsWith("+++")) added++;
+            else if (line.startsWith("-") && !line.startsWith("---")) deleted++;
+        }
+
+        int score = 0;
+
+        // 변경 규모
+        int total = added + deleted;
+        if (total > 500) score += 5;
+        else if (total > 200) score += 3;
+        else if (total > 50) score += 1;
+
+        // 파일 수
+        if (files > 10) score += 3;
+        else if (files > 5) score += 2;
+
+        // 추가, 삭제 균형
+        if (added > 0 && deleted > 0) score += 2;
+
+        return score;
     }
 }

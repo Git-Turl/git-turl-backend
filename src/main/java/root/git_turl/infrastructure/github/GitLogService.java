@@ -14,6 +14,8 @@ public class GitLogService {
                     "git",
                     "-C", repoPath,
                     "show",
+                    "--stat",
+                    "--oneline",
                     hash
             );
 
