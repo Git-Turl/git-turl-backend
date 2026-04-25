@@ -2,6 +2,7 @@ package root.git_turl.domain.report.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import root.git_turl.domain.member.entity.Member;
@@ -30,5 +31,14 @@ public interface ReportControllerDocs {
     public ApiResponse<ReportResDto.ReportId> postReport(
             @CurrentUser @Parameter(hidden = true) Member member,
             @RequestBody ReportReqDto.Repo dto
+    );
+
+    @Operation(
+            summary = "분석본 상세 보기",
+            description = "해당 id의 분석본을 상세 조회합니다."
+    )
+    public ApiResponse<ReportResDto.ReportDetail> getReport(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @PathVariable Long reportId
     );
 }
