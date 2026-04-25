@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.report.code.ReportSuccessCode;
+import root.git_turl.domain.report.dto.ReportReqDto;
 import root.git_turl.domain.report.dto.ReportResDto;
 import root.git_turl.domain.report.service.ReportService;
 import root.git_turl.global.annotation.CurrentUser;
@@ -27,5 +28,13 @@ public class ReportController implements ReportControllerDocs{
     ) {
         String accessToken = member.getGithubAccessToken();
         return ApiResponse.onSuccess(ReportSuccessCode.REPO_LIST_GET_OK, reportService.getRepoList(accessToken));
+    }
+
+    @PostMapping("/summaries")
+    public ApiResponse<ReportResDto.ReportId> postReport(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @RequestBody ReportReqDto.Repo dto
+            ) {
+        return ApiResponse.onSuccess(ReportSuccessCode.REPO_LIST_GET_OK, reportService.postReport(member, dto));
     }
 }

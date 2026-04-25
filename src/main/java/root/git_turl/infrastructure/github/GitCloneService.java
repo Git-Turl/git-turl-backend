@@ -1,9 +1,12 @@
 package root.git_turl.infrastructure.github;
 
+import org.springframework.stereotype.Service;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
+@Service
 public class GitCloneService {
 
     private static final String BASE_DIR = System.getProperty("java.io.tmpdir") + "/repos";

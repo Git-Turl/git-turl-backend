@@ -12,6 +12,10 @@ import root.git_turl.global.util.GitLogParser;
 import root.git_turl.infrastructure.github.GitLogService;
 import root.git_turl.infrastructure.github.GithubClient;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 public class GitLogTest {
@@ -26,19 +30,19 @@ public class GitLogTest {
 
         String gitUrl = GitRepoParser.getRepoLink("UMC-TODAY/today-server");
 
-        String githubName = "seoyoon lee";
-        String email = "160564392+seoyoon127@users.noreply.github.com";
+        String githubName = "";
+        String email = "leeseoyoon01@gmail.com";
 
         String repoPath = cloneService.cloneRepository(gitUrl);
 
         List<GitCommit> commits = parser.getCommits(repoPath);
         List<GitCommit> userCommits = commits.stream()
-                .filter(c -> c.getAuthorEmail().equals(email) || c.getAuthorName().equals(githubName))
+                .filter(c -> c.getAuthorEmail().equals(email) || c.getAuthorEmail().contains("seoyoon127") || c.getAuthorName().equals(githubName))
                 .toList();
         System.out.println(userCommits.size());
 
 
-        GitAnalysisResult result = gitAnalyzer.analyze(GitRepoParser.getRepoFullName(gitUrl), commits, userCommits);
+        GitAnalysisResult result = gitAnalyzer.analyze(GitRepoParser.getRepoFullName(gitUrl), repoPath, commits, userCommits);
 
         System.out.println("=== repo commit analysis report ===");
         System.out.println("total commit: " + result.getTotalCommits());
@@ -46,24 +50,24 @@ public class GitLogTest {
         System.out.println("feat: " + result.getCommitTypeCount().getFeatCount());
         System.out.println("fix: " + result.getCommitTypeCount().getFixCount());
         System.out.println("refactor: " + result.getCommitTypeCount().getRefactorCount());
-        System.out.println("contribution" + result.getContributionAnalyze());
+        System.out.println("contribution: " + result.getContributionAnalyze());
 
-//            System.out.println("\nsample messages:");
-//            result.getSampleMessages().forEach(System.out::println);
-//
-//            System.out.println("\ndiffs: ");
-//            result.getMajorCommits().forEach(System.out::println);
+            System.out.println("\nsample messages:");
+            result.getSampleMessages().forEach(System.out::println);
 
-//        String prompt = buildPrompt.buildReportPrompt(result);
-//
-//        try {
-//            Files.writeString(
-//                    Path.of("prompt.txt"),
-//                    prompt,
-//                    StandardCharsets.UTF_8
-//            );
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
+            System.out.println("\ndiffs: ");
+            result.getMajorCommits().forEach(System.out::println);
+
+        String prompt = buildPrompt.buildReportPrompt(result);
+
+        try {
+            Files.writeString(
+                    Path.of("prompt.txt"),
+                    prompt,
+                    StandardCharsets.UTF_8
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
