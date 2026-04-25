@@ -2,10 +2,9 @@ package root.git_turl.domain.report.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import root.git_turl.domain.report.enums.GenerationStatus;
 import root.git_turl.domain.report.enums.Status;
 import root.git_turl.global.entity.BaseEntity;
-
-import java.time.LocalDate;
 
 @Entity
 @Builder
@@ -28,6 +27,17 @@ public class Report extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Enumerated(EnumType.STRING)
+    private GenerationStatus generationStatus;
+
     @Column(columnDefinition = "TEXT")
     private String contentJson;
+
+    public void updateGenerationStatus(GenerationStatus status) {
+        this.generationStatus = status;
+    }
+
+    public void updateContent(String contentJson) {
+        this.contentJson = contentJson;
+    }
 }

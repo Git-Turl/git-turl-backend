@@ -35,6 +35,6 @@ public class ReportController implements ReportControllerDocs{
             @CurrentUser @Parameter(hidden = true) Member member,
             @RequestBody ReportReqDto.Repo dto
             ) {
-        return ApiResponse.onSuccess(ReportSuccessCode.REPO_LIST_GET_OK, reportService.postReport(member, dto));
+        return ApiResponse.onSuccess(ReportSuccessCode.REPORT_POST_OK, reportService.postReport(member, dto));
     }
 }
