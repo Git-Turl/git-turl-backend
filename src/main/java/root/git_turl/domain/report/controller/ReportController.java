@@ -30,11 +30,19 @@ public class ReportController implements ReportControllerDocs{
         return ApiResponse.onSuccess(ReportSuccessCode.REPO_LIST_GET_OK, reportService.getRepoList(accessToken));
     }
 
-    @PostMapping("/summaries")
+    @PostMapping("/reports")
     public ApiResponse<ReportResDto.ReportId> postReport(
             @CurrentUser @Parameter(hidden = true) Member member,
             @RequestBody ReportReqDto.Repo dto
             ) {
         return ApiResponse.onSuccess(ReportSuccessCode.REPORT_POST_OK, reportService.postReport(member, dto));
+    }
+
+    @GetMapping("/reports/{reportId}")
+    public ApiResponse<ReportResDto.ReportDetail> getReport(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @PathVariable Long reportId
+    ) {
+        return ApiResponse.onSuccess(ReportSuccessCode.REPORT_GET_OK, reportService.getReportDetail(member, reportId));
     }
 }
