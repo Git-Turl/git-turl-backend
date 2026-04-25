@@ -5,922 +5,119 @@
 - 개인 커밋 수: 106
 - 기여도: 44.9%
 
-커밋 유형
-- feat: 73
-- fix: 4
-- refactor: 35
+[commitContribution]
+{
+  "HyunSooooooooo": 10,
+  "Juri-Jang": 72,
+  "jaeimin": 40,
+  "SihwanGit": 8,
+  "seoyoon127": 106
+}
 
-기여자
-- seoyoon lee: 73
-- Kim Jae Min: 15
-- 이서윤: 33
-- SongHyunSoo: 3
-- Juri-Jang: 72
-- Hyunsoo Song: 7
-- SihwanGit: 8
-- jm-pad: 25
 
 주요 커밋
-- feat: 알림 설정 보기 API #43
+- feat: 실패 로그, cors 설정
   diff:
-commit 7eea695801b4dc04f7a4b62ba5e1a1443a9d6b8f
-Author: seoyoon lee <leeseoyoon01@gmail.com>
-Date:   Mon Jan 19 23:16:46 2026 +0900
-
-    feat: 알림 설정 보기 API #43
-
-diff --git a/src/main/java/com/example/todayserver/domain/member/controller/PreferenceController.java b/src/main/java/com/example/todayserver/domain/member/controller/PreferenceController.java
-new file mode 100644
-index 0000000..dbaf643
---- /dev/null
-+++ b/src/main/java/com/example/todayserver/domain/member/controller/PreferenceController.java
-@@ -0,0 +1,25 @@
-+package com.example.todayserver.domain.member.controller;
-+
-+import com.example.todayserver.domain.member.dto.PreferenceResDto;
-+import com.example.todayserver.domain.member.service.PreferenceService;
-+import com.example.todayserver.global.common.response.ApiResponse;
-+import io.swagger.v3.oas.annotations.tags.Tag;
-+import lombok.RequiredArgsConstructor;
-+import org.springframework.web.bind.annotation.GetMapping;
-+import org.springframework.web.bind.annotation.RequestHeader;
-+import org.springframework.web.bind.annotation.RequestMapping;
-+import org.springframework.web.bind.annotation.RestController;
-+
-+@RestController
-+@RequiredArgsConstructor
-+@RequestMapping("/preferences/members")
-+@Tag(name = "Preference", description = "회원정보 관련 API")
-+public class PreferenceController implements PreferenceControllerDocs{
-+
-+    private final PreferenceService preferenceService;
-+
-+    @GetMapping("/notifications")
-+    public ApiResponse<PreferenceResDto.Notification> getNotifications(@RequestHeader("Authorization") String token){
-+        return ApiResponse.success(preferenceService.getNotifications(token));
-+    }
-+}
-diff --git a/src/main/java/com/example/todayserver/domain/member/controller/PreferenceControllerDocs.java b/src/main/java/com/example/todayserver/domain/member/controller/PreferenceControllerDocs.java
-new file mode 100644
-index 0000000..2c197e4
---- /dev/null
-+++ b/src/main/java/com/example/todayserver/domain/member/controller/PreferenceControllerDocs.java
-@@ -0,0 +1,15 @@
-+package com.example.todayserver.domain.member.controller;
-+
-+import com.example.todayserver.domain.member.dto.PreferenceResDto;
-+import com.example.todayserver.global.common.response.ApiResponse;
-+import io.swagger.v3.oas.annotations.Operation;
-+import org.springframework.web.bind.annotation.RequestHeader;
-+
-+public interface PreferenceControllerDocs {
-+
-+    @Operation(
-+            summary = "알림 설정 보기",
-+            description = "알림 설정 정보를 확인합니다."
-+    )
-+    ApiResponse<PreferenceResDto.Notification> getNotifications(@RequestHeader("Authorization") String token);
-+}
-diff --git a/src/main/java/com/example/todayserver/domain/member/converter/MemberConverter.java b/src/main/java/com/example/todayserver/domain/member/converter/MemberConverter.java
-index fa827b6..6c116ff 100644
---- a/src/main/java/com/example/todayserver/domain/member/converter/MemberConverter.java
-+++ b/src/main/java/com/example/todayserver/domain/member/converter/MemberConverter.java
-@@ -4,6 +4,7 @@ import com.example.todayserver.domain.member.dto.MemberReqDto;
- import com.example.todayserver.domain.member.dto.MemberResDto;
- import com.example.todayserver.domain.member.dto.TokenDto;
- import com.example.todayserver.domain.member.entity.Member;
-+import com.example.todayserver.domain.member.entity.Preference;
- import com.example.todayserver.domain.member.enums.SocialType;
- import com.example.todayserver.domain.member.enums.Status;
- import com.example.todayserver.global.oauth.info.OAuth2UserInfo;
-@@ -21,6 +22,8 @@ public class MemberConverter {
-                 .birth(dto.getBirth())
-                 .nickname(nickname)
-                 .socialType(SocialType.EMAIL)
-+                .status(Status.ACTIVATE)
-+                .preference(Preference.builder().member(null).build())
-                 .build();
-     }
- 
-diff --git a/src/main/java/com/example/todayserver/domain/member/converter/PreferenceConverter.java b/src/main/java/com/example/todayserver/domain/member/converter/PreferenceConverter.java
-new file mode 100644
-index 0000000..d1bc4a5
---- /dev/null
-+++ b/src/main/java/com/example/todayserver/domain/member/converter/PreferenceConverter.java
-@@ -0,0 +1,17 @@
-+package com.example.todayserver.domain.member.converter;
-+
-+import com.example.todayserver.domain.member.dto.PreferenceResDto;
-+import com.example.todayserver.domain.member.entity.Preference;
-+
-+public class PreferenceConverter {
-+
-+    public static PreferenceResDto.Notification toNotification(
-+            Preference preference
-+    ){
-+        return PreferenceResDto.Notification.builder()
-+                .emailAlert(preference.isEmailAlert())
-+                .kakaoAlert(preference.isKakaoAlert())
-+                .reminderAlert(preference.isReminderAlert())
-+                .build();
-+    }
-+}
-diff --git a/src/main/java/com/example/todayserver/domain/member/dto/PreferenceResDto.java b/src/main/java/com/example/todayserver/domain/member/dto/PreferenceResDto.java
-new file mode 100644
-index 0000000..89327a3
---- /dev/null
-+++ b/src/main/java/com/example/todayserver/domain/member/dto/PreferenceResDto.java
-@@ -0,0 +1,15 @@
-+package com.example.todayserver.domain.member.dto;
-+
-+import lombok.Builder;
-+import lombok.Data;
-+
-+public class PreferenceResDto {
-+
-+    @Data
-+    @Builder
-+    public static class Notification {
-+        boolean reminderAlert;
-+        boolean kakaoAlert;
-+        boolean emailAlert;
-+    }
-+}
-diff --git a/src/main/java/com/example/todayserver/domain/member/entity/Member.java b/src/main/java/com/example/todayserver/domain/member/entity/Member.java
-index 0fa5ce3..1109a3d 100644
---- a/src/main/java/com/example/todayserver/domain/member/entity/Member.java
-+++ b/src/main/java/com/example/todayserver/domain/member/entity/Member.java
-@@ -57,4 +57,7 @@ public class Member extends BaseEntity {
-     public void updateFromOAuth(OAuth2UserInfo userInfo) {
-         this.profileImage = userInfo.getProfileImage();
-     }
-+
-+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-+    private Preference preference;
- }
-diff --git a/src/main/java/com/example/todayserver/domain/member/entity/Preference.java b/src/main/java/com/example/todayserver/domain/member/entity/Preference.java
-index 9f8cb02..4371de4 100644
---- a/src/main/java/com/example/todayserver/domain/member/entity/Preference.java
-+++ b/src/main/java/com/example/todayserver/domain/member/entity/Preference.java
-@@ -35,7 +35,7 @@ public class Preference {
-     @Column(name = "data_use")
-     private boolean dataUse = true;
- 
--    @OneToOne(fetch = FetchType.LAZY)
-+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-     @JoinColumn(name = "member_id", nullable = false, unique = true)
-     private Member member;
- }
-diff --git a/src/main/java/com/example/todayserver/domain/member/excpetion/PreferenceException.java b/src/main/java/com/example/todayserver/domain/member/excpetion/PreferenceException.java
-new file mode 100644
-index 0000000..b5fe7cd
---- /dev/null
-+++ b/src/main/java/com/example/todayserver/domain/member/excpetion/PreferenceException.java
-@@ -0,0 +1,10 @@
-+package com.example.todayserver.domain.member.excpetion;
-+
-+import com.example.todayserver.global.common.exception.BaseErrorCode;
-+import com.example.todayserver.global.common.exception.CustomException;
-+
-+public class PreferenceException extends CustomException {
-+    public PreferenceException(BaseErrorCode errorCode) {
-+        super(errorCode);
-+    }
-+}
-diff --git a/src/main/java/com/example/todayserver/domain/member/excpetion/code/PreferenceErrorCode.java b/src/main/java/com/example/todayserver/domain/member/excpetion/code/PreferenceErrorCode.java
-new file mode 100644
-index 0000000..11a2ad4
---- /dev/null
-+++ b/src/main/java/com/example/todayserver/domain/member/excpetion/code/PreferenceErrorCode.java
-@@ -0,0 +1,19 @@
-+package com.example.todayserver.domain.member.excpetion.code;
-+
-+import com.example.todayserver.global.common.exception.BaseErrorCode;
-+import lombok.AllArgsConstructor;
-+import lombok.Getter;
-+import org.springframework.http.HttpStatus;
-+
-+@Getter
-+@AllArgsConstructor
-+public enum PreferenceErrorCode implements BaseErrorCode {
-+
-+    NOT_FOUND(HttpStatus.NOT_FOUND,
-+            "PREFERENCE404_1",
-+            "해당 약관을 찾지 못했습니다.");
-+
-+    private final HttpStatus status;
-+    private final String code;
-+    private final String message;
-+}
-diff --git a/src/main/java/com/example/todayserver/domain/member/repository/PreferenceRepository.java b/src/main/java/com/example/todayserver/domain/member/repository/PreferenceRepository.java
-new file mode 100644
-index 0000000..bfd0205
---- /dev/null
-+++ b/src/main/java/com/example/todayserver/domain/member/repository/PreferenceRepository.java
-@@ -0,0 +1,11 @@
-+package com.example.todayserver.domain.member.repository;
-+
-+import com.example.todayserver.domain.member.entity.Preference;
-+import org.springframework.data.jpa.repository.JpaRepository;
-+
-+import java.util.Optional;
-+
-+public interface PreferenceRepository extends JpaRepository<Preference, Long> {
-+
-+    Optional<Preference> findByMemberId(Long memberId);
-+}
-diff --git a/src/main/java/com/example/todayserver/domain/member/service/PreferenceService.java b/src/main/java/com/example/todayserver/domain/member/service/PreferenceService.java
-new file mode 100644
-index 0000000..6d38a8e
---- /dev/null
-+++ b/src/main/java/com/example/todayserver/domain/member/service/PreferenceService.java
-@@ -0,0 +1,42 @@
-+package com.example.todayserver.domain.member.service;
-+
-+import com.example.todayserver.domain.member.converter.PreferenceConverter;
-+import com.example.todayserver.domain.member.dto.PreferenceResDto;
-+import com.example.todayserver.domain.member.entity.Member;
-+import com.example.todayserver.domain.member.entity.Preference;
-+import com.example.todayserver.domain.member.excpetion.MemberException;
-+import com.example.todayserver.domain.member.excpetion.PreferenceException;
-+import com.example.todayserver.domain.member.excpetion.code.MemberErrorCode;
-+import com.example.todayserver.domain.member.excpetion.code.PreferenceErrorCode;
-+import com.example.todayserver.domain.member.repository.MemberRepository;
-+import com.example.todayserver.domain.member.repository.PreferenceRepository;
-+import com.example.todayserver.global.common.jwt.JwtUtil;
-+import lombok.RequiredArgsConstructor;
-+import org.springframework.stereotype.Service;
-+
-+@Service
-+@RequiredArgsConstructor
-+public class PreferenceService {
-+
-+    private final JwtUtil jwtUtil;
-+    private final MemberRepository memberRepository;
-+    private final PreferenceRepository preferenceRepository;
-+
-+    public PreferenceResDto.Notification getNotifications(String token){
-+        String email = getEmailByAccessToken(token);
-+        Member member = getMemberByEmail(email);
-+        Preference preference = preferenceRepository.findByMemberId(member.getId())
-+                .orElseThrow(() -> new PreferenceException(PreferenceErrorCode.NOT_FOUND));
-+        return PreferenceConverter.toNotification(preference);
-+    }
-+
-+    private Member getMemberByEmail(String email) {
-+        return memberRepository.findByEmail(email)
-+                .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
-+    }
-+
-+    private String getEmailByAccessToken(String token) {
-+        String accessToken = token.split(" ")[1];
-+        return jwtUtil.getEmail(accessToken);
-+    }
-+}
+1036c5e feat: 실패 로그, cors 설정
+ .../todayserver/global/config/SecurityConfig.java  | 45 +++++++++++++++++++++-
+ 1 file changed, 44 insertions(+), 1 deletion(-)
 
 
-- feat: cors 주소 추가
+- feat: refreshToken 쿠키에 저장 #30
   diff:
-commit fd3aee439c76c8b03c8fcfc18a4ac11716a80a34
-Author: seoyoon lee <leeseoyoon01@gmail.com>
-Date:   Sun Feb 8 14:20:20 2026 +0900
-
-    feat: cors 주소 추가
-
-diff --git a/src/main/java/com/example/todayserver/global/config/SecurityConfig.java b/src/main/java/com/example/todayserver/global/config/SecurityConfig.java
-index dedfe61..cc38298 100644
---- a/src/main/java/com/example/todayserver/global/config/SecurityConfig.java
-+++ b/src/main/java/com/example/todayserver/global/config/SecurityConfig.java
-@@ -109,6 +109,8 @@ public class SecurityConfig {
- 
-         // 프론트엔드 주소 허용
-         configuration.addAllowedOrigin("http://localhost:5173");
-+        configuration.addAllowedOrigin("http://107.20.245.245");
-+        configuration.addAllowedOrigin("http://107.20.245.245.nip.io");
- 
-         // 허용할 헤더와 메서드
-         configuration.addAllowedHeader("*");
+f819e19 feat: refreshToken 쿠키에 저장 #30
+ .../todayserver/global/common/jwt/CookieUtil.java  | 30 ++++++++++++++++++++++
+ .../global/oauth/OAuth2SuccessHandler.java         |  8 +++---
+ 2 files changed, 35 insertions(+), 3 deletions(-)
 
 
-- feat: 엑세스토큰 재발급 API #30
+- feat: 사용자 정보 보기 API #32
   diff:
-commit 356184452c58ba49d8b4714004ba5e80d083bf6c
-Author: seoyoon lee <leeseoyoon01@gmail.com>
-Date:   Sat Jan 17 23:56:46 2026 +0900
-
-    feat: 엑세스토큰 재발급 API #30
-
-diff --git a/src/main/java/com/example/todayserver/domain/member/controller/MemberController.java b/src/main/java/com/example/todayserver/domain/member/controller/MemberController.java
-index e59d2f4..44f8708 100644
---- a/src/main/java/com/example/todayserver/domain/member/controller/MemberController.java
-+++ b/src/main/java/com/example/todayserver/domain/member/controller/MemberController.java
-@@ -1,11 +1,10 @@
- package com.example.todayserver.domain.member.controller;
- 
--import com.example.todayserver.domain.member.dto.EmailReqDto;
--import com.example.todayserver.domain.member.dto.MemberReqDto;
--import com.example.todayserver.domain.member.dto.MemberResDto;
-+import com.example.todayserver.domain.member.dto.*;
- import com.example.todayserver.domain.member.service.AuthService;
- import com.example.todayserver.domain.member.service.EmailService;
- import com.example.todayserver.domain.member.service.MemberService;
-+import com.example.todayserver.domain.member.service.util.TokenService;
- import com.example.todayserver.global.common.response.ApiResponse;
- import io.swagger.v3.oas.annotations.tags.Tag;
- import jakarta.validation.Valid;
-@@ -20,6 +19,7 @@ public class MemberController implements MemberControllerDocs {
-     private final MemberService memberService;
-     private final EmailService emailService;
-     private final AuthService authService;
-+    private final TokenService tokenService;
- 
-     @PostMapping("/members/email/check")
-     public ApiResponse<Void> checkEmail(@Valid @RequestBody EmailReqDto.EmailCheck dto) {
-@@ -61,4 +61,9 @@ public class MemberController implements MemberControllerDocs {
-     public ApiResponse<MemberResDto.LoginDto> emailLogin(@Valid @RequestBody MemberReqDto.LoginDto dto){
-         return ApiResponse.success(authService.emailLogin(dto));
-     }
-+
-+    @PostMapping("/auth/token/reissue")
-+    public ApiResponse<TokenDto> reissue(@Valid @RequestBody TokenReissueDto dto){
-+        return ApiResponse.success(tokenService.reissueTokens(dto));
-+    }
- }
-\ No newline at end of file
-diff --git a/src/main/java/com/example/todayserver/domain/member/controller/MemberControllerDocs.java b/src/main/java/com/example/todayserver/domain/member/controller/MemberControllerDocs.java
-index 7c1a9ad..855c017 100644
---- a/src/main/java/com/example/todayserver/domain/member/controller/MemberControllerDocs.java
-+++ b/src/main/java/com/example/todayserver/domain/member/controller/MemberControllerDocs.java
-@@ -1,8 +1,6 @@
- package com.example.todayserver.domain.member.controller;
- 
--import com.example.todayserver.domain.member.dto.EmailReqDto;
--import com.example.todayserver.domain.member.dto.MemberReqDto;
--import com.example.todayserver.domain.member.dto.MemberResDto;
-+import com.example.todayserver.domain.member.dto.*;
- import com.example.todayserver.global.common.response.ApiResponse;
- import io.swagger.v3.oas.annotations.Operation;
- import jakarta.validation.Valid;
-@@ -52,4 +50,10 @@ public interface MemberControllerDocs {
-             description = "이메일 로그인을 잔행합니다."
-     )
-     ApiResponse<MemberResDto.LoginDto> emailLogin(@Valid @RequestBody MemberReqDto.LoginDto dto);
-+
-+    @Operation(
-+            summary = "로그인 유지",
-+            description = "리프레시 토큰으로 새 엑세스 토큰을 발급합니다."
-+    )
-+    ApiResponse<TokenDto> reissue(@Valid @RequestBody TokenReissueDto dto);
- }
-\ No newline at end of file
-diff --git a/src/main/java/com/example/todayserver/domain/member/dto/TokenReissueDto.java b/src/main/java/com/example/todayserver/domain/member/dto/TokenReissueDto.java
-new file mode 100644
-index 0000000..c946921
---- /dev/null
-+++ b/src/main/java/com/example/todayserver/domain/member/dto/TokenReissueDto.java
-@@ -0,0 +1,8 @@
-+package com.example.todayserver.domain.member.dto;
-+
-+import lombok.Getter;
-+
-+@Getter
-+public class TokenReissueDto {
-+    private String refreshToken;
-+}
-diff --git a/src/main/java/com/example/todayserver/domain/member/entity/RefreshToken.java b/src/main/java/com/example/todayserver/domain/member/entity/RefreshToken.java
-index c69e4e5..52a3a05 100644
---- a/src/main/java/com/example/todayserver/domain/member/entity/RefreshToken.java
-+++ b/src/main/java/com/example/todayserver/domain/member/entity/RefreshToken.java
-@@ -6,6 +6,8 @@ import lombok.Builder;
- import lombok.Getter;
- import lombok.NoArgsConstructor;
- 
-+import java.time.LocalDateTime;
-+
- @Entity
- @Builder
- @Getter
-@@ -25,12 +27,21 @@ public class RefreshToken {
-     @JoinColumn(name = "member_id", nullable = false, unique = true)
-     private Member member;
- 
--    public RefreshToken(String refreshToken, Member member){
-+    @Column(name = "expire_date", nullable = false)
-+    private LocalDateTime expireDate;
-+
-+    public boolean isExpired() {
-+        return LocalDateTime.now().isAfter(expireDate);
-+    }
-+
-+    public RefreshToken(String refreshToken, Member member, LocalDateTime expireDate){
-         this.refreshToken = refreshToken;
-         this.member = member;
-+        this.expireDate = expireDate;
-     }
- 
--    public void update(String refreshToken){
-+    public void update(String refreshToken, LocalDateTime expireDate){
-         this.refreshToken = refreshToken;
-+        this.expireDate = expireDate;
-     }
- }
-diff --git a/src/main/java/com/example/todayserver/domain/member/excpetion/code/AuthErrorCode.java b/src/main/java/com/example/todayserver/domain/member/excpetion/code/AuthErrorCode.java
-index 293bc6f..b7e020c 100644
---- a/src/main/java/com/example/todayserver/domain/member/excpetion/code/AuthErrorCode.java
-+++ b/src/main/java/com/example/todayserver/domain/member/excpetion/code/AuthErrorCode.java
-@@ -27,7 +27,15 @@ public enum AuthErrorCode implements BaseErrorCode {
- 
-     INVALID_SOCIAL_TYPE(HttpStatus.BAD_REQUEST,
-             "SOCIAL_TYPE_400",
--            "지원하지 않는 소셜 타입입니다.");
-+            "지원하지 않는 소셜 타입입니다."),
-+
-+    TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND,
-+            "TOKEN_404",
-+            "해당 토큰이 존재하지 않습니다."),
-+
-+    INVALID_TOKEN(HttpStatus.BAD_REQUEST,
-+            "TOKEN_400",
-+            "이미 만료된 토큰입니다.");
- 
- 
- 
-diff --git a/src/main/java/com/example/todayserver/domain/member/service/util/TokenService.java b/src/main/java/com/example/todayserver/domain/member/service/util/TokenService.java
-index 70afd1d..6648069 100644
---- a/src/main/java/com/example/todayserver/domain/member/service/util/TokenService.java
-+++ b/src/main/java/com/example/todayserver/domain/member/service/util/TokenService.java
-@@ -1,20 +1,27 @@
- package com.example.todayserver.domain.member.service.util;
- 
- import com.example.todayserver.domain.member.dto.TokenDto;
-+import com.example.todayserver.domain.member.dto.TokenReissueDto;
- import com.example.todayserver.domain.member.entity.Member;
- import com.example.todayserver.domain.member.entity.RefreshToken;
-+import com.example.todayserver.domain.member.excpetion.AuthException;
-+import com.example.todayserver.domain.member.excpetion.code.AuthErrorCode;
-+import com.example.todayserver.domain.member.repository.MemberRepository;
- import com.example.todayserver.domain.member.repository.RefreshTokenRepository;
- import com.example.todayserver.global.common.jwt.JwtUtil;
- import jakarta.transaction.Transactional;
- import lombok.RequiredArgsConstructor;
- import org.springframework.stereotype.Service;
- 
-+import java.time.LocalDateTime;
-+
- @Service
- @RequiredArgsConstructor
- public class TokenService {
- 
-     private final JwtUtil jwtUtil;
-     private final RefreshTokenRepository refreshTokenRepository;
-+    private final MemberRepository memberRepository;
- 
-     @Transactional
-     public TokenDto issueTokens(Member member){
-@@ -22,11 +29,11 @@ public class TokenService {
-         String refreshTokenValue = jwtUtil.createRefreshToken(member);
-         RefreshToken refreshToken = refreshTokenRepository.findByMemberId(member.getId())
-                 .map(rt -> {
--                    rt.update(refreshTokenValue);
-+                    rt.update(refreshTokenValue, LocalDateTime.now().plusDays(1));
-                     return rt;
-                 })
-                 .orElse(
--                        new RefreshToken(refreshTokenValue, member)
-+                        new RefreshToken(refreshTokenValue, member, LocalDateTime.now().plusDays(1))
-                 );
- 
- 
-@@ -34,4 +41,24 @@ public class TokenService {
- 
-         return new TokenDto(accessToken, refreshTokenValue);
-     }
-+
-+    @Transactional
-+    public TokenDto reissueTokens(TokenReissueDto dto){
-+        String refreshTokenValue = dto.getRefreshToken();
-+        RefreshToken refreshToken = refreshTokenRepository.findByRefreshToken(refreshTokenValue)
-+                        .orElseThrow(() -> new AuthException(AuthErrorCode.TOKEN_NOT_FOUND));
-+
-+        if (refreshToken.isExpired()){
-+            throw new AuthException(AuthErrorCode.INVALID_TOKEN);
-+        }
-+
-+        Member member = refreshToken.getMember();
-+
-+        String newRefreshTokenValue= jwtUtil.createRefreshToken(member);
-+        String accessToken = jwtUtil.createAccessToken(member);
-+
-+        refreshToken.update(newRefreshTokenValue, LocalDateTime.now().plusDays(1));
-+
-+        return new TokenDto(accessToken, newRefreshTokenValue);
-+    }
- }
+d4a6e83 feat: 사용자 정보 보기 API #32
+ .../domain/member/controller/MemberController.java          | 11 +++++++----
+ .../domain/member/controller/MemberControllerDocs.java      |  8 ++++++++
+ .../domain/member/converter/MemberConverter.java            | 13 +++++++++++--
+ .../example/todayserver/domain/member/dto/MemberResDto.java |  9 +++++++++
+ .../todayserver/domain/member/service/MemberService.java    |  2 ++
+ .../domain/member/service/MemberServiceImpl.java            |  8 ++++++++
+ 6 files changed, 45 insertions(+), 6 deletions(-)
 
 
-- feat: 프로필 정보 수정 API #43
+- feat: 네이버 로그인 API #30
   diff:
-commit 734b5619ad905911eaac8687f315e38d7deb4856
-Author: seoyoon lee <leeseoyoon01@gmail.com>
-Date:   Tue Jan 20 15:25:55 2026 +0900
-
-    feat: 프로필 정보 수정 API #43
-
-diff --git a/.gitignore b/.gitignore
-index 64e639f..4c75e42 100644
---- a/.gitignore
-+++ b/.gitignore
-@@ -36,5 +36,4 @@ out/
- ### VS Code ###
- .vscode/
- 
--.env
--application-aws.yaml
-\ No newline at end of file
-+.env
-\ No newline at end of file
-diff --git a/build.gradle b/build.gradle
-index c948f5d..e3e0141 100644
---- a/build.gradle
-+++ b/build.gradle
-@@ -59,7 +59,8 @@ dependencies {
-     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
- 
-     // aws
--    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
-+    implementation platform("software.amazon.awssdk:bom:2.25.64")
-+    implementation "software.amazon.awssdk:s3"
-     
- }
- 
-diff --git a/src/main/java/com/example/todayserver/domain/member/controller/MemberController.java b/src/main/java/com/example/todayserver/domain/member/controller/MemberController.java
-index 11dcc4e..3d45b09 100644
---- a/src/main/java/com/example/todayserver/domain/member/controller/MemberController.java
-+++ b/src/main/java/com/example/todayserver/domain/member/controller/MemberController.java
-@@ -8,6 +8,7 @@ import com.example.todayserver.global.common.response.ApiResponse;
- import io.swagger.v3.oas.annotations.tags.Tag;
- import jakarta.validation.Valid;
- import lombok.RequiredArgsConstructor;
-+import org.springframework.http.MediaType;
- import org.springframework.web.bind.annotation.*;
- 
- @RestController
-@@ -45,4 +46,11 @@ public class MemberController implements MemberControllerDocs {
-         memberService.updatePassword(dto.getPassword(), token);
-         return ApiResponse.success(null);
-     }
-+
-+    @PatchMapping(value = "/profile",
-+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-+    public ApiResponse<Void> updateProfile(@RequestHeader("Authorization") String token, @ModelAttribute MemberReqDto.ProfileInfo dto){
-+        memberService.updateProfile(token, dto);
-+        return ApiResponse.success(null);
-+    }
- }
-diff --git a/src/main/java/com/example/todayserver/domain/member/dto/MemberReqDto.java b/src/main/java/com/example/todayserver/domain/member/dto/MemberReqDto.java
-index 87efe2a..39df0bf 100644
---- a/src/main/java/com/example/todayserver/domain/member/dto/MemberReqDto.java
-+++ b/src/main/java/com/example/todayserver/domain/member/dto/MemberReqDto.java
-@@ -2,6 +2,7 @@ package com.example.todayserver.domain.member.dto;
- 
- import jakarta.validation.constraints.*;
- import lombok.Data;
-+import org.springframework.web.multipart.MultipartFile;
- 
- import java.time.LocalDate;
- 
-@@ -41,4 +42,13 @@ public class MemberReqDto {
-         @NotBlank
-         private String password;
-     }
-+
-+    @Data
-+    public static class ProfileInfo{
-+        @NotNull
-+        MultipartFile profileImage;
-+
-+        @NotBlank
-+        String nickName;
-+    }
- }
-diff --git a/src/main/java/com/example/todayserver/domain/member/excpetion/code/MemberErrorCode.java b/src/main/java/com/example/todayserver/domain/member/excpetion/code/MemberErrorCode.java
-index 6f5e3e9..559d1e0 100644
---- a/src/main/java/com/example/todayserver/domain/member/excpetion/code/MemberErrorCode.java
-+++ b/src/main/java/com/example/todayserver/domain/member/excpetion/code/MemberErrorCode.java
-@@ -31,7 +31,12 @@ public enum MemberErrorCode implements BaseErrorCode {
-             "소셜 가입자는 비밀번호를 재설정 하실 수 없습니다."),
-     FILE_TYPE_ERROR(HttpStatus.BAD_REQUEST,
-             "FILE400",
--            "이미지 파일만 업로드 가능합니다.");
-+            "이미지 파일만 업로드 가능합니다."),
-+    IMAGE_UPLOAD_FAIL(
-+            HttpStatus.INTERNAL_SERVER_ERROR,
-+            "FILE404",
-+            "프로필 이미지 업로드에 실패하였습니다."
-+    );
- 
-     private final HttpStatus status;
-     private final String code;
-diff --git a/src/main/java/com/example/todayserver/domain/member/repository/MemberRepository.java b/src/main/java/com/example/todayserver/domain/member/repository/MemberRepository.java
-index a3fda4b..a46317d 100644
---- a/src/main/java/com/example/todayserver/domain/member/repository/MemberRepository.java
-+++ b/src/main/java/com/example/todayserver/domain/member/repository/MemberRepository.java
-@@ -44,4 +44,13 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
-     """)
-     void updatePassword(@Param("pw") String password,@Param("id") Long id);
- 
-+    @Modifying
-+    @Query("""
-+        UPDATE Member m
-+        SET m.nickname = :nickname,
-+            m.profileImage = :profileImage
-+        WHERE m.id = :id
-+    """)
-+    void updateProfile(@Param("profileImage") String profileImage, @Param("nickname") String nickname, @Param("id") Long id);
-+
- }
-\ No newline at end of file
-diff --git a/src/main/java/com/example/todayserver/domain/member/service/MemberService.java b/src/main/java/com/example/todayserver/domain/member/service/MemberService.java
-index 6a51260..dc8f83e 100644
---- a/src/main/java/com/example/todayserver/domain/member/service/MemberService.java
-+++ b/src/main/java/com/example/todayserver/domain/member/service/MemberService.java
-@@ -14,4 +14,5 @@ public interface MemberService {
-     MemberResDto.MemberInfo getMyInfo(String token);
-     void withdraw(String token);
-     void updatePassword(String password, String token);
-+    void updateProfile(String token, MemberReqDto.ProfileInfo dto);
- }
-diff --git a/src/main/java/com/example/todayserver/domain/member/service/MemberServiceImpl.java b/src/main/java/com/example/todayserver/domain/member/service/MemberServiceImpl.java
-index cec566f..755d0db 100644
---- a/src/main/java/com/example/todayserver/domain/member/service/MemberServiceImpl.java
-+++ b/src/main/java/com/example/todayserver/domain/member/service/MemberServiceImpl.java
-@@ -14,6 +14,7 @@ import com.example.todayserver.domain.member.excpetion.code.MemberErrorCode;
- import com.example.todayserver.domain.member.repository.EmailCodeRepository;
- import com.example.todayserver.domain.member.repository.MemberRepository;
- import com.example.todayserver.domain.member.repository.PreferenceRepository;
-+import com.example.todayserver.domain.member.service.util.AwsFileService;
- import com.example.todayserver.domain.member.service.util.MemberWithdrawService;
- import com.example.todayserver.domain.member.service.util.RandomNicknameGenerator;
- import com.example.todayserver.global.common.jwt.JwtUtil;
-@@ -22,7 +23,9 @@ import lombok.RequiredArgsConstructor;
- import org.springframework.dao.DataIntegrityViolationException;
- import org.springframework.security.crypto.password.PasswordEncoder;
- import org.springframework.stereotype.Service;
-+import org.springframework.web.multipart.MultipartFile;
- 
-+import java.io.IOException;
- 
- @Service
- @RequiredArgsConstructor
-@@ -34,6 +37,7 @@ public class MemberServiceImpl implements MemberService {
-     private final MemberWithdrawService memberWithdrawService;
-     private final JwtUtil jwtUtil;
-     private final PreferenceRepository preferenceRepository;
-+    private final AwsFileService awsFileService;
- 
-     @Override
-     public void checkEmailDuplicate(String email) {
-@@ -118,6 +122,24 @@ public class MemberServiceImpl implements MemberService {
-         memberRepository.updatePassword(password, member.getId());
-     }
- 
-+    @Transactional
-+    @Override
-+    public void updateProfile(String token, MemberReqDto.ProfileInfo dto) {
-+        String email = getEmailByAccessToken(token);
-+        Member member = getMemberByEmail(email);
-+
-+        MultipartFile profileImage = dto.getProfileImage();
-+        String nickname = dto.getNickName();
-+
-+
-+        try {
-+            String imageUrl = awsFileService.saveProfileImg(profileImage, member.getId());
-+            memberRepository.updateProfile(imageUrl, nickname, member.getId());
-+        } catch (IOException e) {
-+            throw new MemberException(MemberErrorCode.IMAGE_UPLOAD_FAIL);
-+        }
-+    }
-+
-     private Member getMemberByEmail(String email) {
-         return memberRepository.findByEmail(email)
-                 .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
-diff --git a/src/main/java/com/example/todayserver/domain/member/service/util/AwsFileService.java b/src/main/java/com/example/todayserver/domain/member/service/util/AwsFileService.java
-index 4ac2b8d..85fd31b 100644
---- a/src/main/java/com/example/todayserver/domain/member/service/util/AwsFileService.java
-+++ b/src/main/java/com/example/todayserver/domain/member/service/util/AwsFileService.java
-@@ -1,15 +1,14 @@
- package com.example.todayserver.domain.member.service.util;
- 
--import com.amazonaws.services.s3.AmazonS3Client;
--import com.amazonaws.services.s3.model.CannedAccessControlList;
--import com.amazonaws.services.s3.model.ObjectMetadata;
--import com.amazonaws.services.s3.model.PutObjectRequest;
- import com.example.todayserver.domain.member.excpetion.MemberException;
- import com.example.todayserver.domain.member.excpetion.code.MemberErrorCode;
- import lombok.RequiredArgsConstructor;
- import org.springframework.beans.factory.annotation.Value;
- import org.springframework.stereotype.Service;
- import org.springframework.web.multipart.MultipartFile;
-+import software.amazon.awssdk.core.sync.RequestBody;
-+import software.amazon.awssdk.services.s3.S3Client;
-+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
- 
- import java.io.IOException;
- import java.util.UUID;
-@@ -17,7 +16,7 @@ import java.util.UUID;
- @Service
- @RequiredArgsConstructor
- public class AwsFileService {
--    private final AmazonS3Client amazonS3Client;
-+    private final S3Client s3Client;
- 
-     @Value("${cloud.aws.s3.bucket}")
-     private String bucket;
-@@ -36,14 +35,21 @@ public class AwsFileService {
-         String ext = originalName.substring(originalName.lastIndexOf("."));
-         String fileName = "profile/" + memberId + "/" + UUID.randomUUID() + ext;
- 
--        ObjectMetadata metadata = new ObjectMetadata();
--        metadata.setContentLength(file.getSize());
--        metadata.setContentType(file.getContentType());
-+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-+                .bucket(bucket)
-+                .key(fileName)
-+                .contentType(file.getContentType())
-+                .build();
- 
--        amazonS3Client.putObject(
--                new PutObjectRequest(bucket, fileName, file.getInputStream(), metadata)
--                        .withCannedAcl(CannedAccessControlList.PublicRead)
-+        s3Client.putObject(
-+                putObjectRequest,
-+                RequestBody.fromInputStream(file.getInputStream(), file.getSize())
-         );
--        return amazonS3Client.getUrl(bucket, fileName).toString();
-+
-+        return getPublicUrl(fileName);
-+    }
-+
-+    private String getPublicUrl(String key) {
-+        return "https://" + bucket + ".s3.amazonaws.com/" + key;
-     }
- }
-diff --git a/src/main/java/com/example/todayserver/global/config/S3Config.java b/src/main/java/com/example/todayserver/global/config/S3Config.java
-index 216c0a4..1d1ff13 100644
---- a/src/main/java/com/example/todayserver/global/config/S3Config.java
-+++ b/src/main/java/com/example/todayserver/global/config/S3Config.java
-@@ -1,12 +1,12 @@
- package com.example.todayserver.global.config;
- 
--import com.amazonaws.auth.AWSStaticCredentialsProvider;
--import com.amazonaws.auth.BasicAWSCredentials;
--import com.amazonaws.services.s3.AmazonS3Client;
--import com.amazonaws.services.s3.AmazonS3ClientBuilder;
- import org.springframework.beans.factory.annotation.Value;
- import org.springframework.context.annotation.Bean;
- import org.springframework.context.annotation.Configuration;
-+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-+import software.amazon.awssdk.regions.Region;
-+import software.amazon.awssdk.services.s3.S3Client;
- 
- @Configuration
- public class S3Config {
-@@ -14,15 +14,15 @@ public class S3Config {
-     private String accessKey;
-     @Value("${cloud.aws.credentials.secretKey}")
-     private String secretKey;
--    @Value("${cloud.aws.region.static}")
--    private String region;
- 
-     @Bean
--    public AmazonS3Client amazonS3Client() {
--        BasicAWSCredentials awsCredentials= new BasicAWSCredentials(accessKey, secretKey);
--        return (AmazonS3Client) AmazonS3ClientBuilder.standard()
--                .withRegion(region)
--                .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-+    public S3Client s3Client() {
-+        AwsBasicCredentials credentials =
-+                AwsBasicCredentials.create(accessKey, secretKey);
-+
-+        return S3Client.builder()
-+                .credentialsProvider(StaticCredentialsProvider.create(credentials))
-+                .region(Region.US_EAST_1)
-                 .build();
-     }
- 
-diff --git a/src/main/resources/application-aws.yaml b/src/main/resources/application-aws.yaml
-new file mode 100644
-index 0000000..6e3b19c
---- /dev/null
-+++ b/src/main/resources/application-aws.yaml
-@@ -0,0 +1,8 @@
-+cloud:
-+  aws:
-+    s3:
-+      bucket: ${S3_BUCKET_NAME}
-+    stack.auto: false
-+    credentials:
-+      accessKey: ${CLOUD_ACCESS_KEY}
-+      secretKey: ${CLOUD_SECRET_KEY}
-\ No newline at end of file
+d7d991c feat: 네이버 로그인 API #30
+ .../domain/member/converter/MemberConverter.java   |   5 +-
+ .../todayserver/domain/member/dto/OAuthDto.java    |  15 +++
+ .../todayserver/domain/member/entity/Member.java   |   2 +-
+ .../domain/member/repository/MemberRepository.java |   2 +
+ .../global/oauth/OAuth2SuccessHandler.java         |  17 ++-
+ .../global/oauth/OAuth2UserCustomService.java      | 128 ++++++++++-----------
+ .../global/oauth/OAuth2UserInfoFactory.java        |  45 ++++++++
+ .../global/oauth/info/GoogleUserInfo.java          |  11 +-
+ .../global/oauth/info/NaverUserInfo.java           |  51 ++++++++
+ .../global/oauth/info/OAuth2UserInfo.java          |   3 +
+ src/main/resources/application.yaml                |  17 +++
+ 11 files changed, 219 insertions(+), 77 deletions(-)
 
 
-- feat: 배포 환경 반영하여 cors 관련 설정 추가
+- feat: 비밀번호 재설정 인증코드 발송, 확인 API #8
   diff:
-commit 5080d5a009852da8603edade25381fbf8b3c0411
-Author: seoyoon lee <leeseoyoon01@gmail.com>
-Date:   Sun Feb 8 16:19:05 2026 +0900
-
-    feat: 배포 환경 반영하여 cors 관련 설정 추가
-
-diff --git a/src/main/java/com/example/todayserver/global/common/jwt/CookieUtil.java b/src/main/java/com/example/todayserver/global/common/jwt/CookieUtil.java
-index 6a1566a..c0c9931 100644
---- a/src/main/java/com/example/todayserver/global/common/jwt/CookieUtil.java
-+++ b/src/main/java/com/example/todayserver/global/common/jwt/CookieUtil.java
-@@ -6,10 +6,11 @@ import jakarta.servlet.http.HttpServletResponse;
- 
- public class CookieUtil {
-     public static void addCookie(HttpServletResponse response, String name, String value, int maxAge){
--        Cookie cookie = new Cookie(name, value);
--        cookie.setPath("/");
--        cookie.setMaxAge(maxAge);
--        response.addCookie(cookie);
-+        String cookieHeader = String.format(
-+                "%s=%s; Max-Age=%d; Path=/; HttpOnly; Secure; SameSite=None",
-+                name, value, maxAge
-+        );
-+        response.addHeader("Set-Cookie", cookieHeader);
-     }
- 
-     public static void deleteCookie(HttpServletRequest request, HttpServletResponse response, String name){
-diff --git a/src/main/java/com/example/todayserver/global/config/SecurityConfig.java b/src/main/java/com/example/todayserver/global/config/SecurityConfig.java
-index cc38298..5da9006 100644
---- a/src/main/java/com/example/todayserver/global/config/SecurityConfig.java
-+++ b/src/main/java/com/example/todayserver/global/config/SecurityConfig.java
-@@ -7,6 +7,9 @@ import com.example.todayserver.global.oauth.OAuth2SuccessHandler;
- import com.example.todayserver.global.oauth.OAuth2UserCustomService;
- import jakarta.servlet.http.HttpServletResponse;
- import lombok.RequiredArgsConstructor;
-+import org.apache.tomcat.util.http.Rfc6265CookieProcessor;
-+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
-+import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
- import org.springframework.context.annotation.Bean;
- import org.springframework.context.annotation.Configuration;
- import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-@@ -110,7 +113,7 @@ public class SecurityConfig {
-         // 프론트엔드 주소 허용
-         configuration.addAllowedOrigin("http://localhost:5173");
-         configuration.addAllowedOrigin("http://107.20.245.245");
--        configuration.addAllowedOrigin("http://107.20.245.245.nip.io");
-+        configuration.addAllowedOrigin("https://today-app.co.kr");
- 
-         // 허용할 헤더와 메서드
-         configuration.addAllowedHeader("*");
-@@ -128,4 +131,16 @@ public class SecurityConfig {
-         return source;
-     }
- 
-+    @Bean
-+    public ServletWebServerFactory servletContainer() {
-+        TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory();
-+        tomcat.addContextCustomizers(context -> {
-+            final Rfc6265CookieProcessor cookieProcessor = new Rfc6265CookieProcessor();
-+            cookieProcessor.setSameSiteCookies("None"); // SameSite=None
-+            context.setCookieProcessor(cookieProcessor);
-+        });
-+        return tomcat;
-+    }
-+
-+
- }
-diff --git a/src/main/resources/application.yaml b/src/main/resources/application.yaml
-index af8d6ec..78031e9 100644
---- a/src/main/resources/application.yaml
-+++ b/src/main/resources/application.yaml
-@@ -65,8 +65,8 @@ server:
-   servlet:
-     session:
-       cookie:
--        same-site: lax
--        secure: false
-+        same-site: none
-+        secure: true
-         path: /
-         http-only: true
- 
+186deae feat: 비밀번호 재설정 인증코드 발송, 확인 API #8
+ .../domain/member/controller/MemberController.java | 14 ++++-
+ .../member/controller/MemberControllerDocs.java    | 14 ++++-
+ .../domain/member/service/EmailService.java        | 14 ++---
+ src/main/resources/templates/password_code.html    | 60 ++++++++++++++++++++++
+ 4 files changed, 94 insertions(+), 8 deletions(-)
 
 
+다음 Git 분석 데이터를 기반으로 개발자 분석 리포트를 작성하라.
 
-이 데이터를 기반으로 다음을 포함한 개발자 분석 리포트를 작성하세요:
-1. 프로젝트 개요
-1-1. 프로젝트 목적
-1-2. 기술 스택
-2. 프로젝트 커밋 분석
-3. 구현 기능 분석
-4. 코드 품질 및 개선 방향
-5. 종합 평가
-위 데이터를 기반으로 A4 2~3페이지 분량의 상세한 개발자 분석 리포트를 작성합니다.
-단순 나열이 아니라 분석 중심으로 작성하고,
-구체적인 근거를 반드시 포함하세요.
+반드시 아래 조건을 모두 지켜라:
+
+1. 반드시 JSON 형식으로만 응답하라.
+2. JSON 외의 텍스트(설명, 마크다운, 코드블록, 주석) 절대 포함 금지.
+3. 모든 필드는 반드시 채워라
+4. key 이름은 절대 변경하지 마라.
+5. 문자열은 모두 큰따옴표("") 사용.
+6. 숫자는 숫자 타입으로 작성 (따옴표 금지).
+7. JSON 문법 오류 발생 시 실패로 간주한다.
+8. 추측성 말투를 쓰지 말것.
+
+---
+
+다음 구조를 정확히 따라라:
+
+{
+  "content": {
+    "purpose": "",
+    "stack": {
+      "language": "",
+      "framework": "",
+      "library": "",
+      "security": ""
+    },
+    "commitStats": {
+      "totalCommits": 0,
+      "myCommits": 0,
+      "myCommitRate": 0.0
+    },
+   "commitContribution": {
+    "username": 0,
+   }    "scale": {
+      "fileCount": 0,
+      "commitCount": 0
+    },
+    "reports": ""
+  }
+}
+
+---
+
+작성 가이드:
+
+- purpose: 프로젝트 목적을 2~3문장으로 구체적으로 설명
+- stack: 분석된 기술 스택을 최대한 구체적으로 작성
+- commitStats: 제공된 데이터를 기반으로 정확히 작성
+- scale: 프로젝트 규모를 수치 기반으로 설명
+- reports: 커밋 패턴, 기여도, 코드 특성 등을 종합적으로 분석 (5~8문장)
+- commitContribution: 위 JSON 데이터를 그대로 반영

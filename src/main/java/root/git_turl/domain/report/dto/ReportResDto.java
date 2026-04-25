@@ -14,4 +14,10 @@ public class ReportResDto {
         private String description;
         private boolean isPrivate;
     }
+
+    @Getter
+    @Builder
+    public static class ReportId {
+        private Long reportId;
+    }
 }

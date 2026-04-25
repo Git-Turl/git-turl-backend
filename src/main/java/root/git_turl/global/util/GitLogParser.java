@@ -1,6 +1,7 @@
 package root.git_turl.global.util;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 import root.git_turl.domain.report.dto.commit.GitCommit;
 
 import java.io.*;
@@ -8,6 +9,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 @RequiredArgsConstructor
+@Component
 public class GitLogParser {
 
     private final GithubUserMapper githubUserMapper;
