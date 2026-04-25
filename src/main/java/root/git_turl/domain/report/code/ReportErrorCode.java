@@ -10,8 +10,12 @@ import root.git_turl.global.apiPayload.code.BaseErrorCode;
 public enum ReportErrorCode implements BaseErrorCode {
 
     GPT_RESPONSE_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR,
-            "SUMMARY500_1",
-            "요약본을 생성할 수 없습니다.");
+            "REPORT500_1",
+            "요약본을 생성할 수 없습니다."),
+
+    REPO_NOT_FOUND(HttpStatus.NOT_FOUND,
+            "REPORT500_1",
+                    "존재하지 않는 레포지토리입니다.");
 
     private final HttpStatus status;
     private final String code;
