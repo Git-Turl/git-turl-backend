@@ -11,6 +11,7 @@ import root.git_turl.domain.report.dto.ReportResDto;
 import root.git_turl.global.annotation.CurrentUser;
 import root.git_turl.global.apiPayload.ApiResponse;
 
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -50,5 +51,17 @@ public interface ReportControllerDocs {
             @CurrentUser @Parameter(hidden = true) Member member,
             @PathVariable Long reportId,
             @RequestBody ReportReqDto.NewStatus dto
+    );
+
+    @Operation(
+            summary = "분석본 목록 조회",
+            description = "사용자의 분석본 목록을 조회합니다. (커서 기반 페이징)"
+    )
+    public ApiResponse<ReportResDto.Pagination<ReportResDto.ReportPreview>> getReports(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @RequestParam(required = false) Integer pageSize,
+            @RequestParam(required = false) String cursor,
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate
     );
 }

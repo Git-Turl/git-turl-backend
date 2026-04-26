@@ -8,6 +8,9 @@ import root.git_turl.global.apiPayload.code.BaseSuccessCode;
 @Getter
 @RequiredArgsConstructor
 public enum ReportSuccessCode implements BaseSuccessCode {
+    REPORT_LIST_GET_OK(HttpStatus.OK,
+            "REPORT200_1",
+            "요약본 목록이 조회되었습니다."),
 
     REPO_LIST_GET_OK(HttpStatus.OK,
             "REPORT200_2",
