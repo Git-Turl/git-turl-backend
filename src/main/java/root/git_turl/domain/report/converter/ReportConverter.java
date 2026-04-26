@@ -2,6 +2,7 @@ package root.git_turl.domain.report.converter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.report.dto.GithubRepoResponse;
 import root.git_turl.domain.report.dto.ReportReqDto;
 import root.git_turl.domain.report.dto.ReportResDto;
@@ -25,7 +26,8 @@ public class ReportConverter {
 
     public static Report toReport(
             String githubId,
-            String fullName
+            String fullName,
+            Member memebr
     ) {
         return Report.builder()
                 .githubId(githubId)
@@ -33,6 +35,7 @@ public class ReportConverter {
                 .status(Status.PRIVATE)
                 .generationStatus(GenerationStatus.PROCESSING)
                 .repoName(fullName)
+                .member(memebr)
                 .build();
     }
 

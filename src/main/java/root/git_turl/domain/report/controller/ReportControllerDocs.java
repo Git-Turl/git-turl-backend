@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.report.dto.ReportReqDto;
 import root.git_turl.domain.report.dto.ReportResDto;
+import root.git_turl.domain.report.enums.Status;
 import root.git_turl.global.annotation.CurrentUser;
 import root.git_turl.global.apiPayload.ApiResponse;
 
@@ -63,7 +64,8 @@ public interface ReportControllerDocs {
             @RequestParam(required = false) Integer pageSize,
             @RequestParam(required = false) String cursor,
             @RequestParam(required = false) LocalDate startDate,
-            @RequestParam(required = false) LocalDate endDate
+            @RequestParam(required = false) LocalDate endDate,
+            @RequestParam(required = false) Status status
     );
 
     @Operation(
