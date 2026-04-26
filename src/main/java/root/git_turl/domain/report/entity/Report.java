@@ -37,6 +37,12 @@ public class Report extends BaseEntity {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "features")
+    private String features;
+
+    @Column(name = "improvements")
+    private String improvements;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
@@ -50,4 +56,6 @@ public class Report extends BaseEntity {
     }
 
     public void updateStatus(Status status) { this.status = status; }
+
+    public void updateDescription(String description) { this.description = description; }
 }

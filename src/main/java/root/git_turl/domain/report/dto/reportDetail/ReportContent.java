@@ -18,4 +18,6 @@ public class ReportContent {
     private Map<String, Long> commitContribution;
     private Scale scale;
     private String reports;
+    private Features features;
+    private Improvements improvements;
 }

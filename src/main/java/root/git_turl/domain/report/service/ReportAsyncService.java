@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.report.code.ReportErrorCode;
-import root.git_turl.domain.report.converter.ReportConverter;
 import root.git_turl.domain.report.dto.GitAnalysisResult;
 import root.git_turl.domain.report.dto.ReportReqDto;
 import root.git_turl.domain.report.dto.commit.GitCommit;
@@ -63,20 +62,21 @@ public class ReportAsyncService {
 
             String prompt = buildPrompt.buildReportPrompt(result);
             ReportWrapper content = gptService.analyzeGit(prompt);
-            if (content == null) {
+            if (content.getContent() == null) {
                 throw new ReportException(ReportErrorCode.GPT_RESPONSE_NOT_FOUND);
             }
             String contentJson;
             try {
                 contentJson = objectMapper.writeValueAsString(content);
                 report.updateContent(contentJson);
-                report.updateGenerationStatus(GenerationStatus.FAIL);
+                String description = content.getContent().getPurpose();
+                report.updateDescription(description);
+                report.updateGenerationStatus(GenerationStatus.DONE);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException("JSON 변환 실패", e);
             }
         } catch (Exception e) {
             report.updateGenerationStatus(GenerationStatus.FAIL);
         }
-
     }
 }

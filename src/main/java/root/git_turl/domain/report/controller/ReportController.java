@@ -44,7 +44,11 @@ public class ReportController implements ReportControllerDocs{
             @CurrentUser @Parameter(hidden = true) Member member,
             @PathVariable Long reportId
     ) {
-        return ApiResponse.onSuccess(ReportSuccessCode.REPORT_GET_OK, reportService.getReportDetail(member, reportId));
+        ReportResDto.ReportDetail response = reportService.getReportDetail(member, reportId);
+        if (response == null) {
+            return ApiResponse.onSuccess(ReportSuccessCode.REPORT_PROCESSING, response);
+        }
+        return ApiResponse.onSuccess(ReportSuccessCode.REPORT_GET_OK, response);
     }
 
     @PatchMapping("/reports/{reportId}/status")
