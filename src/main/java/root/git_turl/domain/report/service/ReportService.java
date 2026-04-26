@@ -51,9 +51,7 @@ public class ReportService {
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new ReportException(ReportErrorCode.REPORT_NOT_FOUND));
 
-        if (!currentMember.getGithubId().equals(report.getGithubId())) {
-            throw new ReportException(ReportErrorCode.NO_AUTH_REPORT);
-        }
+        validateOwner(currentMember, report);
 
         if (!report.getGenerationStatus().equals(GenerationStatus.DONE)) {
             return null;
@@ -67,9 +65,7 @@ public class ReportService {
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new ReportException(ReportErrorCode.REPORT_NOT_FOUND));
 
-        if (!currentMember.getGithubId().equals(report.getGithubId())) {
-            throw new ReportException(ReportErrorCode.NO_AUTH_REPORT);
-        }
+        validateOwner(currentMember, report);
 
         report.updateStatus(dto.getStatus());
         return ReportConverter.toNewStatus(report.getStatus());
@@ -117,5 +113,22 @@ public class ReportService {
                         .toList();
 
         return Pagination.toPagination(reportPreviewList, reportList.hasNext(), nextCursor, reportList.getContent().size());
+    }
+
+    @Transactional
+    public ReportResDto.NewTitle updateReportTitle(Member currentMember, ReportReqDto.NewTitle dto, Long reportId) {
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new ReportException(ReportErrorCode.REPORT_NOT_FOUND));
+
+        validateOwner(currentMember, report);
+
+        report.updateTitle(dto.getTitle());
+        return ReportConverter.toNewTitle(report);
+    }
+
+    private static void validateOwner(Member currentMember, Report report) {
+        if (!currentMember.getGithubId().equals(report.getGithubId())) {
+            throw new ReportException(ReportErrorCode.NO_AUTH_REPORT);
+        }
     }
 }

@@ -1,5 +1,6 @@
 package root.git_turl.domain.report.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import root.git_turl.domain.report.dto.reportDetail.ReportWrapper;
@@ -59,5 +60,12 @@ public class ReportResDto {
         private String reopName;
         private String description;
         private LocalDateTime createdAt;
+    }
+
+    @Getter
+    @Builder
+    public static class NewTitle {
+        private String title;
+        private LocalDateTime updatedAt;
     }
 }

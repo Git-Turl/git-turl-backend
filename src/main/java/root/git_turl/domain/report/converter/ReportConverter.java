@@ -29,6 +29,7 @@ public class ReportConverter {
     ) {
         return Report.builder()
                 .githubId(githubId)
+                .title(fullName)
                 .status(Status.PRIVATE)
                 .generationStatus(GenerationStatus.PROCESSING)
                 .repoName(fullName)
@@ -84,6 +85,15 @@ public class ReportConverter {
                 .reopName(report.getRepoName())
                 .description(report.getDescription())
                 .createdAt(report.getCreatedAt())
+                .build();
+    }
+
+    public static ReportResDto.NewTitle toNewTitle(
+            Report report
+    ) {
+        return ReportResDto.NewTitle.builder()
+                .title(report.getTitle())
+                .updatedAt(report.getUpdatedAt())
                 .build();
     }
 }

@@ -30,7 +30,11 @@ public enum ReportSuccessCode implements BaseSuccessCode {
 
     REPORT_PROCESSING(HttpStatus.OK,
             "REPORT200_6",
-            "요약본 생성 중입니다.");
+            "요약본 생성 중입니다."),
+    
+    REPORT_TITLE_PATCH_OK(HttpStatus.OK,
+            "REPORT200_7",
+            "요약본 제목이 변경되었습니다.");
 
     private final HttpStatus status;
     private final String code;

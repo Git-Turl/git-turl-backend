@@ -19,6 +19,9 @@ public class Report extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "title")
+    private String title;
+
     @Column(name = "repo_name")
     private String repoName;
 
@@ -46,6 +49,9 @@ public class Report extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+
+    public void updateTitle(String title) { this.title = title; }
 
     public void updateGenerationStatus(GenerationStatus status) {
         this.generationStatus = status;
