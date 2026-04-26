@@ -41,4 +41,14 @@ public interface ReportControllerDocs {
             @CurrentUser @Parameter(hidden = true) Member member,
             @PathVariable Long reportId
     );
+
+    @Operation(
+            summary = "분석본 공개 설정 변경",
+            description = "해당 id의 분석본 공개 여부를 변경합니다."
+    )
+    public ApiResponse<ReportResDto.NewStatus> updateStatus(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @PathVariable Long reportId,
+            @RequestBody ReportReqDto.NewStatus dto
+    );
 }

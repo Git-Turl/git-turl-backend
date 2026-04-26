@@ -35,4 +35,10 @@ public class ReportResDto {
         private LocalDateTime createdAt;
         private ReportWrapper content;
     }
+
+    @Getter
+    @Builder
+    public static class NewStatus {
+        private Status status;
+    }
 }

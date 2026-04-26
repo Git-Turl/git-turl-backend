@@ -12,7 +12,6 @@ import root.git_turl.domain.report.dto.ReportResDto;
 import root.git_turl.domain.report.entity.Report;
 import root.git_turl.domain.report.exception.ReportException;
 import root.git_turl.domain.report.repository.ReportRepository;
-import root.git_turl.infrastructure.github.GitCloneService;
 import root.git_turl.infrastructure.github.GithubClient;
 
 import java.util.List;
@@ -50,5 +49,18 @@ public class ReportService {
         }
 
         return ReportConverter.toReportDetail(report);
+    }
+
+    @Transactional
+    public ReportResDto.NewStatus updateStatus(Member currentMember, Long reportId, ReportReqDto.NewStatus dto) {
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new ReportException(ReportErrorCode.REPORT_NOT_FOUND));
+
+        if (!currentMember.getGithubId().equals(report.getGithubId())) {
+            throw new ReportException(ReportErrorCode.NO_AUTH_REPORT);
+        }
+
+        report.updateStatus(dto.getStatus());
+        return ReportConverter.toNewStatus(report.getStatus());
     }
 }
