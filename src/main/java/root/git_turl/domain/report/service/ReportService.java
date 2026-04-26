@@ -13,6 +13,7 @@ import root.git_turl.domain.report.dto.ReportReqDto;
 import root.git_turl.domain.report.dto.ReportResDto;
 import root.git_turl.domain.report.entity.Report;
 import root.git_turl.domain.report.enums.GenerationStatus;
+import root.git_turl.domain.report.enums.Status;
 import root.git_turl.domain.report.exception.ReportException;
 import root.git_turl.domain.report.repository.ReportRepository;
 import root.git_turl.global.util.Pagination;
@@ -41,7 +42,7 @@ public class ReportService {
 
     @Transactional
     public ReportResDto.ReportId postReport(Member currentMember, ReportReqDto.Repo dto) {
-        Report report = ReportConverter.toReport(currentMember.getGithubId(), dto.getFullName());
+        Report report = ReportConverter.toReport(currentMember.getGithubId(), dto.getFullName(), currentMember);
         reportRepository.save(report);
         reportAsyncService.generateReport(report.getId(), currentMember, dto);
         return ReportConverter.toReportId(report);
@@ -76,7 +77,8 @@ public class ReportService {
             Integer pageSize,
             String cursor,
             LocalDate startDate,
-            LocalDate endDate
+            LocalDate endDate,
+            Status status
     ) {
         if (pageSize == null) pageSize = 10;
         if (cursor == null) cursor = "-1";
@@ -85,6 +87,7 @@ public class ReportService {
         long idCursor;
         Slice<Report> reportList;
         String nextCursor;
+        GenerationStatus done = GenerationStatus.DONE;
 
         // 기간별 조회
         if (startDate != null && endDate != null) {
@@ -92,18 +95,30 @@ public class ReportService {
             LocalDateTime end = endDate.atTime(LocalTime.MAX);
             if (!cursor.equals("-1")) {
                 idCursor = Long.parseLong(cursor);
-                reportList = reportRepository.findByMember_IdAndIdLessThanAndCreatedAtBetweenOrderByIdDesc(currentMember.getId(), idCursor, pageRequest, start, end);
+                reportList = reportRepository.findByMember_IdAndGenerationStatusAndIdLessThanAndCreatedAtBetweenOrderByIdDesc(currentMember.getId(), done, idCursor, pageRequest, start, end);
             } else {
-                reportList = reportRepository.findByMember_IdAndCreatedAtBetweenOrderByIdDesc(currentMember.getId(), pageRequest, start, end);
+                reportList = reportRepository.findByMember_IdAndGenerationStatusAndCreatedAtBetweenOrderByIdDesc(currentMember.getId(), done, pageRequest, start, end);
+            }
+        } else if (status != null){
+            // 상태별 조회
+            if (!cursor.equals("-1")) {
+                idCursor = Long.parseLong(cursor);
+                reportList = reportRepository.findReportByMember_IdAndGenerationStatusAndStatusAndIdLessThanOrderByIdDesc(currentMember.getId(), done, status, idCursor, pageRequest);
+            } else {
+                reportList = reportRepository.findReportByMember_IdAndGenerationStatusAndStatusOrderByIdDesc(currentMember.getId(), done, status, pageRequest);
             }
         } else {
             // 일반 조회
             if (!cursor.equals("-1")) {
                 idCursor = Long.parseLong(cursor);
-                reportList = reportRepository.findReportByMember_IdAndIdLessThanOrderByIdDesc(currentMember.getId(), idCursor, pageRequest);
+                reportList = reportRepository.findReportByMember_IdAndGenerationStatusAndIdLessThanOrderByIdDesc(currentMember.getId(), done, idCursor, pageRequest);
             } else {
-                reportList = reportRepository.findReportByMember_IdOrderByIdDesc(currentMember.getId(), pageRequest);
+                reportList = reportRepository.findReportByMember_IdAndGenerationStatusOrderByIdDesc(currentMember.getId(), done, pageRequest);
             }
+        }
+
+        if (reportList.getContent().isEmpty()) {
+            return null;
         }
 
         nextCursor = reportList.getContent().getLast().getId().toString();

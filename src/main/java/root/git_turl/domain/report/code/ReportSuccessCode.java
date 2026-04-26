@@ -34,7 +34,11 @@ public enum ReportSuccessCode implements BaseSuccessCode {
     
     REPORT_TITLE_PATCH_OK(HttpStatus.OK,
             "REPORT200_7",
-            "요약본 제목이 변경되었습니다.");
+            "요약본 제목이 변경되었습니다."),
+
+    NO_REPORT_FOUND(HttpStatus.OK,
+            "REPORT200_8",
+            "해당 조건의 요약본이 존재하지 않습니다.");
 
     private final HttpStatus status;
     private final String code;

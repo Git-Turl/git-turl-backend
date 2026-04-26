@@ -9,6 +9,7 @@ import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.report.code.ReportSuccessCode;
 import root.git_turl.domain.report.dto.ReportReqDto;
 import root.git_turl.domain.report.dto.ReportResDto;
+import root.git_turl.domain.report.enums.Status;
 import root.git_turl.domain.report.service.ReportService;
 import root.git_turl.global.annotation.CurrentUser;
 import root.git_turl.global.apiPayload.ApiResponse;
@@ -47,7 +48,7 @@ public class ReportController implements ReportControllerDocs{
     ) {
         ReportResDto.ReportDetail response = reportService.getReportDetail(member, reportId);
         if (response == null) {
-            return ApiResponse.onSuccess(ReportSuccessCode.REPORT_PROCESSING, response);
+            return ApiResponse.onSuccess(ReportSuccessCode.REPORT_PROCESSING, null);
         }
         return ApiResponse.onSuccess(ReportSuccessCode.REPORT_GET_OK, response);
     }
@@ -67,9 +68,14 @@ public class ReportController implements ReportControllerDocs{
             @RequestParam(required = false) Integer pageSize,
             @RequestParam(required = false) String cursor,
             @RequestParam(required = false) LocalDate startDate,
-            @RequestParam(required = false) LocalDate endDate
-    ) {
-        return ApiResponse.onSuccess(ReportSuccessCode.REPORT_LIST_GET_OK, reportService.getReportList(member, pageSize, cursor, startDate, endDate));
+            @RequestParam(required = false) LocalDate endDate,
+            @RequestParam(required = false) Status status
+            ) {
+        ReportResDto.Pagination<ReportResDto.ReportPreview> response = reportService.getReportList(member, pageSize, cursor, startDate, endDate, status);
+        if (response == null) {
+            return ApiResponse.onSuccess(ReportSuccessCode.NO_REPORT_FOUND, null);
+        }
+        return ApiResponse.onSuccess(ReportSuccessCode.REPORT_LIST_GET_OK, response);
     }
 
     @PatchMapping("/reports/{reportId}/title")
