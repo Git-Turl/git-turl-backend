@@ -12,6 +12,7 @@ import root.git_turl.domain.report.service.ReportService;
 import root.git_turl.global.annotation.CurrentUser;
 import root.git_turl.global.apiPayload.ApiResponse;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -54,4 +55,16 @@ public class ReportController implements ReportControllerDocs{
     ) {
         return ApiResponse.onSuccess(ReportSuccessCode.REPORT_STATUS_PATCH_OK, reportService.updateStatus(member, reportId, dto));
     }
+
+    @GetMapping("/reports")
+    public ApiResponse<ReportResDto.Pagination<ReportResDto.ReportPreview>> getReports(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @RequestParam(required = false) Integer pageSize,
+            @RequestParam(required = false) String cursor,
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate
+            ) {
+        return ApiResponse.onSuccess(ReportSuccessCode.REPORT_LIST_GET_OK, reportService.getReportList(member, pageSize, cursor, startDate, endDate));
+    }
+
 }

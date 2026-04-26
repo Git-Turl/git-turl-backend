@@ -2,6 +2,7 @@ package root.git_turl.domain.report.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.report.enums.GenerationStatus;
 import root.git_turl.domain.report.enums.Status;
 import root.git_turl.global.entity.BaseEntity;
@@ -32,6 +33,13 @@ public class Report extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String contentJson;
+
+    @Column(name = "description")
+    private String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
 
     public void updateGenerationStatus(GenerationStatus status) {
         this.generationStatus = status;

@@ -75,4 +75,15 @@ public class ReportConverter {
                 .status(status)
                 .build();
     }
+
+    public static ReportResDto.ReportPreview toReportPreview(
+            Report report
+    ) {
+        return ReportResDto.ReportPreview.builder()
+                .reportId(report.getId())
+                .reopName(report.getRepoName())
+                .description(report.getDescription())
+                .createdAt(report.getCreatedAt())
+                .build();
+    }
 }
