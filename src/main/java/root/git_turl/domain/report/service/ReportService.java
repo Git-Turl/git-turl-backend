@@ -12,6 +12,7 @@ import root.git_turl.domain.report.dto.GithubRepoResponse;
 import root.git_turl.domain.report.dto.ReportReqDto;
 import root.git_turl.domain.report.dto.ReportResDto;
 import root.git_turl.domain.report.entity.Report;
+import root.git_turl.domain.report.enums.GenerationStatus;
 import root.git_turl.domain.report.exception.ReportException;
 import root.git_turl.domain.report.repository.ReportRepository;
 import root.git_turl.global.util.Pagination;
@@ -52,6 +53,10 @@ public class ReportService {
 
         if (!currentMember.getGithubId().equals(report.getGithubId())) {
             throw new ReportException(ReportErrorCode.NO_AUTH_REPORT);
+        }
+
+        if (!report.getGenerationStatus().equals(GenerationStatus.DONE)) {
+            return null;
         }
 
         return ReportConverter.toReportDetail(report);

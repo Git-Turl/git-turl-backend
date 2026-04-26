@@ -56,7 +56,7 @@ public class GitAnalysisService {
             else if (commit.getDate().isAfter(LocalDate.now().minusDays(30))) score += 1;
 
             // 사용자 커밋
-            if (userCommits.contains(commit)) score += 3;
+            if (!userCommits.contains(commit)) score -= 100;
 
             scoreMap.put(commit, score);
         }
