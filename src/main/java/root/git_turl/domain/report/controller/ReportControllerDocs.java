@@ -2,6 +2,7 @@ package root.git_turl.domain.report.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -63,5 +64,15 @@ public interface ReportControllerDocs {
             @RequestParam(required = false) String cursor,
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate
+    );
+
+    @Operation(
+            summary = "분석본 제목 변경",
+            description = "해당 id의 분석본 제목을 변경합니다."
+    )
+    public ApiResponse<ReportResDto.NewTitle> updateReportTitle(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @Valid @RequestBody ReportReqDto.NewTitle dto,
+            @RequestParam Long reportId
     );
 }

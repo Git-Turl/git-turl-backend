@@ -2,6 +2,7 @@ package root.git_turl.domain.report.controller;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import root.git_turl.domain.member.entity.Member;
@@ -67,8 +68,17 @@ public class ReportController implements ReportControllerDocs{
             @RequestParam(required = false) String cursor,
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate
-            ) {
+    ) {
         return ApiResponse.onSuccess(ReportSuccessCode.REPORT_LIST_GET_OK, reportService.getReportList(member, pageSize, cursor, startDate, endDate));
+    }
+
+    @PatchMapping("/reports/{reportId}/title")
+    public ApiResponse<ReportResDto.NewTitle> updateReportTitle(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @Valid @RequestBody ReportReqDto.NewTitle dto,
+            @RequestParam Long reportId
+    ) {
+        return ApiResponse.onSuccess(ReportSuccessCode.REPORT_TITLE_PATCH_OK, reportService.updateReportTitle(member, dto, reportId));
     }
 
 }
