@@ -19,7 +19,11 @@ public enum ReportSuccessCode implements BaseSuccessCode {
 
     REPORT_GET_OK(HttpStatus.OK,
             "REPORT200_4",
-            "레포지토리 요약본이 조회되었습니다.");
+            "레포지토리 요약본이 조회되었습니다."),
+
+    REPORT_STATUS_PATCH_OK(HttpStatus.OK,
+    "REPORT200_5",
+            "요약본 공개여부가 변경되었습니다.");
 
     private final HttpStatus status;
     private final String code;

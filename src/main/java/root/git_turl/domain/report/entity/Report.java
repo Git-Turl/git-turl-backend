@@ -40,4 +40,6 @@ public class Report extends BaseEntity {
     public void updateContent(String contentJson) {
         this.contentJson = contentJson;
     }
+
+    public void updateStatus(Status status) { this.status = status; }
 }

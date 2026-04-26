@@ -67,4 +67,12 @@ public class ReportConverter {
             throw new RuntimeException("JSON 파싱 실패", e);
         }
     }
+
+    public static ReportResDto.NewStatus toNewStatus(
+            Status status
+    ) {
+        return ReportResDto.NewStatus.builder()
+                .status(status)
+                .build();
+    }
 }
