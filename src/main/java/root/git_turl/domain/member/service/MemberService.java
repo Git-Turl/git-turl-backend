@@ -12,6 +12,7 @@ import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.member.exception.MemberException;
 import root.git_turl.domain.member.repository.MemberRepository;
 import root.git_turl.global.aws.AwsFileService;
+import root.git_turl.infrastructure.github.GithubClient;
 
 import java.io.IOException;
 
@@ -21,6 +22,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final AwsFileService awsFileService;
+    private final GithubClient githubClient;
 
     @Transactional(readOnly = true)
     public MemberResDto.ProfileImage getProfileImage(Member member) {
@@ -52,10 +54,13 @@ public class MemberService {
             throw new MemberException(MemberErrorCode.PROFILE_BAD_REQUEST);
         }
 
+        String email = githubClient.getEmail(currentMember.getGithubAccessToken());
+
         Member member = memberRepository.findById(currentMember.getId())
                 .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
 
         member.saveProfile(dto.getNickname(), dto.getJobType(), dto.getTechStackList());
+        member.setEmail(email);
     }
 
     @Transactional
