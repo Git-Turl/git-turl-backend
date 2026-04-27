@@ -64,6 +64,7 @@ jobs:
             S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }}
             CLOUD_ACCESS_KEY=${{ secrets.CLOUD_ACCESS_KEY }}
             CLOUD_SECRET_KEY=${{ secrets.CLOUD_SECRET_KEY }}
+            OPENAI_KEY=${{ secrets.OPENAI_KEY }}
             EOF
 
             cd /home/ubuntu/app
