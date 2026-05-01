@@ -1,15 +1,16 @@
 package root.git_turl.domain.member.controller;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import root.git_turl.domain.member.code.AuthSuccessCode;
 import root.git_turl.domain.member.dto.TokenDto;
+import root.git_turl.domain.member.entity.Member;
+import root.git_turl.domain.member.service.MemberService;
 import root.git_turl.domain.member.service.TokenService;
+import root.git_turl.global.annotation.CurrentUser;
 import root.git_turl.global.apiPayload.ApiResponse;
 
 @RestController
@@ -19,6 +20,7 @@ import root.git_turl.global.apiPayload.ApiResponse;
 public class AuthController implements AuthControllerDocs{
 
     private final TokenService tokenService;
+    private final MemberService memberService;
 
     @PostMapping("/reissue")
     public ApiResponse<TokenDto.AccessToken> accessTokenReissue(
@@ -33,5 +35,13 @@ public class AuthController implements AuthControllerDocs{
     ) {
         tokenService.logout(refreshToken);
         return ApiResponse.onSuccess(AuthSuccessCode.LOGOUT_OK, null);
+    }
+
+    @DeleteMapping("/withdraw")
+    public ApiResponse<Void> withdraw(
+            @CurrentUser @Parameter(hidden = true) Member member
+    ) {
+        memberService.withdraw(member);
+        return ApiResponse.onSuccess(AuthSuccessCode.WITHDRAW_OK, null);
     }
 }

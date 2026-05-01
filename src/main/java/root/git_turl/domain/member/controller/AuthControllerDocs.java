@@ -1,9 +1,12 @@
 package root.git_turl.domain.member.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.CookieValue;
 import root.git_turl.domain.member.dto.TokenDto;
+import root.git_turl.domain.member.entity.Member;
+import root.git_turl.global.annotation.CurrentUser;
 import root.git_turl.global.apiPayload.ApiResponse;
 
 public interface AuthControllerDocs {
@@ -22,5 +25,13 @@ public interface AuthControllerDocs {
     )
     public ApiResponse<Void> logout(
             @CookieValue(value = "refreshToken", required = false) String refreshToken
+    );
+
+    @Operation(
+            summary = "회원탈퇴",
+            description = "회원 정보가 삭제되었습니다."
+    )
+    public ApiResponse<Void> withdraw(
+            @CurrentUser @Parameter(hidden = true) Member member
     );
 }

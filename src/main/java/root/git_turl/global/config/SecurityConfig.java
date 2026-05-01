@@ -33,7 +33,8 @@ public class SecurityConfig {
             "/login/oauth2/**",
             "/oauth2/**",
             "/api/v1/members/*/profile",
-            "/api/v1/auth/**",
+            "/api/v1/auth/reissue",
+            "/api/v1/auth/logout",
             "/login/**",
     };
 

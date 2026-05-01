@@ -15,7 +15,11 @@ public enum AuthSuccessCode implements BaseSuccessCode {
 
     LOGOUT_OK(HttpStatus.OK,
             "AUTH200_2",
-            "로그아웃 되었습니다.");
+            "로그아웃 되었습니다."),
+
+    WITHDRAW_OK(HttpStatus.OK,
+            "AUTH200_3",
+            "회원탈퇴 되었습니다.");
 
     private final HttpStatus status;
     private final String code;
