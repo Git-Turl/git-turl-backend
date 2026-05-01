@@ -11,7 +11,11 @@ public enum AuthSuccessCode implements BaseSuccessCode {
 
     TOKEN_REISSUE_OK(HttpStatus.OK,
             "AUTH200_1",
-            "토큰이 재발급되었습니다.");
+            "토큰이 재발급되었습니다."),
+
+    LOGOUT_OK(HttpStatus.OK,
+            "AUTH200_2",
+            "로그아웃 되었습니다.");
 
     private final HttpStatus status;
     private final String code;

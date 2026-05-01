@@ -15,4 +15,12 @@ public interface AuthControllerDocs {
     public ApiResponse<TokenDto.AccessToken> accessTokenReissue(
             @CookieValue(value = "refreshToken", required = false) String refreshToken, HttpServletResponse response
     );
+
+    @Operation(
+            summary = "로그아웃",
+            description = "refreshToken이 삭제 되었습니다."
+    )
+    public ApiResponse<Void> logout(
+            @CookieValue(value = "refreshToken", required = false) String refreshToken
+    );
 }

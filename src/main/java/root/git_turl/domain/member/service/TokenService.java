@@ -66,4 +66,17 @@ public class TokenService {
 
         return new TokenDto.AccessToken(accessToken);
     }
+
+    //로그아웃
+    @Transactional
+    public void logout(String refreshTokenValue) {
+        if (refreshTokenValue == null) {
+            throw new AuthException(AuthErrorCode.NO_REFRESH_TOKEN);
+        }
+
+        RefreshToken refreshToken = refreshTokenRepository.findByToken(refreshTokenValue)
+                .orElseThrow(() -> new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN));
+
+        refreshTokenRepository.delete(refreshToken);
+    }
 }
