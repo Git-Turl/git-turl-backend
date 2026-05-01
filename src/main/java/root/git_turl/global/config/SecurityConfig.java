@@ -32,7 +32,9 @@ public class SecurityConfig {
             "/v3/api-docs/**",
             "/login/oauth2/**",
             "/oauth2/**",
-            "/api/v1/members/*/profile"
+            "/api/v1/members/*/profile",
+            "/api/v1/auth/**",
+            "/login/**",
     };
 
 

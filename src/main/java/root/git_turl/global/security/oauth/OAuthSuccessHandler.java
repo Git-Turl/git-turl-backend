@@ -59,9 +59,7 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
         String accessToken = tokenDto.getAccessToken();
         String refreshToken = tokenDto.getRefreshToken();
 
-
         CookieUtil.addCookie(response, "refreshToken", refreshToken);
-
 
         if (oAuthMember.isNew()) {
             response.sendRedirect("http://localhost:5173/login/loading?route=signup&token=" + accessToken);
