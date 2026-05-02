@@ -9,6 +9,7 @@ import root.git_turl.domain.member.converter.MemberConverter;
 import root.git_turl.domain.member.dto.MemberReqDto;
 import root.git_turl.domain.member.dto.MemberResDto;
 import root.git_turl.domain.member.entity.Member;
+import root.git_turl.domain.member.enums.Status;
 import root.git_turl.domain.member.exception.MemberException;
 import root.git_turl.domain.member.repository.MemberRepository;
 import root.git_turl.global.aws.AwsFileService;
@@ -87,5 +88,12 @@ public class MemberService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
         return MemberConverter.ProfileInfo(member);
+    }
+
+    @Transactional
+    public void withdraw(Member currentMember) {
+        Member member = memberRepository.findById(currentMember.getId())
+                .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
+        member.inactivateMember();
     }
 }
