@@ -1,0 +1,19 @@
+package root.git_turl.domain.question.exception.code;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import root.git_turl.global.apiPayload.code.BaseSuccessCode;
+
+@Getter
+@RequiredArgsConstructor
+public enum QuestionSuccessCode implements BaseSuccessCode {
+
+    QUESTION_POST_OK(HttpStatus.OK,
+            "QUESTION200_2",
+            "질문을 생성하였습니다.");
+
+    private final HttpStatus status;
+    private final String code;
+    private final String message;
+}
