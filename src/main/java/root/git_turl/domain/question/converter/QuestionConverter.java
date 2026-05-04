@@ -25,6 +25,7 @@ public class QuestionConverter {
                 .questionId(question.getId())
                 .content(question.getContent())
                 .createdAt(question.getCreatedAt().toLocalDate())
+                .status(question.getStatus())
                 .build();
     }
 }
