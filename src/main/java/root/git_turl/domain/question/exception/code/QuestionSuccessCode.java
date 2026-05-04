@@ -15,7 +15,11 @@ public enum QuestionSuccessCode implements BaseSuccessCode {
 
     QUESTION_POST_OK(HttpStatus.OK,
             "QUESTION200_2",
-            "질문을 생성하였습니다.");
+            "질문을 생성하였습니다."),
+
+    QUESTION_DELETE_OK(HttpStatus.OK,
+            "QUESTION200_3",
+            "질문이 삭제되었습니다.");
 
     private final HttpStatus status;
     private final String code;

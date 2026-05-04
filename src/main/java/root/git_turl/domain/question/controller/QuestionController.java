@@ -44,4 +44,12 @@ public class QuestionController implements QuestionControllerDocs{
         ReportResDto.Pagination<QuestionResDto.QuestionInfo> response = questionService.getQuestionList(reportId, pageSize, cursor);
         return ApiResponse.onSuccess(QuestionSuccessCode.QUESTION_LIST_GET_OK, response);
     }
+
+    @DeleteMapping("/questions/{questionId}")
+    public ApiResponse<Void> deleteQuestion(
+            @PathVariable Long questionId
+    ) {
+        questionService.deleteQuestion(questionId);
+        return ApiResponse.onSuccess(QuestionSuccessCode.QUESTION_DELETE_OK, null);
+    }
 }

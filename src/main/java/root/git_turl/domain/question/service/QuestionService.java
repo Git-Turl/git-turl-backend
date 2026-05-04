@@ -14,6 +14,8 @@ import root.git_turl.domain.question.dto.QuestionContent;
 import root.git_turl.domain.question.dto.QuestionReqDto;
 import root.git_turl.domain.question.dto.QuestionResDto;
 import root.git_turl.domain.question.entity.Question;
+import root.git_turl.domain.question.exception.QuestionException;
+import root.git_turl.domain.question.exception.code.QuestionErrorCode;
 import root.git_turl.domain.question.repository.QuestionRepository;
 import root.git_turl.domain.report.code.ReportErrorCode;
 import root.git_turl.domain.report.dto.ReportResDto;
@@ -82,5 +84,13 @@ public class QuestionService {
                 nextCursor,
                 questionList.getSize()
         );
+    }
+
+    @Transactional
+    public void deleteQuestion(Long questionId) {
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new QuestionException(QuestionErrorCode.NOT_FOUND));
+
+        questionRepository.delete(question);
     }
 }

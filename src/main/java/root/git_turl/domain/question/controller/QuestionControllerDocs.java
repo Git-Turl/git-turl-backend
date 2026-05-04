@@ -37,4 +37,12 @@ public interface QuestionControllerDocs {
             @RequestParam(required = false) Integer pageSize,
             @RequestParam(required = false) String cursor
     );
+
+    @Operation(
+            summary = "질문 삭제",
+            description = "해당 질문을 삭제합니다."
+    )
+    public ApiResponse<Void> deleteQuestion(
+            @PathVariable Long questionId
+    );
 }
