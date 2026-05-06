@@ -19,6 +19,7 @@ public class MemberConverter {
         return MemberResDto.ProfileInfo.builder()
                 .nickname(member.getNickname())
                 .profileImage(member.getProfileImage())
+                .githubId(member.getGithubId())
                 .jobType(member.getJobType())
                 .techStackList(member.getInterestStacks()
                         .stream()

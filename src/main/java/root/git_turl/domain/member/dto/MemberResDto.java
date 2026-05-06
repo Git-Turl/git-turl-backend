@@ -20,6 +20,7 @@ public class MemberResDto {
     @Builder
     public static class ProfileInfo {
         private String nickname;
+        private String githubId;
         private String profileImage;
         private JobType jobType;
         private List<TechStack> techStackList;
