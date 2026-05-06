@@ -38,7 +38,7 @@ public class CustomOAuthService extends DefaultOAuth2UserService {
 
         return memberRepository.findBySocialUid(socialUid)
                 .map(m -> {
-                    m.updateGithubInfo(login, profileImage, name, email);
+                    m.updateGithubInfo(login, name, profileImage, email);
                     if (m.getStatus().equals(Status.INACTIVATE)) {
                         if (m.getDeletedAt().plusDays(7).isAfter(LocalDateTime.now())) {
                             m.activateMember();
