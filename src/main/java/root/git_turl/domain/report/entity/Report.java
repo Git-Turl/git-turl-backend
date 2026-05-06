@@ -3,9 +3,13 @@ package root.git_turl.domain.report.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import root.git_turl.domain.member.entity.Member;
+import root.git_turl.domain.question.entity.Question;
 import root.git_turl.domain.report.enums.GenerationStatus;
 import root.git_turl.domain.report.enums.Status;
 import root.git_turl.global.entity.BaseEntity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Builder
@@ -50,6 +54,8 @@ public class Report extends BaseEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @OneToMany(mappedBy = "report")
+    private List<Question> questions = new ArrayList<>();
 
     public void updateTitle(String title) { this.title = title; }
 

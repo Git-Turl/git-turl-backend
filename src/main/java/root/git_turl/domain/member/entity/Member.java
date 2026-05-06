@@ -5,6 +5,7 @@ import lombok.*;
 import root.git_turl.domain.member.enums.JobType;
 import root.git_turl.domain.member.enums.Status;
 import root.git_turl.domain.member.enums.TechStack;
+import root.git_turl.domain.question.entity.Question;
 import root.git_turl.domain.report.entity.Report;
 import root.git_turl.global.entity.BaseEntity;
 
@@ -67,6 +68,9 @@ public class Member extends BaseEntity {
 
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private RefreshToken refreshToken;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Question> questions = new ArrayList<>();
 
     public void addInterestStack(TechStack techStack) {
         InterestStack interestStack = InterestStack.builder()
