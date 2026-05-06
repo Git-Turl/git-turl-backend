@@ -3,6 +3,7 @@ package root.git_turl.global.util;
 import org.springframework.stereotype.Component;
 import root.git_turl.domain.report.dto.GitAnalysisResult;
 import root.git_turl.domain.report.dto.commit.MajorCommit;
+import root.git_turl.domain.report.entity.Report;
 
 @Component
 public class BuildPrompt {
@@ -115,6 +116,30 @@ public class BuildPrompt {
                 "    - title: 개선할 점 제목 (예: 공통 응답 처리)\n" +
                 "    - content: 분석 내용 (2문장 이상)\n" +
                 "\n");
+
+        return sb.toString();
+    }
+
+    public String buildQuestionPrompt(Report report, Integer questionCount) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("다음은 한 개발자의 Github repository 분석본입니다. \n");
+        sb.append(report.getContentJson());
+        sb.append("\n 해당 분석본을 읽고, 아래 기준을 참고하여 적절한 개발자 면접 질문을 %d개 생성하세요." .formatted(questionCount));
+        sb.append("\n레포 연관성:t레포의 특정 코드, 기능, 설계 의도에서 직접 도출된 질문임.\n");
+        sb.append("면접 적합성: 실제 기술면접에서 물어볼 만한 수준이며, 지원자의 사고 과정을 확인할 수 있음.");
+        sb.append("""
+            반드시 아래 JSON 형식으로만 응답하세요.
+            설명, 마크다운, 번호, 코드블록 없이 JSON만 반환하세요.
+            
+            {
+              "questions": [
+                "질문1",
+                "질문2",
+                "질문3"
+              ]
+            }
+        """);
 
         return sb.toString();
     }
