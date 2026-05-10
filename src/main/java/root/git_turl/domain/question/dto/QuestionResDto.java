@@ -15,5 +15,6 @@ public class QuestionResDto {
         private String content;
         private LocalDate createdAt;
         private GenerationStatus status;
+        private Integer time;
     }
 }

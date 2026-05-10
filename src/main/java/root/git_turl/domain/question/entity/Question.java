@@ -31,6 +31,9 @@ public class Question extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private GenerationStatus status = GenerationStatus.PROCESSING;
 
+    @Column(name = "time")
+    private Integer time;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "report_id")
     private Report report;
@@ -46,4 +49,6 @@ public class Question extends BaseEntity {
     public void updateStatus(GenerationStatus status) {
         this.status = status;
     }
+
+    public void updateTime(Integer time) { this.time = time; }
 }

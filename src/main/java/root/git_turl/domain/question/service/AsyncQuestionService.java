@@ -18,7 +18,9 @@ import root.git_turl.domain.report.repository.ReportRepository;
 import root.git_turl.global.util.BuildPrompt;
 import root.git_turl.infrastructure.openai.GptService;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -38,10 +40,12 @@ public class AsyncQuestionService {
                 questionRepository.findAllById(questionIdLists);
         try {
             String prompt = buildPrompt.buildQuestionPrompt(report, count);
-            List<String> contents = gptService.makeQuestions(prompt).getQuestions();
+            Map<String,Integer> contents = gptService.makeQuestions(prompt).getQuestions();
+            List<String> keys = new ArrayList<>(contents.keySet());
 
             for (int i=0; i<questions.size(); i++) {
-                questions.get(i).updateContent(contents.get(i));
+                questions.get(i).updateContent(keys.get(i));
+                questions.get(i).updateTime(contents.get(keys.get(i)));
                 questions.get(i).updateStatus(GenerationStatus.DONE);
             }
         } catch (Exception e) {
