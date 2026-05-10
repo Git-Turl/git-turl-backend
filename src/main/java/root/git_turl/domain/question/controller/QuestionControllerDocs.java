@@ -22,7 +22,7 @@ public interface QuestionControllerDocs {
             summary = "분석본 토대로 질문 생성",
             description = "해당 분석본을 토대로 질문을 생성합니다."
     )
-    public ApiResponse<Void> saveQuestion(
+    public ApiResponse<QuestionResDto.QuestionId> saveQuestion(
             @CurrentUser @Parameter(hidden = true) Member member,
             @PathVariable Long reportId,
             @RequestBody @Valid QuestionReqDto.QuestionCount dto

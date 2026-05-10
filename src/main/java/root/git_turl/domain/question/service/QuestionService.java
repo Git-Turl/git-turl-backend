@@ -37,7 +37,7 @@ public class QuestionService {
     private final AsyncQuestionService asyncQuestionService;
 
     @Transactional
-    public void saveQuestion(Member currentMember, Long reportId, QuestionReqDto.QuestionCount dto) {
+    public QuestionResDto.QuestionId saveQuestion(Member currentMember, Long reportId, QuestionReqDto.QuestionCount dto) {
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new ReportException(ReportErrorCode.REPORT_NOT_FOUND));
         Member member = memberRepository.findById(currentMember.getId())
@@ -50,6 +50,7 @@ public class QuestionService {
         }
         questionRepository.saveAll(questions);
         asyncQuestionService.makeQuestion(reportId, dto.getQuestionCount(), questions.stream().map(Question::getId).toList());
+        return QuestionConverter.toQuestionIdList(questions);
     }
 
     public ReportResDto.Pagination<QuestionResDto.QuestionInfo> getQuestionList(
