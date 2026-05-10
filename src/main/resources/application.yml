@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: prod
+    active: local
   config:
     import: application-aws.yml
   application:
