@@ -9,6 +9,11 @@ import root.git_turl.global.apiPayload.code.BaseErrorCode;
 @RequiredArgsConstructor
 public enum QuestionErrorCode implements BaseErrorCode {
 
+    FORBIDDEN(HttpStatus.FORBIDDEN,
+            "QUESTION403_1",
+            "해당 사용자가 접근할 수 없는 질문입니다."),
+
+
     NOT_FOUND(HttpStatus.NOT_FOUND,
             "QUESTION404_1",
             "존재하지 않는 질문입니다.");
