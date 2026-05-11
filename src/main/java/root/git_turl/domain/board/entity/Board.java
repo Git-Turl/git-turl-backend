@@ -3,16 +3,18 @@ package root.git_turl.domain.board.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import root.git_turl.global.entity.BaseEntity;
 import root.git_turl.domain.board.enums.BoardType;
 import root.git_turl.domain.member.entity.Member;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Builder
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 @Table(name="board")
 public class Board extends BaseEntity {
@@ -35,7 +37,7 @@ public class Board extends BaseEntity {
     private Integer views = 0;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name="board_type", nullable = false)
     private BoardType boardType;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -53,11 +55,11 @@ public class Board extends BaseEntity {
     @Column(nullable = true)
     private LocalDateTime deletedAt;
 
-    public boolean isDeleted() {
-        return deletedAt != null;
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
     }
 
-    public void delete() {
-        this.deletedAt = LocalDateTime.now();
+    public void increaseViews() {
+        this.views++;
     }
 }

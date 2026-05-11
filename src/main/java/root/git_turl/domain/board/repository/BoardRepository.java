@@ -6,8 +6,19 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
 
     Page<Board> findAllByBoardType(BoardType boardType, Pageable pageable);
+
+    Optional<Board> findByIdAndDeletedAtIsNull(Long boardId);
+
+    Page<Board> findAllByDeletedAtIsNull(Pageable pageable);
+
+    Page<Board> findAllByBoardTypeAndDeletedAtIsNull(
+            BoardType boardType,
+            Pageable pageable
+    );
 }
