@@ -5,16 +5,16 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import root.git_turl.domain.board.code.BoardSuccessCode;
 import root.git_turl.domain.board.converter.BoardConverter;
 import root.git_turl.domain.board.entity.Board;
+import root.git_turl.domain.board.enums.BoardType;
 import root.git_turl.domain.board.service.BoardCommandService;
+import root.git_turl.domain.board.service.BoardQueryService;
 import root.git_turl.domain.member.entity.Member;
+import root.git_turl.global.annotation.CurrentUser;
 import root.git_turl.global.apiPayload.ApiResponse;
 import root.git_turl.domain.board.dto.BoardReqDto;
 import root.git_turl.domain.board.dto.BoardResDto;
@@ -27,6 +27,7 @@ import root.git_turl.global.security.CustomUserDetails;
 public class BoardRestController {
 
     private final BoardCommandService boardCommandService;
+    private final BoardQueryService boardQueryService;
     private final BoardConverter boardConverter;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -42,6 +43,51 @@ public class BoardRestController {
         return ApiResponse.onSuccess(
                 BoardSuccessCode.BOARD_CREATED,
                 boardConverter.toBoardDetailDto(board)
+        );
+    }
+
+    @PostMapping
+    public ApiResponse<BoardResDto.BoardCreateResultDto> createBoard(
+            @CurrentUser Member member,
+            @Valid @RequestBody BoardReqDto.CreateBoardReqDto request
+    ) {
+        return ApiResponse.onSuccess(
+                BoardSuccessCode.BOARD_CREATED,
+                boardCommandService.createBoard(member, request)
+        );
+    }
+
+    @PatchMapping(value = "/{boardId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<BoardResDto.BoardUpdateResultDto> updateBoard(
+            @CurrentUser Member member,
+            @PathVariable Long boardId,
+            @ModelAttribute BoardReqDto.UpdateDto request
+    ) {
+        return ApiResponse.onSuccess(
+                BoardSuccessCode.BOARD_UPDATED,
+                boardCommandService.updateBoard(member, boardId, request)
+        );
+    }
+
+    @DeleteMapping("/{boardId}")
+    public ApiResponse<BoardResDto.BoardDeleteResultDto> deleteBoard(
+            @CurrentUser Member member,
+            @PathVariable Long boardId
+    ) {
+        return ApiResponse.onSuccess(
+                BoardSuccessCode.BOARD_DELETED,
+                boardCommandService.deleteBoard(member, boardId)
+        );
+    }
+
+    @GetMapping
+    public ApiResponse<BoardResDto.BoardPreviewListDto> getBoardList(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(required = false) BoardType boardType
+    ) {
+        return ApiResponse.onSuccess(
+                BoardSuccessCode.BOARD_LIST_FOUND,
+                boardQueryService.getBoardList(page, boardType)
         );
     }
 }

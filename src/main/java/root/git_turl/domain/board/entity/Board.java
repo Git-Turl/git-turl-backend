@@ -42,6 +42,13 @@ public class Board extends BaseEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    public void update(String title, String content, String imageUrl, BoardType boardType) {
+        if (title != null) this.title = title;
+        if (content != null) this.content = content;
+        if (imageUrl != null) this.imageUrl = imageUrl;
+        if (boardType != null) this.boardType = boardType;
+    }
+
     // soft delete
     @Column(nullable = true)
     private LocalDateTime deletedAt;

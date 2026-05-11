@@ -1,11 +1,14 @@
 package root.git_turl.domain.board.converter;
 
-import org.hibernate.annotations.ConcreteProxy;
 import org.springframework.stereotype.Component;
 import root.git_turl.domain.board.dto.BoardReqDto;
 import root.git_turl.domain.board.dto.BoardResDto;
 import root.git_turl.domain.board.entity.Board;
 import root.git_turl.domain.member.entity.Member;
+import org.springframework.data.domain.Page;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Component
 public class BoardConverter {
@@ -29,6 +32,54 @@ public class BoardConverter {
                 .boardType(board.getBoardType())
                 .createdAt(board.getCreatedAt())
                 .views(board.getViews())
+                .build();
+    }
+
+    public static BoardResDto.BoardCreateResultDto toCreateResultDto(Board board) {
+        return BoardResDto.BoardCreateResultDto.builder()
+                .boardId(board.getId())
+                .createdAt(board.getCreatedAt())
+                .build();
+    }
+
+    public static BoardResDto.BoardUpdateResultDto toUpdateResultDto(Board board) {
+        return BoardResDto.BoardUpdateResultDto.builder()
+                .boardId(board.getId())
+                .updatedAt(board.getUpdatedAt())
+                .build();
+    }
+
+    public static BoardResDto.BoardDeleteResultDto toDeleteResultDto(Long boardId) {
+        return BoardResDto.BoardDeleteResultDto.builder()
+                .boardId(boardId)
+                .deletedAt(LocalDateTime.now())
+                .build();
+    }
+
+    public static BoardResDto.BoardPreviewDto toBoardPreviewDto(Board board) {
+        return BoardResDto.BoardPreviewDto.builder()
+                .boardId(board.getId())
+                .title(board.getTitle())
+                .content(board.getContent())
+                .imageUrl(board.getImageUrl())
+                .boardType(board.getBoardType())
+                .writerName(board.getMember().getNickname())
+                .createdAt(board.getCreatedAt())
+                .build();
+    }
+
+    public static BoardResDto.BoardPreviewListDto toBoardPreviewListDto(Page<Board> boardPage) {
+        List<BoardResDto.BoardPreviewDto> boardList = boardPage.stream()
+                .map(BoardConverter::toBoardPreviewDto)
+                .toList();
+
+        return BoardResDto.BoardPreviewListDto.builder()
+                .boardList(boardList)
+                .listSize(boardList.size())
+                .totalPage(boardPage.getTotalPages())
+                .totalElements(boardPage.getTotalElements())
+                .isFirst(boardPage.isFirst())
+                .isLast(boardPage.isLast())
                 .build();
     }
 }
