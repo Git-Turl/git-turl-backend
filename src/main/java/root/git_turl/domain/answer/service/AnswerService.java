@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import root.git_turl.domain.answer.converter.AnswerConverter;
+import root.git_turl.domain.answer.dto.AnswerResDto;
 import root.git_turl.domain.answer.dto.Feedback;
 import root.git_turl.domain.answer.entity.Answer;
 import root.git_turl.domain.answer.exception.AnswerException;
@@ -18,6 +19,8 @@ import root.git_turl.global.apiPayload.exception.GeneralException;
 import root.git_turl.global.util.BuildPrompt;
 import root.git_turl.infrastructure.openai.GptService;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AnswerService {
@@ -26,6 +29,15 @@ public class AnswerService {
     private final AnswerRepository answerRepository;
     private final BuildPrompt buildPrompt;
     private final GptService gptService;
+
+    public List<AnswerResDto.TextAnswer> getAnswerList(Member currentMember, Long questionId) {
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new QuestionException(QuestionErrorCode.NOT_FOUND));
+
+        validateAuthor(currentMember, question);
+
+        return question.getAnswerList().stream().map(AnswerConverter::toTextAnswer).toList();
+    }
 
     @Transactional
     public void saveAnswer(Member currentMember, Long questionId, String content) {

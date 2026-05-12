@@ -6,11 +6,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import root.git_turl.domain.answer.dto.AnswerReqDto;
+import root.git_turl.domain.answer.dto.AnswerResDto;
 import root.git_turl.domain.answer.exception.code.AnswerSuccessCode;
 import root.git_turl.domain.answer.service.AnswerService;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.global.annotation.CurrentUser;
 import root.git_turl.global.apiPayload.ApiResponse;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,6 +22,15 @@ import root.git_turl.global.apiPayload.ApiResponse;
 public class AnswerController implements AnswerControllerDocs{
 
     private final AnswerService answerService;
+
+    @GetMapping("/questions/{questionId}/answers")
+    public ApiResponse<List<AnswerResDto.TextAnswer>> getAnswers(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @PathVariable Long questionId
+    ) {
+        List<AnswerResDto.TextAnswer> response = answerService.getAnswerList(member, questionId);
+        return ApiResponse.onSuccess(AnswerSuccessCode.ANSWER_LIST_GET_OK, response);
+    }
 
     @PostMapping("/questions/{questionId}/answers")
     public ApiResponse<Void> saveAnswer(

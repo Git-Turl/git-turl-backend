@@ -5,11 +5,23 @@ import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import root.git_turl.domain.answer.dto.AnswerReqDto;
+import root.git_turl.domain.answer.dto.AnswerResDto;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.global.annotation.CurrentUser;
 import root.git_turl.global.apiPayload.ApiResponse;
 
+import java.util.List;
+
 public interface AnswerControllerDocs {
+
+    @Operation(
+            summary = "답변&피드백 조회",
+            description = "답변과 피드백 목록을 조회합니다."
+    )
+    public ApiResponse<List<AnswerResDto.TextAnswer>> getAnswers(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @PathVariable Long questionId
+    );
 
     @Operation(
             summary = "답변 저장",
