@@ -50,4 +50,13 @@ public class AnswerController implements AnswerControllerDocs{
         answerService.makeFeedback(member, answerId);
         return ApiResponse.onSuccess(AnswerSuccessCode.FEEDBACK_POST_OK, null);
     }
+
+    @DeleteMapping("/answers/{answerId}")
+    public ApiResponse<Void> deleteAnswer(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @PathVariable Long answerId
+    ) {
+        answerService.deleteAnswer(member, answerId);
+        return ApiResponse.onSuccess(AnswerSuccessCode.ANSWER_DELETE_OK, null);
+    }
 }

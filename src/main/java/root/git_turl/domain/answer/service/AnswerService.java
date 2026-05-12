@@ -70,6 +70,16 @@ public class AnswerService {
         answer.updateFeedback(feedback.getContent());
     }
 
+    @Transactional
+    public void deleteAnswer(Member currentMember, Long answerId) {
+        Answer answer = answerRepository.findByIdWithQuestion(answerId)
+                .orElseThrow(() -> new AnswerException(AnswerErrorCode.NOT_FOUND));
+
+        validateAuthor(currentMember, answer.getQuestion());
+
+        answerRepository.deleteById(answerId);
+    }
+
     private static void validateAuthor(Member currentMember, Question question) {
         if (!question.getMember().getId().equals(currentMember.getId())) {
             throw new GeneralException(QuestionErrorCode.FORBIDDEN);

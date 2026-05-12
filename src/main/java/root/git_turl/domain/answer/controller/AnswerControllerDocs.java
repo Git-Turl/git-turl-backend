@@ -41,4 +41,13 @@ public interface AnswerControllerDocs {
             @CurrentUser @Parameter(hidden = true) Member member,
             @PathVariable Long answerId
     );
+
+    @Operation(
+            summary = "답변&피드백 삭제",
+            description = "해당 답변과 피드백을 삭제합니다."
+    )
+    public ApiResponse<Void> deleteAnswer(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @PathVariable Long answerId
+    );
 }
