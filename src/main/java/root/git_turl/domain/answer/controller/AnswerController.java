@@ -29,4 +29,13 @@ public class AnswerController implements AnswerControllerDocs{
         answerService.saveAnswer(member, questionId, dto.getContent());
         return ApiResponse.onSuccess(AnswerSuccessCode.ANSWER_POST_OK, null);
     }
+
+    @PostMapping("/answers/{answerId}/feedbacks")
+    public ApiResponse<Void> makeFeedback(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @PathVariable Long answerId
+    ) {
+        answerService.makeFeedback(member, answerId);
+        return ApiResponse.onSuccess(AnswerSuccessCode.FEEDBACK_POST_OK, null);
+    }
 }

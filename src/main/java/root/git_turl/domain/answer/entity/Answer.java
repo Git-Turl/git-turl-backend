@@ -31,6 +31,9 @@ public class Answer extends BaseEntity {
     @Column(name = "content")
     private String content;
 
+    @Column(name = "feedback")
+    private String feedback;
+
     @Column(name = "voice_file")
     private String voiceFile;
 
@@ -48,4 +51,8 @@ public class Answer extends BaseEntity {
     @JoinColumn(name = "question_id")
     private Question question;
 
+
+    public void updateFeedback(String feedback) {
+        this.feedback = feedback;
+    }
 }

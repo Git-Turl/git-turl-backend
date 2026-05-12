@@ -20,4 +20,13 @@ public interface AnswerControllerDocs {
             @PathVariable Long questionId,
             @RequestBody AnswerReqDto.Answer dto
     );
+
+    @Operation(
+            summary = "피드백 생성",
+            description = "해당 답변에 대한 피드백을 저장합니다."
+    )
+    public ApiResponse<Void> makeFeedback(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @PathVariable Long answerId
+    );
 }
