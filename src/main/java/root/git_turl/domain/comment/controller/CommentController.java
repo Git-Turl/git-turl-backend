@@ -57,12 +57,13 @@ public class CommentController {
 
     @GetMapping("/boards/{boardId}/comments")
     public ApiResponse<CommentResDto.CommentPreviewListDto> getCommentList(
+            @CurrentUser Member member,
             @PathVariable Long boardId,
             @RequestParam(defaultValue = "0") Integer page
     ) {
         return ApiResponse.onSuccess(
                 CommentSuccessCode.COMMENT_LIST_FOUND,
-                commentQueryService.getCommentList(boardId, page)
+                commentQueryService.getCommentList(member, boardId, page)
         );
     }
 }

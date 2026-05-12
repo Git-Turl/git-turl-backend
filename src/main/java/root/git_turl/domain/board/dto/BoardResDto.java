@@ -19,6 +19,8 @@ public class BoardResDto {
         private BoardType boardType;
         private String authorName;
         private Integer views;
+        private Long likeCount;
+        private Boolean isLiked;
         private LocalDateTime createdAt;
     }
 
@@ -52,6 +54,7 @@ public class BoardResDto {
         private String imageUrl;
         private BoardType boardType;
         private String writerName;
+        private Long likeCount;
         private LocalDateTime createdAt;
     }
 

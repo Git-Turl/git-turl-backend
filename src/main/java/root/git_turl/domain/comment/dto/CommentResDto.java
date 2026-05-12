@@ -39,6 +39,8 @@ public class CommentResDto {
         private Boolean isSecret;
         private String content;
         private String writerName;
+        private Long likeCount;
+        private Boolean isLiked;
         private LocalDateTime createdAt;
     }
 

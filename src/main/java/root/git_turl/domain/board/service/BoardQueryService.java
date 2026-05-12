@@ -6,17 +6,23 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import root.git_turl.domain.board.code.BoardErrorCode;
 import root.git_turl.domain.board.converter.BoardConverter;
 import root.git_turl.domain.board.dto.BoardResDto;
 import root.git_turl.domain.board.entity.Board;
 import root.git_turl.domain.board.enums.BoardType;
+import root.git_turl.domain.board.exception.BoardException;
+import root.git_turl.domain.board.repository.BoardLikeRepository;
 import root.git_turl.domain.board.repository.BoardRepository;
+import root.git_turl.domain.member.entity.Member;
 
 @Service
 @RequiredArgsConstructor
 public class BoardQueryService {
 
     private final BoardRepository boardRepository;
+    private final BoardConverter boardConverter;
+    private final BoardLikeRepository boardLikeRepository;
 
     @Transactional(readOnly = true)
     public BoardResDto.BoardPreviewListDto getBoardList(Integer page, BoardType boardType) {
@@ -30,6 +36,36 @@ public class BoardQueryService {
                 ? boardRepository.findAll(pageRequest)
                 : boardRepository.findAllByBoardType(boardType, pageRequest);
 
-        return BoardConverter.toBoardPreviewListDto(boardPage);
+        return BoardConverter.toBoardPreviewListDto(
+                boardPage,
+                boardLikeRepository
+        );
+    }
+
+    @Transactional
+    public BoardResDto.BoardDetailDto getBoardDetail(
+            Member currentMember,
+            Long boardId
+    ) {
+
+        Board board = boardRepository.findByIdAndDeletedAtIsNull(boardId)
+                .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
+
+        board.increaseViews();
+
+        Long likeCount =
+                boardLikeRepository.countByBoard(board);
+
+        Boolean isLiked =
+                boardLikeRepository.existsByBoardAndMember(
+                        board,
+                        currentMember
+                );
+
+        return boardConverter.toBoardDetailDto(
+                board,
+                likeCount,
+                isLiked
+        );
     }
 }

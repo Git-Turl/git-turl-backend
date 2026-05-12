@@ -3,6 +3,7 @@ package root.git_turl.domain.board.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import root.git_turl.domain.board.code.BoardErrorCode;
 import root.git_turl.domain.board.converter.BoardConverter;
 import root.git_turl.domain.board.dto.BoardReqDto;
@@ -15,7 +16,6 @@ import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.member.exception.MemberException;
 import root.git_turl.domain.member.repository.MemberRepository;
 import root.git_turl.global.aws.AwsFileService;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -29,42 +29,25 @@ public class BoardCommandService {
     private final AwsFileService awsFileService;
 
     @Transactional
-    public Board createBoard(BoardReqDto.CreateBoardReqDto request,
-                             Member member,
-                             MultipartFile image
-                             ) {
-        String imageUrl = null;
-        try {
-            imageUrl = awsFileService.uploadBoardImg(image);
-        } catch (IOException e) {
-            throw new BoardException(BoardErrorCode.IMAGE_UPLOAD_FAIL);
-        }
-        Board board = boardConverter.toBoard(request, member, imageUrl);
-        return boardRepository.save(board);
-    }
-
-    @Transactional
     public BoardResDto.BoardCreateResultDto createBoard(
             Member currentMember,
-            BoardReqDto.CreateBoardReqDto request
+            BoardReqDto.CreateBoardReqDto request,
+            MultipartFile image
     ) {
         Member member = memberRepository.findById(currentMember.getId())
                 .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
 
         String imageUrl = null;
 
-        if (request.getBoardImage() != null) {
+        if (image != null && !image.isEmpty()) {
             try {
-                imageUrl = awsFileService.uploadBoardImg(
-                        request.getBoardImage()
-                );
+                imageUrl = awsFileService.uploadBoardImg(image);
             } catch (IOException e) {
                 throw new BoardException(BoardErrorCode.IMAGE_UPLOAD_FAIL);
             }
         }
 
         Board board = boardConverter.toBoard(request, member, imageUrl);
-
         boardRepository.save(board);
 
         return BoardConverter.toCreateResultDto(board);
@@ -74,27 +57,26 @@ public class BoardCommandService {
     public BoardResDto.BoardUpdateResultDto updateBoard(
             Member currentMember,
             Long boardId,
-            BoardReqDto.UpdateDto request
+            BoardReqDto.UpdateDto request,
+            MultipartFile image
     ) {
         if (request.getTitle() == null
                 && request.getContent() == null
                 && request.getBoardType() == null
-                && request.getBoardImage() == null) {
+                && (image == null || image.isEmpty())) {
             throw new BoardException(BoardErrorCode.NO_EDIT);
         }
 
-        Board board = boardRepository.findById(boardId)
+        Board board = boardRepository.findByIdAndDeletedAtIsNull(boardId)
                 .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
 
         validateWriter(board, currentMember);
 
         String imageUrl = board.getImageUrl();
 
-        if (request.getBoardImage() != null) {
+        if (image != null && !image.isEmpty()) {
             try {
-                imageUrl = awsFileService.uploadBoardImg(
-                        request.getBoardImage()
-                );
+                imageUrl = awsFileService.uploadBoardImg(image);
             } catch (IOException e) {
                 throw new BoardException(BoardErrorCode.IMAGE_UPLOAD_FAIL);
             }
@@ -111,13 +93,16 @@ public class BoardCommandService {
     }
 
     @Transactional
-    public BoardResDto.BoardDeleteResultDto deleteBoard(Member currentMember, Long boardId) {
-        Board board = boardRepository.findById(boardId)
+    public BoardResDto.BoardDeleteResultDto deleteBoard(
+            Member currentMember,
+            Long boardId
+    ) {
+        Board board = boardRepository.findByIdAndDeletedAtIsNull(boardId)
                 .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
 
         validateWriter(board, currentMember);
 
-        boardRepository.delete(board);
+        board.softDelete();
 
         return BoardConverter.toDeleteResultDto(boardId);
     }

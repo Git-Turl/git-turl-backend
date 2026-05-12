@@ -23,7 +23,19 @@ public enum CommentSuccessCode implements BaseSuccessCode {
 
     COMMENT_LIST_FOUND(HttpStatus.OK,
             "COMMENT200_3",
-            "댓글 목록 조회에 성공했습니다.");
+            "댓글 목록 조회에 성공했습니다."),
+
+    COMMENT_LIKE_CREATED(
+            HttpStatus.CREATED,
+            "COMMENT201_2",
+            "댓글 좋아요에 성공했습니다."
+    ),
+
+    COMMENT_LIKE_DELETED(
+            HttpStatus.OK,
+            "COMMENT200_4",
+            "댓글 좋아요 취소에 성공했습니다."
+    ),;
 
     private final HttpStatus status;
     private final String code;

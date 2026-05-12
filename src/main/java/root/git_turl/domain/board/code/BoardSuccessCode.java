@@ -29,7 +29,19 @@ public enum BoardSuccessCode implements BaseSuccessCode {
             HttpStatus.OK,
             "BOARD200_4",
             "게시글 상세 조회에 성공했습니다."
-    );
+    ),
+
+    BOARD_LIKE_CREATED(
+            HttpStatus.CREATED,
+            "BOARD201_2",
+            "게시글 좋아요에 성공했습니다."
+    ),
+
+    BOARD_LIKE_DELETED(
+            HttpStatus.OK,
+            "BOARD200_5",
+            "게시글 좋아요 취소에 성공했습니다."
+    ),;
 
     private final HttpStatus status;
     private final String code;

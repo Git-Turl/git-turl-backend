@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import root.git_turl.domain.board.dto.BoardReqDto;
 import root.git_turl.domain.board.dto.BoardResDto;
 import root.git_turl.domain.board.entity.Board;
+import root.git_turl.domain.board.repository.BoardLikeRepository;
 import root.git_turl.domain.member.entity.Member;
 import org.springframework.data.domain.Page;
 
@@ -23,15 +24,22 @@ public class BoardConverter {
                 .build();
     }
 
-    public BoardResDto.BoardDetailDto toBoardDetailDto(Board board) {
+    public BoardResDto.BoardDetailDto toBoardDetailDto(
+            Board board,
+            Long likeCount,
+            Boolean isLiked
+    ) {
         return BoardResDto.BoardDetailDto.builder()
                 .boardId(board.getId())
                 .title(board.getTitle())
                 .content(board.getContent())
                 .imageUrl(board.getImageUrl())
                 .boardType(board.getBoardType())
-                .createdAt(board.getCreatedAt())
+                .authorName(board.getMember().getNickname())
                 .views(board.getViews())
+                .likeCount(likeCount)
+                .isLiked(isLiked)
+                .createdAt(board.getCreatedAt())
                 .build();
     }
 
@@ -56,7 +64,10 @@ public class BoardConverter {
                 .build();
     }
 
-    public static BoardResDto.BoardPreviewDto toBoardPreviewDto(Board board) {
+    public static BoardResDto.BoardPreviewDto toBoardPreviewDto(
+            Board board,
+            Long likeCount
+    ) {
         return BoardResDto.BoardPreviewDto.builder()
                 .boardId(board.getId())
                 .title(board.getTitle())
@@ -64,13 +75,21 @@ public class BoardConverter {
                 .imageUrl(board.getImageUrl())
                 .boardType(board.getBoardType())
                 .writerName(board.getMember().getNickname())
+                .likeCount(likeCount)
                 .createdAt(board.getCreatedAt())
                 .build();
     }
 
-    public static BoardResDto.BoardPreviewListDto toBoardPreviewListDto(Page<Board> boardPage) {
+    public static BoardResDto.BoardPreviewListDto toBoardPreviewListDto(
+            Page<Board> boardPage,
+            BoardLikeRepository boardLikeRepository
+    ) {
+
         List<BoardResDto.BoardPreviewDto> boardList = boardPage.stream()
-                .map(BoardConverter::toBoardPreviewDto)
+                .map(board -> toBoardPreviewDto(
+                        board,
+                        boardLikeRepository.countByBoard(board)
+                ))
                 .toList();
 
         return BoardResDto.BoardPreviewListDto.builder()

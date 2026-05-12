@@ -6,6 +6,7 @@ import root.git_turl.domain.board.entity.Board;
 import root.git_turl.domain.comment.dto.CommentReqDto;
 import root.git_turl.domain.comment.dto.CommentResDto;
 import root.git_turl.domain.comment.entity.Comment;
+import root.git_turl.domain.comment.repository.CommentLikeRepository;
 import root.git_turl.domain.member.entity.Member;
 
 import java.time.LocalDateTime;
@@ -55,7 +56,18 @@ public class CommentConverter {
                 .build();
     }
 
-    public static CommentResDto.CommentPreviewDto toCommentPreviewDto(Comment comment) {
+    public static CommentResDto.CommentPreviewDto toCommentPreviewDto(
+            Comment comment,
+            Member currentMember,
+            Long likeCount,
+            Boolean isLiked
+    ) {
+
+        boolean canReadSecretComment =
+                !comment.getIsSecret()
+                        || comment.getMember().getId().equals(currentMember.getId())
+                        || comment.getBoard().getMember().getId().equals(currentMember.getId());
+
         return CommentResDto.CommentPreviewDto.builder()
                 .commentId(comment.getId())
                 .parentId(
@@ -65,15 +77,32 @@ public class CommentConverter {
                 )
                 .depth(comment.getDepth())
                 .isSecret(comment.getIsSecret())
-                .content(comment.getContent())
+                .content(
+                        canReadSecretComment
+                                ? comment.getContent()
+                                : "비밀 댓글입니다."
+                )
                 .writerName(comment.getMember().getNickname())
                 .createdAt(comment.getCreatedAt())
                 .build();
     }
 
-    public static CommentResDto.CommentPreviewListDto toCommentPreviewListDto(Page<Comment> commentPage) {
+    public static CommentResDto.CommentPreviewListDto toCommentPreviewListDto(
+            Page<Comment> commentPage,
+            Member currentMember,
+            CommentLikeRepository commentLikeRepository
+    ) {
+
         List<CommentResDto.CommentPreviewDto> commentList = commentPage.stream()
-                .map(CommentConverter::toCommentPreviewDto)
+                .map(comment -> toCommentPreviewDto(
+                        comment,
+                        currentMember,
+                        commentLikeRepository.countByComment(comment),
+                        commentLikeRepository.existsByCommentAndMember(
+                                comment,
+                                currentMember
+                        )
+                ))
                 .toList();
 
         return CommentResDto.CommentPreviewListDto.builder()
