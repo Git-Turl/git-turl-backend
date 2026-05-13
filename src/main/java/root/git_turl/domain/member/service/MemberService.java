@@ -55,6 +55,8 @@ public class MemberService {
             throw new MemberException(MemberErrorCode.PROFILE_BAD_REQUEST);
         }
 
+        validateNicknameDuplicate(dto.getNickname());
+
         String email = githubClient.getEmail(currentMember.getGithubAccessToken());
 
         Member member = memberRepository.findById(currentMember.getId())
@@ -69,6 +71,8 @@ public class MemberService {
         if (dto.getNickname() == null && dto.getJobType()==null && dto.getTechStackList()==null) {
             throw new MemberException(MemberErrorCode.NO_EDIT);
         }
+
+        validateNicknameDuplicate(dto.getNickname());
 
         Member member = memberRepository.findById(currentMember.getId())
                 .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
@@ -95,5 +99,20 @@ public class MemberService {
         Member member = memberRepository.findById(currentMember.getId())
                 .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
         member.inactivateMember();
+    }
+
+    @Transactional(readOnly = true)
+    public boolean nicknameDuplicateCheck(Member currentMember, String nickname) {
+        return isNicknameDuplicate(nickname);
+    }
+
+    private void validateNicknameDuplicate(String nickname) {
+        if (isNicknameDuplicate(nickname)) {
+            throw new MemberException(MemberErrorCode.NICKNAME_DUPLICATE);
+        }
+    }
+
+    private boolean isNicknameDuplicate(String nickname) {
+        return memberRepository.existsByNickname(nickname);
     }
 }

@@ -69,4 +69,16 @@ public class MemberController implements MemberControllerDocs{
     ) {
         return ApiResponse.onSuccess(MemberSuccessCode.PROFILE_INFO_GET_OK,  memberService.getMemberProfile(memberId));
     }
+
+    @PostMapping("/nickname")
+    public ApiResponse<Void> nicknameDuplicateCheck(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @RequestBody @Valid MemberReqDto.Nickname dto
+    ) {
+        boolean isDuplicated = memberService.nicknameDuplicateCheck(member, dto.getNickname());
+        if (isDuplicated) {
+            return ApiResponse.onSuccess(MemberSuccessCode.NICKNAME_CHECK_DUPLICATED, null);
+        }
+        return ApiResponse.onSuccess(MemberSuccessCode.NICKNAME_CHECK_OK, null);
+    }
 }
