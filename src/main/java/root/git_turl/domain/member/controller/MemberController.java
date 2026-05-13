@@ -81,4 +81,12 @@ public class MemberController implements MemberControllerDocs{
         }
         return ApiResponse.onSuccess(MemberSuccessCode.NICKNAME_CHECK_OK, null);
     }
+
+    @GetMapping("/me/history")
+    public ApiResponse<MemberResDto.History> getHistory(
+            @CurrentUser @Parameter(hidden = true) Member member
+    ) {
+        MemberResDto.History response = memberService.getHistory(member);
+        return ApiResponse.onSuccess(MemberSuccessCode.HISTORY_GET_OK, response);
+    }
 }

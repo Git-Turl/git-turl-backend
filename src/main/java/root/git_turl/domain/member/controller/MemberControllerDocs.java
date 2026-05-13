@@ -76,4 +76,12 @@ public interface MemberControllerDocs {
             @CurrentUser @Parameter(hidden = true) Member member,
             @RequestBody @Valid MemberReqDto.Nickname dto
     );
+
+    @Operation(
+            summary = "깃털 히스토리 조회",
+            description = "깃털 사용 내역을 조회합니다."
+    )
+    public ApiResponse<MemberResDto.History> getHistory(
+            @CurrentUser @Parameter(hidden = true) Member member
+    );
 }

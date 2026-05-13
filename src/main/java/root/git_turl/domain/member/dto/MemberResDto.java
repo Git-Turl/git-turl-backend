@@ -25,4 +25,12 @@ public class MemberResDto {
         private JobType jobType;
         private List<TechStack> techStackList;
     }
+
+    @Getter
+    @Builder
+    public static class History {
+        private Long daysWthGitTurl;
+        private Long githubReportCount;
+        private Long interviewQuestionCount;
+    }
 }

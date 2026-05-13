@@ -21,20 +21,24 @@ public enum MemberSuccessCode implements BaseSuccessCode {
             "MEMBER200_3",
             "프로필 정보를 조회했습니다."),
 
+    HISTORY_GET_OK(HttpStatus.OK,
+            "MEMBER200_4",
+            "히스토리 정보를 조회했습니다."),
+
     PROFILE_IMAGE_GET_OK(HttpStatus.OK,
-            "MEMBER200_6",
+            "MEMBER200_5",
             "프로필 사진이 조회되었습니다."),
 
     PROFILE_IMAGE_PATCH_OK(HttpStatus.OK,
-            "MEMBER200_7",
+            "MEMBER200_6",
             "프로필 사진이 수정되었습니다."),
 
     NICKNAME_CHECK_OK(HttpStatus.OK,
-            "MEMBER200_8",
+            "MEMBER200_7",
             "사용 가능한 닉네임입니다."),
 
     NICKNAME_CHECK_DUPLICATED(HttpStatus.OK,
-            "MEMBER200_9",
+            "MEMBER200_8",
             "사용 할 수 없는 닉네임입니다.");
 
     private final HttpStatus status;
