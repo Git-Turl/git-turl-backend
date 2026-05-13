@@ -81,10 +81,9 @@ public class Member extends BaseEntity {
         interestStack.assignMember(this);
     }
 
-    public void updateGithubInfo(String githubId, String githubName, String profileImage, String email) {
+    public void updateGithubInfo(String githubId, String githubName, String email) {
         this.githubId = githubId;
         this.githubName = githubName;
-        this.profileImage = profileImage;
         this.email = email;
     }
 
