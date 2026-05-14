@@ -26,13 +26,13 @@ public class QuestionController implements QuestionControllerDocs{
     private final QuestionService questionService;
 
     @PostMapping("/reports/{reportId}/questions")
-    public ApiResponse<Void> saveQuestion(
+    public ApiResponse<QuestionResDto.QuestionId> saveQuestion(
             @CurrentUser @Parameter(hidden = true) Member member,
             @PathVariable Long reportId,
             @RequestBody @Valid QuestionReqDto.QuestionCount dto
     ) {
-        questionService.saveQuestion(member, reportId, dto);
-        return ApiResponse.onSuccess(QuestionSuccessCode.QUESTION_POST_OK, null);
+        QuestionResDto.QuestionId response = questionService.saveQuestion(member, reportId, dto);
+        return ApiResponse.onSuccess(QuestionSuccessCode.QUESTION_POST_OK, response);
     }
 
     @GetMapping("/reports/{reportId}/questions")

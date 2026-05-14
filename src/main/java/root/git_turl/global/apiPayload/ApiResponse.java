@@ -11,7 +11,7 @@ import root.git_turl.global.apiPayload.code.BaseSuccessCode;
 @Getter
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({"isSuccess", "errorCode", "message", "data"})
+@JsonPropertyOrder({"isSuccess", "code", "message", "data"})
 public class ApiResponse<T> {
 
     @JsonProperty("isSuccess")

@@ -5,6 +5,7 @@ import lombok.Getter;
 import root.git_turl.domain.report.enums.GenerationStatus;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class QuestionResDto {
 
@@ -15,5 +16,12 @@ public class QuestionResDto {
         private String content;
         private LocalDate createdAt;
         private GenerationStatus status;
+        private Integer time;
+    }
+
+    @Getter
+    @Builder
+    public static class QuestionId{
+        private List<Long> questionIdList;
     }
 }
