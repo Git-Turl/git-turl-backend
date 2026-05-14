@@ -10,13 +10,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import root.git_turl.domain.answer.dto.Feedback;
 import root.git_turl.domain.question.dto.QuestionContent;
 import root.git_turl.domain.report.dto.gpt.GptMessage;
 import root.git_turl.domain.report.dto.gpt.GptRequest;
 import root.git_turl.domain.report.dto.gpt.GptResponse;
-import root.git_turl.domain.report.dto.reportDetail.ReportContent;
 import root.git_turl.domain.report.dto.reportDetail.ReportWrapper;
-import root.git_turl.domain.report.entity.Report;
 
 import java.util.List;
 
@@ -35,6 +34,10 @@ public class GptService {
 
     public QuestionContent makeQuestions(String prompt) {
         return requestGpt(prompt, QuestionContent.class);
+    }
+
+    public Feedback makeFeedback(String prompt) {
+        return requestGpt(prompt, Feedback.class);
     }
 
     private <T> T requestGpt(String prompt, Class<T> classType) {

@@ -1,6 +1,7 @@
 package root.git_turl.global.util;
 
 import org.springframework.stereotype.Component;
+import root.git_turl.domain.question.entity.Question;
 import root.git_turl.domain.report.dto.GitAnalysisResult;
 import root.git_turl.domain.report.dto.commit.MajorCommit;
 import root.git_turl.domain.report.entity.Report;
@@ -131,16 +132,41 @@ public class BuildPrompt {
         sb.append("""
             반드시 아래 JSON 형식으로만 응답하세요.
             설명, 마크다운, 번호, 코드블록 없이 JSON만 반환하세요.
-            
-            {
-              "questions": [
-                "질문1",
-                "질문2",
-                "질문3"
-              ]
+            Map 형태로, key값은 질문, value값은 해당 질문을 답변하기 적정한 초수를 정수형으로 표기하세요.
+             {
+              "questions": {
+                "생성한 질문1": 60,
+                "질문2": 45,
+                "질문3": 60
+              }
             }
         """);
 
+        return sb.toString();
+    }
+
+    public String buildFeedbackPrompt(String content, Question question) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("개발자 면접 질문에 대한 사용자의 답변을 평가하세요. \n");
+        sb.append("질문: ")
+                .append(question.getContent())
+                .append("\n");
+        sb.append("적당한 응답 시간: ")
+                .append(question.getTime())
+                .append("\n");
+        sb.append("사용자 응답: ")
+                .append(content)
+                .append("\n");
+        sb.append("평가 항목은 다음과 같습니다. 근거성\t답변 내용이 질문 의도와 레포 내용에 명확히 근거함. “왜 틀렸는지/왜 부족한지”가 분명함.\n" +
+                "논리성\t주장-이유-예시-결론 흐름이 자연스럽고 설득력 있음.\n" +
+                "구체성\t“어떤 부분을 어떻게 고쳐야 하는지”까지 명확히 제시함.\n" +
+                "개선 가능성\t바로 다음 답변이나 다음 작업에 적용 가능함. \n" +
+                        "반드시 JSON 형식으로만 응답한다. 다른 어떤 텍스트도 포함하지 않는다.\n" +
+                        "마크다운 금지, 설명 금지, 코드블록 금지.\n" +
+                        "content 필드는 반드시 하나의 문자열로 작성하며 줄바꿈(\\n) 없이 255자 이내로 작성한다.\n" +
+                        "문장은 자연스럽게 작성하되 하나의 문단으로만 구성한다.\n" +
+                        "반환 형식:\n" +
+                        "{\"content\": \"...\"}\n");
         return sb.toString();
     }
 }
