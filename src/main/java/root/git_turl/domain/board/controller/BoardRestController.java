@@ -1,5 +1,7 @@
 package root.git_turl.domain.board.controller;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Encoding;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +13,9 @@ import root.git_turl.domain.board.enums.BoardType;
 import root.git_turl.domain.board.service.BoardCommandService;
 import root.git_turl.domain.board.service.BoardQueryService;
 import root.git_turl.domain.member.entity.Member;
+import root.git_turl.domain.member.repository.MemberRepository;
 import root.git_turl.global.annotation.CurrentUser;
+import root.git_turl.global.annotation.SwaggerBody;
 import root.git_turl.global.apiPayload.ApiResponse;
 import root.git_turl.domain.board.dto.BoardReqDto;
 import root.git_turl.domain.board.dto.BoardResDto;
@@ -25,6 +29,12 @@ public class BoardRestController implements BoardControllerDocs {
     private final BoardCommandService boardCommandService;
     private final BoardQueryService boardQueryService;
 
+    @SwaggerBody(content = @Content(
+            encoding = @Encoding(
+                    name = "request",
+                    contentType = MediaType.APPLICATION_JSON_VALUE
+            )
+    ))
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<BoardResDto.BoardCreateResultDto> createBoard(
             @CurrentUser Member member,
@@ -49,6 +59,12 @@ public class BoardRestController implements BoardControllerDocs {
 //        );
 //    }
 
+    @SwaggerBody(content = @Content(
+            encoding = @Encoding(
+                    name = "request",
+                    contentType = MediaType.APPLICATION_JSON_VALUE
+            )
+    ))
     @PatchMapping(value = "/{boardId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<BoardResDto.BoardUpdateResultDto> updateBoard(
             @CurrentUser Member member,
@@ -56,6 +72,7 @@ public class BoardRestController implements BoardControllerDocs {
             @RequestPart("request") @Valid BoardReqDto.UpdateDto request,
             @RequestPart(value = "image", required = false) MultipartFile image
     ) {
+
         return ApiResponse.onSuccess(
                 BoardSuccessCode.BOARD_UPDATED,
                 boardCommandService.updateBoard(member, boardId, request, image)
@@ -67,6 +84,7 @@ public class BoardRestController implements BoardControllerDocs {
             @CurrentUser Member member,
             @PathVariable Long boardId
     ) {
+
         return ApiResponse.onSuccess(
                 BoardSuccessCode.BOARD_DELETED,
                 boardCommandService.deleteBoard(member, boardId)
@@ -89,6 +107,7 @@ public class BoardRestController implements BoardControllerDocs {
             @CurrentUser Member member,
             @PathVariable Long boardId
     ) {
+
         return ApiResponse.onSuccess(
                 BoardSuccessCode.BOARD_DETAIL_FOUND,
                 boardQueryService.getBoardDetail(member, boardId)

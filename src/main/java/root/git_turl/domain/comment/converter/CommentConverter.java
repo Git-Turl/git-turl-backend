@@ -83,6 +83,8 @@ public class CommentConverter {
                                 : "비밀 댓글입니다."
                 )
                 .writerName(comment.getMember().getNickname())
+                .likeCount(likeCount)
+                .isLiked(isLiked)
                 .createdAt(comment.getCreatedAt())
                 .build();
     }

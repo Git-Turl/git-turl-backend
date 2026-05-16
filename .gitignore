@@ -38,4 +38,3 @@ out/
 
 .env
 git-turl.pem
-application-local.yml

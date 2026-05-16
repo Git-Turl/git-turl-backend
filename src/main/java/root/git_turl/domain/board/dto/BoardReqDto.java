@@ -21,7 +21,7 @@ public class BoardReqDto {
         @NotNull
         private BoardType boardType;
 
-        private MultipartFile boardImage;
+        //private MultipartFile boardImage;
     }
 
     @Data
@@ -33,6 +33,6 @@ public class BoardReqDto {
 
         private BoardType boardType;
 
-        private MultipartFile boardImage;
+        //private MultipartFile boardImage;
     }
 }

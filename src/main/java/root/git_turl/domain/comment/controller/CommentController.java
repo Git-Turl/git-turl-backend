@@ -10,6 +10,7 @@ import root.git_turl.domain.comment.dto.CommentResDto;
 import root.git_turl.domain.comment.service.CommentCommandService;
 import root.git_turl.domain.comment.service.CommentQueryService;
 import root.git_turl.domain.member.entity.Member;
+import root.git_turl.domain.member.repository.MemberRepository;
 import root.git_turl.global.annotation.CurrentUser;
 import root.git_turl.global.apiPayload.ApiResponse;
 
@@ -28,6 +29,7 @@ public class CommentController implements CommentControllerDocs {
             @PathVariable Long boardId,
             @Valid @RequestBody CommentReqDto.CreateCommentReqDto request
     ) {
+
         return ApiResponse.onSuccess(
                 CommentSuccessCode.COMMENT_CREATED,
                 commentCommandService.createComment(member, boardId, request)
@@ -40,6 +42,7 @@ public class CommentController implements CommentControllerDocs {
             @PathVariable Long commentId,
             @RequestBody CommentReqDto.UpdateCommentReqDto request
     ) {
+
         return ApiResponse.onSuccess(
                 CommentSuccessCode.COMMENT_UPDATED,
                 commentCommandService.updateComment(member, commentId, request)
@@ -51,6 +54,7 @@ public class CommentController implements CommentControllerDocs {
             @CurrentUser Member member,
             @PathVariable Long commentId
     ) {
+
         return ApiResponse.onSuccess(
                 CommentSuccessCode.COMMENT_DELETED,
                 commentCommandService.deleteComment(member, commentId)
@@ -63,6 +67,7 @@ public class CommentController implements CommentControllerDocs {
             @PathVariable Long boardId,
             @RequestParam(defaultValue = "0") Integer page
     ) {
+
         return ApiResponse.onSuccess(
                 CommentSuccessCode.COMMENT_LIST_FOUND,
                 commentQueryService.getCommentList(member, boardId, page)

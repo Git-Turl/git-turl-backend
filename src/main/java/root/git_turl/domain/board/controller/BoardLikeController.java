@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import root.git_turl.domain.board.code.BoardSuccessCode;
 import root.git_turl.domain.board.service.BoardLikeCommandService;
 import root.git_turl.domain.member.entity.Member;
+import root.git_turl.domain.member.repository.MemberRepository;
 import root.git_turl.global.annotation.CurrentUser;
 import root.git_turl.global.apiPayload.ApiResponse;
 
@@ -22,6 +23,7 @@ public class BoardLikeController implements BoardLikeControllerDocs {
             @CurrentUser Member member,
             @PathVariable Long boardId
     ) {
+
         boardLikeCommandService.likeBoard(member, boardId);
 
         return ApiResponse.onSuccess(
@@ -35,6 +37,7 @@ public class BoardLikeController implements BoardLikeControllerDocs {
             @CurrentUser Member member,
             @PathVariable Long boardId
     ) {
+
         boardLikeCommandService.unlikeBoard(member, boardId);
 
         return ApiResponse.onSuccess(
