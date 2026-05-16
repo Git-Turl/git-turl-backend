@@ -6,6 +6,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import root.git_turl.domain.member.entity.Member;
+import root.git_turl.domain.question.repository.QuestionRepository;
 import root.git_turl.domain.report.code.ReportErrorCode;
 import root.git_turl.domain.report.converter.ReportConverter;
 import root.git_turl.domain.report.dto.GithubRepoResponse;
@@ -31,6 +32,7 @@ public class ReportService {
     private final GithubClient githubClient;
     private final ReportAsyncService reportAsyncService;
     private final ReportRepository reportRepository;
+    private final QuestionRepository questionRepository;
 
     @Transactional(readOnly = true)
     public List<ReportResDto.RepoInfo> getRepoList(String token) {
@@ -124,8 +126,11 @@ public class ReportService {
         nextCursor = reportList.getContent().getLast().getId().toString();
         List<ReportResDto.ReportPreview> reportPreviewList =
                 reportList.stream()
-                        .map(ReportConverter::toReportPreview)
-                        .toList();
+                        .map(report ->
+                                ReportConverter.toReportPreview(
+                                        report,
+                                        questionRepository.countByReportAndStatus(report, GenerationStatus.DONE))
+                        ).toList();
 
         return Pagination.toPagination(reportPreviewList, reportList.hasNext(), nextCursor, reportList.getContent().size());
     }

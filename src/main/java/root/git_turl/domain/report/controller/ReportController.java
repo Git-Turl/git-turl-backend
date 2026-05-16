@@ -70,7 +70,7 @@ public class ReportController implements ReportControllerDocs{
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
             @RequestParam(required = false) Status status
-            ) {
+    ) {
         ReportResDto.Pagination<ReportResDto.ReportPreview> response = reportService.getReportList(member, pageSize, cursor, startDate, endDate, status);
         if (response == null) {
             return ApiResponse.onSuccess(ReportSuccessCode.NO_REPORT_FOUND, null);
