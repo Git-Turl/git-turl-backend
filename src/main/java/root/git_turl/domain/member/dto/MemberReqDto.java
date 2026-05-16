@@ -42,4 +42,10 @@ public class MemberReqDto {
         private List<TechStack> techStackList;
 
     }
+
+    @Getter
+    public static class Nickname {
+        @Size(max=20)
+        private String nickname;
+    }
 }

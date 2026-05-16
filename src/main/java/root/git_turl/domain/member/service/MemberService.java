@@ -12,6 +12,9 @@ import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.member.enums.Status;
 import root.git_turl.domain.member.exception.MemberException;
 import root.git_turl.domain.member.repository.MemberRepository;
+import root.git_turl.domain.question.repository.QuestionRepository;
+import root.git_turl.domain.report.enums.GenerationStatus;
+import root.git_turl.domain.report.repository.ReportRepository;
 import root.git_turl.global.aws.AwsFileService;
 import root.git_turl.infrastructure.github.GithubClient;
 
@@ -24,6 +27,8 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final AwsFileService awsFileService;
     private final GithubClient githubClient;
+    private final ReportRepository reportRepository;
+    private final QuestionRepository questionRepository;
 
     @Transactional(readOnly = true)
     public MemberResDto.ProfileImage getProfileImage(Member member) {
@@ -37,8 +42,7 @@ public class MemberService {
             throw new MemberException(MemberErrorCode.PROFILE_BAD_REQUEST);
         }
 
-        Member member = memberRepository.findById(currentMember.getId())
-                .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
+        Member member = getMember(currentMember.getId());
 
         try {
             String imageUrl = awsFileService.saveProfileImg(image, member.getId());
@@ -55,10 +59,11 @@ public class MemberService {
             throw new MemberException(MemberErrorCode.PROFILE_BAD_REQUEST);
         }
 
+        validateNicknameDuplicate(dto.getNickname());
+
         String email = githubClient.getEmail(currentMember.getGithubAccessToken());
 
-        Member member = memberRepository.findById(currentMember.getId())
-                .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
+        Member member = getMember(currentMember.getId());
 
         member.saveProfile(dto.getNickname(), dto.getJobType(), dto.getTechStackList());
         member.setEmail(email);
@@ -70,30 +75,57 @@ public class MemberService {
             throw new MemberException(MemberErrorCode.NO_EDIT);
         }
 
-        Member member = memberRepository.findById(currentMember.getId())
-                .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
+        validateNicknameDuplicate(dto.getNickname());
+
+        Member member = getMember(currentMember.getId());
 
         member.updateProfile(dto.getNickname(), dto.getJobType(), dto.getTechStackList());
     }
 
     @Transactional(readOnly = true)
     public MemberResDto.ProfileInfo getMyProfile(Member currentMember) {
-        Member member = memberRepository.findById(currentMember.getId())
-                .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
+        Member member = getMember(currentMember.getId());
         return MemberConverter.ProfileInfo(member);
     }
 
     @Transactional(readOnly = true)
     public MemberResDto.ProfileInfo getMemberProfile(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
+        Member member = getMember(memberId);
         return MemberConverter.ProfileInfo(member);
     }
 
     @Transactional
     public void withdraw(Member currentMember) {
-        Member member = memberRepository.findById(currentMember.getId())
-                .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
+        Member member = getMember(currentMember.getId());
         member.inactivateMember();
+    }
+
+    @Transactional(readOnly = true)
+    public boolean nicknameDuplicateCheck(Member currentMember, String nickname) {
+        return isNicknameDuplicate(nickname);
+    }
+
+    @Transactional(readOnly = true)
+    public MemberResDto.History getHistory(Member currentMember) {
+        Member member = getMember(currentMember.getId());
+        long reportCount = reportRepository.countByMemberAndGenerationStatus(member, GenerationStatus.DONE);
+        long questionCount = questionRepository.countByMemberAndStatus(member, GenerationStatus.DONE);
+        return MemberConverter.toHistory(member, reportCount, questionCount);
+    }
+
+    private Member getMember(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
+        return member;
+    }
+
+    private void validateNicknameDuplicate(String nickname) {
+        if (isNicknameDuplicate(nickname)) {
+            throw new MemberException(MemberErrorCode.NICKNAME_DUPLICATE);
+        }
+    }
+
+    private boolean isNicknameDuplicate(String nickname) {
+        return memberRepository.existsByNickname(nickname);
     }
 }

@@ -67,4 +67,21 @@ public interface MemberControllerDocs {
     public ApiResponse<MemberResDto.ProfileInfo> getMemberProfile (
             @PathVariable Long memberId
     );
+
+    @Operation(
+            summary = "닉네임 중복 확인",
+            description = "닉네임 중복 여부를 확인합니다."
+    )
+    public ApiResponse<Void> nicknameDuplicateCheck(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @RequestBody @Valid MemberReqDto.Nickname dto
+    );
+
+    @Operation(
+            summary = "깃털 히스토리 조회",
+            description = "깃털 사용 내역을 조회합니다."
+    )
+    public ApiResponse<MemberResDto.History> getHistory(
+            @CurrentUser @Parameter(hidden = true) Member member
+    );
 }
