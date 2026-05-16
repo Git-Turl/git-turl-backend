@@ -21,14 +21,17 @@ public enum MemberErrorCode implements BaseErrorCode {
             "MEMBER400_2",
             "수정 사항이 없습니다."),
 
+    NICKNAME_DUPLICATE(HttpStatus.BAD_REQUEST,
+            "MEMBER400_3",
+            "중복된 닉네임은 사용할 수 없습니다."),
+
     FILE_TYPE_ERROR(HttpStatus.BAD_REQUEST,
                 "FILE400",
                     "이미지 파일만 업로드 가능합니다."),
 
     IMAGE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR,
                 "FILE404",
-                    "프로필 이미지 업로드에 실패하였습니다."
-    );
+                    "프로필 이미지 업로드에 실패하였습니다.");
 
     private final HttpStatus status;
     private final String code;
