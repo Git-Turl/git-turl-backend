@@ -67,7 +67,7 @@ public class BoardCommandService {
             throw new BoardException(BoardErrorCode.NO_EDIT);
         }
 
-        Board board = boardRepository.findByIdAndDeletedAtIsNull(boardId)
+        Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
 
         validateWriter(board, currentMember);
@@ -97,12 +97,12 @@ public class BoardCommandService {
             Member currentMember,
             Long boardId
     ) {
-        Board board = boardRepository.findByIdAndDeletedAtIsNull(boardId)
+        Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
 
         validateWriter(board, currentMember);
 
-        board.softDelete();
+        boardRepository.delete(board);
 
         return BoardConverter.toDeleteResultDto(boardId);
     }

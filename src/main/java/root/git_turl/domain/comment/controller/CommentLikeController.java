@@ -1,5 +1,6 @@
 package root.git_turl.domain.comment.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import root.git_turl.domain.comment.code.CommentSuccessCode;
@@ -11,7 +12,8 @@ import root.git_turl.global.apiPayload.ApiResponse;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
-public class CommentLikeController {
+@Tag(name = "Comment Like", description = "댓글 좋아요 API")
+public class CommentLikeController implements CommentLikeControllerDocs {
 
     private final CommentLikeCommandService commentLikeCommandService;
 

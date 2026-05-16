@@ -20,7 +20,7 @@ import root.git_turl.domain.board.dto.BoardResDto;
 @RequestMapping("/api/v1/boards")
 @RequiredArgsConstructor
 @Tag(name = "Board", description = "게시판 API")
-public class BoardRestController {
+public class BoardRestController implements BoardControllerDocs {
 
     private final BoardCommandService boardCommandService;
     private final BoardQueryService boardQueryService;

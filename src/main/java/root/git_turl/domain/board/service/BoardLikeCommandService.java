@@ -28,7 +28,7 @@ public class BoardLikeCommandService {
         Member member = memberRepository.findById(currentMember.getId())
                 .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
 
-        Board board = boardRepository.findByIdAndDeletedAtIsNull(boardId)
+        Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
 
         boolean alreadyLiked =
@@ -52,7 +52,7 @@ public class BoardLikeCommandService {
         Member member = memberRepository.findById(currentMember.getId())
                 .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
 
-        Board board = boardRepository.findByIdAndDeletedAtIsNull(boardId)
+        Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
 
         BoardLike boardLike =

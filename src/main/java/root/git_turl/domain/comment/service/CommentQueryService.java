@@ -32,7 +32,7 @@ public class CommentQueryService {
             Integer page
     ) {
 
-        Board board = boardRepository.findByIdAndDeletedAtIsNull(boardId)
+        Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
 
         PageRequest pageRequest = PageRequest.of(

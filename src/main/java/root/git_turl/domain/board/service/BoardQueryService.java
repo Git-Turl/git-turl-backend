@@ -48,7 +48,7 @@ public class BoardQueryService {
             Long boardId
     ) {
 
-        Board board = boardRepository.findByIdAndDeletedAtIsNull(boardId)
+        Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
 
         board.increaseViews();

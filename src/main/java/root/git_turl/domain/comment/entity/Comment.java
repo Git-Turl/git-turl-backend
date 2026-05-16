@@ -2,7 +2,6 @@ package root.git_turl.domain.comment.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import root.git_turl.global.entity.BaseEntity;
 import root.git_turl.domain.board.entity.Board;
@@ -15,7 +14,6 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
 @Table(name="comment")
 public class Comment extends BaseEntity {
 
