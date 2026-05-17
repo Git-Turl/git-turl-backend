@@ -47,14 +47,6 @@ public class Board extends BaseEntity {
         if (boardType != null) this.boardType = boardType;
     }
 
-    // soft delete(삭제)
-//    @Column(nullable = true)
-//    private LocalDateTime deletedAt;
-//
-//    public void softDelete() {
-//        this.deletedAt = LocalDateTime.now();
-//    }
-
     public void increaseViews() {
         this.views++;
     }
