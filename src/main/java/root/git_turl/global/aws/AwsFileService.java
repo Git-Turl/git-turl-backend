@@ -8,6 +8,7 @@ import root.git_turl.domain.member.code.MemberErrorCode;
 import root.git_turl.domain.member.exception.MemberException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
@@ -58,8 +59,7 @@ public class AwsFileService {
         }
 
         String originalName = file.getOriginalFilename();
-        System.out.println(originalName);
-        System.out.println(file.getContentType());
+
         String ext = originalName.substring(originalName.lastIndexOf("."));
 
         String fileName = "voiceFile/" + memberId + "/questions/" + questionId + UUID.randomUUID() + ext;
@@ -83,9 +83,25 @@ public class AwsFileService {
         return getPublicUrl(fileName);
     }
 
+    public void deleteFile(String url) {
+        String key = getKey(url);
+
+        DeleteObjectRequest request = DeleteObjectRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .build();
+
+        s3Client.deleteObject(request);
+    }
+
     private String getPublicUrl(String key) {
         return "https://" + bucket + ".s3.amazonaws.com/" + key;
     }
+
+    private String getKey(String url) {
+        return url.substring(url.indexOf(".com/") + 5);
+    }
+
 
     private String normalizeContentType(String contentType, String ext) {
 

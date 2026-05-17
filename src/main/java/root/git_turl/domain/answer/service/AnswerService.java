@@ -85,6 +85,10 @@ public class AnswerService {
         Answer answer = getAnswer(answerId);
         validateAuthor(currentMember, answer.getQuestion());
 
+        if (answer.getVoiceFile() != null) {
+            awsFileService.deleteFile(answer.getVoiceFile());
+        }
+
         answerRepository.deleteById(answerId);
     }
 
