@@ -54,6 +54,15 @@ public interface AnswerControllerDocs {
     );
 
     @Operation(
+            summary = "음성 답변&피드백 조회",
+            description = "음성 답변과 피드백을 조회합니다."
+    )
+    public ApiResponse<AnswerResDto.VoiceAnswer> getVoiceAnswer(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @PathVariable Long questionId
+    );
+
+    @Operation(
             summary = "음성 답변 저장",
             description = "음성 답변을 저장하고, 피드백을 생성합니다."
     )

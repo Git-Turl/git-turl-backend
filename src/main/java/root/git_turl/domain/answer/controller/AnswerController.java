@@ -63,6 +63,15 @@ public class AnswerController implements AnswerControllerDocs{
         return ApiResponse.onSuccess(AnswerSuccessCode.ANSWER_DELETE_OK, null);
     }
 
+    @GetMapping("/questions/{questionId}/answers/voice")
+    public ApiResponse<AnswerResDto.VoiceAnswer> getVoiceAnswer(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @PathVariable Long questionId
+    ) {
+        AnswerResDto.VoiceAnswer response = answerService.getVoiceAnswer(member, questionId);
+        return ApiResponse.onSuccess(AnswerSuccessCode.ANSWER_LIST_GET_OK, response);
+    }
+
     @PostMapping(value = "/questions/{questionId}/answers/voice", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<Void> saveAnswer(
             @CurrentUser @Parameter(hidden = true) Member member,

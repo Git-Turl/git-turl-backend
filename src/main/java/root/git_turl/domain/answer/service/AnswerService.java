@@ -1,6 +1,7 @@
 package root.git_turl.domain.answer.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import root.git_turl.domain.answer.dto.AnswerResDto;
 import root.git_turl.domain.answer.dto.Feedback;
 import root.git_turl.domain.answer.dto.VoiceFeedback;
 import root.git_turl.domain.answer.entity.Answer;
+import root.git_turl.domain.answer.enums.AnswerType;
 import root.git_turl.domain.answer.enums.Status;
 import root.git_turl.domain.answer.exception.AnswerException;
 import root.git_turl.domain.answer.exception.code.AnswerErrorCode;
@@ -43,8 +45,9 @@ public class AnswerService {
     private final AsyncAnswerService asyncAnswerService;
     private final AwsFileService awsFileService;
 
+    @Transactional(readOnly = true)
     public List<AnswerResDto.TextAnswer> getAnswerList(Member currentMember, Long questionId) {
-        Question question = getQuestion(questionId);
+        Question question = getQuestionWithAnswers(questionId);
         validateAuthor(currentMember, question);
 
         return question.getAnswerList().stream().map(AnswerConverter::toTextAnswer).toList();
@@ -85,11 +88,41 @@ public class AnswerService {
         answerRepository.deleteById(answerId);
     }
 
+    @Transactional(readOnly = true)
+    public AnswerResDto.VoiceAnswer getVoiceAnswer(Member currentMember, Long questionId) {
+        Question question = getQuestionWithAnswers(questionId);
+        validateAuthor(currentMember, question);
+
+        Answer voiceAnswer = question.getAnswerList().stream()
+                .findFirst()
+                .orElseThrow(() -> new AnswerException(AnswerErrorCode.NOT_FOUND));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        List<String> keywords = null;
+        try {
+            keywords = objectMapper.readValue(
+                    voiceAnswer.getKeyword(),
+                    new TypeReference<List<String>>() {}
+            );
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        return AnswerConverter.toVoiceAnswerDto(voiceAnswer, keywords);
+    }
     
     @Transactional
     public void saveAnswerVoice(Member currentMember, Long questionId, MultipartFile file) {
         Question question = getQuestion(questionId);
         validateAuthor(currentMember, question);
+
+        boolean exists = answerRepository
+                .existsByQuestionAndAnswerType(question, AnswerType.VOICE);
+
+        if (exists) {
+            throw new AnswerException(AnswerErrorCode.ANSWER_OVER_RAGE);
+        }
 
         // S3에 음성 녹음본 저장
         String voiceFileUrl;
@@ -98,7 +131,7 @@ public class AnswerService {
         } catch (IOException e) {
             throw new MemberException(AnswerErrorCode.VOICE_UPLOAD_FAIL);
         }
-        Answer answer = AnswerConverter.toVoiceAnswer(voiceFileUrl);
+        Answer answer = AnswerConverter.toVoiceAnswer(voiceFileUrl, question);
         answerRepository.save(answer);
 
         asyncAnswerService.saveAnswerVoice(question.getContent(), question.getTime(), voiceFileUrl, answer.getId());
@@ -109,8 +142,13 @@ public class AnswerService {
         Question question = getQuestion(questionId);
         validateAuthor(currentMember, question);
 
-        Answer answer = AnswerConverter.toVoiceAnswerPass();
+        Answer answer = AnswerConverter.toVoiceAnswerPass(question);
         answerRepository.save(answer);
+    }
+
+    private Question getQuestionWithAnswers(Long questionId) {
+        return questionRepository.findQuestionWithAnswer(questionId)
+                .orElseThrow(() -> new QuestionException(QuestionErrorCode.NOT_FOUND));
     }
 
     private Question getQuestion(Long questionId) {
