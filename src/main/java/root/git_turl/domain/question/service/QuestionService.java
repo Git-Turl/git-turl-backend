@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import root.git_turl.domain.answer.enums.AnswerType;
 import root.git_turl.domain.member.code.MemberErrorCode;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.member.exception.MemberException;
@@ -56,7 +57,8 @@ public class QuestionService {
     public ReportResDto.Pagination<QuestionResDto.QuestionInfo> getQuestionList(
             Long reportId,
             Integer pageSize,
-            String cursor
+            String cursor,
+            AnswerType answerType
     ) {
         if (pageSize == null) pageSize = 10;
         if (cursor == null) cursor = "-1";
@@ -69,9 +71,9 @@ public class QuestionService {
 
         if (!cursor.equals("-1")) {
             idCursor = Long.parseLong(cursor);
-            questionList = questionRepository.findQuestionByReport_IdAndIdLessThanOrderByIdDesc(reportId, idCursor, pageRequest);
+            questionList = questionRepository.findQuestionByReport_IdAndAnswerTypeAndIdLessThanOrderByIdDesc(reportId, answerType, idCursor, pageRequest);
         } else {
-            questionList = questionRepository.findQuestionByReport_IdOrderByIdDesc(reportId, pageRequest);
+            questionList = questionRepository.findQuestionByReport_IdAndAnswerTypeOrderByIdDesc(reportId, answerType,pageRequest);
         }
 
         nextCursor = questionList.getContent().getLast().getId().toString();

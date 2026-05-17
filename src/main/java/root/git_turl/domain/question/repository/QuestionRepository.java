@@ -13,8 +13,8 @@ import root.git_turl.domain.report.enums.GenerationStatus;
 import java.util.Optional;
 
 public interface QuestionRepository extends JpaRepository<Question, Long> {
-    Slice<Question> findQuestionByReport_IdAndIdLessThanOrderByIdDesc(Long reportId, Long idCursor, PageRequest pageRequest);
-    Slice<Question> findQuestionByReport_IdOrderByIdDesc(Long reportId, PageRequest pageRequest);
+    Slice<Question> findQuestionByReport_IdAndAnswerTypeAndIdLessThanOrderByIdDesc(Long reportId, AnswerType answerType, Long idCursor, PageRequest pageRequest);
+    Slice<Question> findQuestionByReport_IdAndAnswerTypeOrderByIdDesc(Long reportId, AnswerType answerType, PageRequest pageRequest);
     long countByMemberAndStatus(Member member, GenerationStatus status);
 
     @Query("""

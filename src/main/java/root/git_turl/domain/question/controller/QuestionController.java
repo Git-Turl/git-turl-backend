@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import root.git_turl.domain.answer.enums.AnswerType;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.question.dto.QuestionReqDto;
 import root.git_turl.domain.question.dto.QuestionResDto;
@@ -39,9 +40,10 @@ public class QuestionController implements QuestionControllerDocs{
     public ApiResponse<ReportResDto.Pagination<QuestionResDto.QuestionInfo>> getQuestions(
             @PathVariable Long reportId,
             @RequestParam(required = false) Integer pageSize,
-            @RequestParam(required = false) String cursor
-    ) {
-        ReportResDto.Pagination<QuestionResDto.QuestionInfo> response = questionService.getQuestionList(reportId, pageSize, cursor);
+            @RequestParam(required = false) String cursor,
+            @RequestParam AnswerType answerType
+            ) {
+        ReportResDto.Pagination<QuestionResDto.QuestionInfo> response = questionService.getQuestionList(reportId, pageSize, cursor, answerType);
         return ApiResponse.onSuccess(QuestionSuccessCode.QUESTION_LIST_GET_OK, response);
     }
 

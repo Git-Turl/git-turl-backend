@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import root.git_turl.domain.answer.enums.AnswerType;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.question.dto.QuestionReqDto;
 import root.git_turl.domain.question.dto.QuestionResDto;
@@ -35,7 +36,8 @@ public interface QuestionControllerDocs {
     public ApiResponse<ReportResDto.Pagination<QuestionResDto.QuestionInfo>> getQuestions(
             @PathVariable Long reportId,
             @RequestParam(required = false) Integer pageSize,
-            @RequestParam(required = false) String cursor
+            @RequestParam(required = false) String cursor,
+            @RequestParam AnswerType answerType
     );
 
     @Operation(
