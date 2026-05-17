@@ -62,4 +62,13 @@ public interface AnswerControllerDocs {
             @PathVariable Long questionId,
             @RequestPart("file") MultipartFile file
     );
+
+    @Operation(
+            summary = "음성 답변 패스",
+            description = "질문에 대한 답변을 저장하지 않습니다."
+    )
+    public ApiResponse<Void> savePass(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @PathVariable Long questionId
+    );
 }

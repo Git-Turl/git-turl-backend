@@ -12,6 +12,7 @@ import root.git_turl.domain.answer.dto.AnswerResDto;
 import root.git_turl.domain.answer.dto.Feedback;
 import root.git_turl.domain.answer.dto.VoiceFeedback;
 import root.git_turl.domain.answer.entity.Answer;
+import root.git_turl.domain.answer.enums.Status;
 import root.git_turl.domain.answer.exception.AnswerException;
 import root.git_turl.domain.answer.exception.code.AnswerErrorCode;
 import root.git_turl.domain.answer.repository.AnswerRepository;
@@ -101,6 +102,15 @@ public class AnswerService {
         answerRepository.save(answer);
 
         asyncAnswerService.saveAnswerVoice(question.getContent(), question.getTime(), voiceFileUrl, answer.getId());
+    }
+
+    @Transactional
+    public void savePass(Member currentMember, Long questionId) {
+        Question question = getQuestion(questionId);
+        validateAuthor(currentMember, question);
+
+        Answer answer = AnswerConverter.toVoiceAnswerPass();
+        answerRepository.save(answer);
     }
 
     private Question getQuestion(Long questionId) {

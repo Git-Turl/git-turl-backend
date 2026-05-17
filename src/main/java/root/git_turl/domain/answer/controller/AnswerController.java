@@ -72,4 +72,13 @@ public class AnswerController implements AnswerControllerDocs{
         answerService.saveAnswerVoice(member, questionId, file);
         return ApiResponse.onSuccess(AnswerSuccessCode.ANSWER_POST_OK, null);
     }
+
+    @PostMapping("/questions/{questionId}/answers/pass")
+    public ApiResponse<Void> savePass(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @PathVariable Long questionId
+    ) {
+        answerService.savePass(member, questionId);
+        return ApiResponse.onSuccess(AnswerSuccessCode.ANSWER_PASS_OK, null);
+    }
 }

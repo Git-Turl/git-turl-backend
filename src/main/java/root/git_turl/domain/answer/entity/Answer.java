@@ -58,6 +58,7 @@ public class Answer extends BaseEntity {
 
     public void updateFeedback(String feedback) {
         this.feedback = feedback;
+        this.status = Status.ANSWERED;
     }
     public void updateVoiceAnswer(String content, String feedback, String answerSummary, String keyword) {
         this.content = content;
