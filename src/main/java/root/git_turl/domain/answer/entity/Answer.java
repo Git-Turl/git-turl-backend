@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import root.git_turl.domain.answer.enums.AnswerType;
 import root.git_turl.domain.answer.enums.Status;
 import root.git_turl.domain.question.entity.Question;
+import root.git_turl.domain.report.enums.GenerationStatus;
 import root.git_turl.global.entity.BaseEntity;
 
 import java.util.List;
@@ -41,18 +42,33 @@ public class Answer extends BaseEntity {
     private String answerSummary;
 
     @Column(name = "keyword")
-    private List<String> keyword;
+    private String keyword;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Column(name = "generation_status")
+    @Enumerated(EnumType.STRING)
+    private GenerationStatus generationStatus;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id")
     private Question question;
 
-
     public void updateFeedback(String feedback) {
         this.feedback = feedback;
+    }
+    public void updateVoiceAnswer(String content, String feedback, String answerSummary, String keyword) {
+        this.content = content;
+        this.feedback = feedback;
+        this.answerSummary = answerSummary;
+        this.keyword = keyword;
+        this.status = Status.ANSWERED;
+        this.generationStatus = GenerationStatus.DONE;
+    }
+
+    public void updateGenerationStatus(GenerationStatus generationStatus) {
+        this.generationStatus = generationStatus;
     }
 }

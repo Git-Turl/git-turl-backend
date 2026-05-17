@@ -15,4 +15,19 @@ public class AnswerResDto {
         private String feedback;
         private LocalDate createdAt;
     }
+
+    @Getter
+    @Builder
+    public static class VoiceAnswer{
+        private Long answerId;
+        private String content;
+        private String feedback;
+        private LocalDate createdAt;
+    }
+
+    @Getter
+    @Builder
+    public static class TranscriptionResponse {
+        private String text;
+    }
 }

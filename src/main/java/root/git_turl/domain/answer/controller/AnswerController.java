@@ -4,7 +4,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import root.git_turl.domain.answer.dto.AnswerReqDto;
 import root.git_turl.domain.answer.dto.AnswerResDto;
 import root.git_turl.domain.answer.exception.code.AnswerSuccessCode;
@@ -13,6 +15,7 @@ import root.git_turl.domain.member.entity.Member;
 import root.git_turl.global.annotation.CurrentUser;
 import root.git_turl.global.apiPayload.ApiResponse;
 
+import java.io.File;
 import java.util.List;
 
 @RestController
@@ -58,5 +61,15 @@ public class AnswerController implements AnswerControllerDocs{
     ) {
         answerService.deleteAnswer(member, answerId);
         return ApiResponse.onSuccess(AnswerSuccessCode.ANSWER_DELETE_OK, null);
+    }
+
+    @PostMapping(value = "/questions/{questionId}/answers/voice", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<Void> saveAnswer(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @PathVariable Long questionId,
+            @RequestPart("file") MultipartFile file
+    ) {
+        answerService.saveAnswerVoice(member, questionId, file);
+        return ApiResponse.onSuccess(AnswerSuccessCode.ANSWER_POST_OK, null);
     }
 }

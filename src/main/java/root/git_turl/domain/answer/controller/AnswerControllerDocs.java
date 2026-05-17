@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 import root.git_turl.domain.answer.dto.AnswerReqDto;
 import root.git_turl.domain.answer.dto.AnswerResDto;
 import root.git_turl.domain.member.entity.Member;
@@ -49,5 +51,15 @@ public interface AnswerControllerDocs {
     public ApiResponse<Void> deleteAnswer(
             @CurrentUser @Parameter(hidden = true) Member member,
             @PathVariable Long answerId
+    );
+
+    @Operation(
+            summary = "음성 답변 저장",
+            description = "음성 답변을 저장하고, 피드백을 생성합니다."
+    )
+    public ApiResponse<Void> saveAnswer(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @PathVariable Long questionId,
+            @RequestPart("file") MultipartFile file
     );
 }

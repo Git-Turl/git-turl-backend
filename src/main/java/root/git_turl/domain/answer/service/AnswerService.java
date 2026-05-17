@@ -1,24 +1,34 @@
 package root.git_turl.domain.answer.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import root.git_turl.domain.answer.converter.AnswerConverter;
+import root.git_turl.domain.answer.dto.AnswerReqDto;
 import root.git_turl.domain.answer.dto.AnswerResDto;
 import root.git_turl.domain.answer.dto.Feedback;
+import root.git_turl.domain.answer.dto.VoiceFeedback;
 import root.git_turl.domain.answer.entity.Answer;
 import root.git_turl.domain.answer.exception.AnswerException;
 import root.git_turl.domain.answer.exception.code.AnswerErrorCode;
 import root.git_turl.domain.answer.repository.AnswerRepository;
+import root.git_turl.domain.member.code.MemberErrorCode;
 import root.git_turl.domain.member.entity.Member;
+import root.git_turl.domain.member.exception.MemberException;
 import root.git_turl.domain.question.entity.Question;
 import root.git_turl.domain.question.exception.QuestionException;
 import root.git_turl.domain.question.exception.code.QuestionErrorCode;
 import root.git_turl.domain.question.repository.QuestionRepository;
+import root.git_turl.domain.report.enums.GenerationStatus;
 import root.git_turl.global.apiPayload.exception.GeneralException;
+import root.git_turl.global.aws.AwsFileService;
 import root.git_turl.global.util.BuildPrompt;
 import root.git_turl.infrastructure.openai.GptService;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -29,11 +39,11 @@ public class AnswerService {
     private final AnswerRepository answerRepository;
     private final BuildPrompt buildPrompt;
     private final GptService gptService;
+    private final AsyncAnswerService asyncAnswerService;
+    private final AwsFileService awsFileService;
 
     public List<AnswerResDto.TextAnswer> getAnswerList(Member currentMember, Long questionId) {
-        Question question = questionRepository.findById(questionId)
-                .orElseThrow(() -> new QuestionException(QuestionErrorCode.NOT_FOUND));
-
+        Question question = getQuestion(questionId);
         validateAuthor(currentMember, question);
 
         return question.getAnswerList().stream().map(AnswerConverter::toTextAnswer).toList();
@@ -41,9 +51,7 @@ public class AnswerService {
 
     @Transactional
     public void saveAnswer(Member currentMember, Long questionId, String content) {
-        Question question = questionRepository.findById(questionId)
-                .orElseThrow(() -> new QuestionException(QuestionErrorCode.NOT_FOUND));
-
+        Question question = getQuestion(questionId);
         validateAuthor(currentMember, question);
 
         if (answerRepository.countByQuestion(question) == 3) {
@@ -56,9 +64,7 @@ public class AnswerService {
 
     @Transactional
     public void makeFeedback(Member currentMember, Long answerId) {
-        Answer answer = answerRepository.findByIdWithQuestion(answerId)
-                .orElseThrow(() -> new AnswerException(AnswerErrorCode.NOT_FOUND));
-
+        Answer answer = getAnswer(answerId);
         validateAuthor(currentMember, answer.getQuestion());
 
         if (answer.getFeedback() != null) {
@@ -72,12 +78,39 @@ public class AnswerService {
 
     @Transactional
     public void deleteAnswer(Member currentMember, Long answerId) {
-        Answer answer = answerRepository.findByIdWithQuestion(answerId)
-                .orElseThrow(() -> new AnswerException(AnswerErrorCode.NOT_FOUND));
-
+        Answer answer = getAnswer(answerId);
         validateAuthor(currentMember, answer.getQuestion());
 
         answerRepository.deleteById(answerId);
+    }
+
+    
+    @Transactional
+    public void saveAnswerVoice(Member currentMember, Long questionId, MultipartFile file) {
+        Question question = getQuestion(questionId);
+        validateAuthor(currentMember, question);
+
+        // S3에 음성 녹음본 저장
+        String voiceFileUrl;
+        try {
+            voiceFileUrl = awsFileService.uploadVoiceFile(file, currentMember.getId(), questionId);
+        } catch (IOException e) {
+            throw new MemberException(AnswerErrorCode.VOICE_UPLOAD_FAIL);
+        }
+        Answer answer = AnswerConverter.toVoiceAnswer(voiceFileUrl);
+        answerRepository.save(answer);
+
+        asyncAnswerService.saveAnswerVoice(question.getContent(), question.getTime(), voiceFileUrl, answer.getId());
+    }
+
+    private Question getQuestion(Long questionId) {
+        return questionRepository.findById(questionId)
+                .orElseThrow(() -> new QuestionException(QuestionErrorCode.NOT_FOUND));
+    }
+
+    private Answer getAnswer(Long answerId) {
+        return answerRepository.findByIdWithQuestion(answerId)
+                .orElseThrow(() -> new AnswerException(AnswerErrorCode.NOT_FOUND));
     }
 
     private static void validateAuthor(Member currentMember, Question question) {

@@ -1,9 +1,11 @@
 package root.git_turl.domain.answer.converter;
 
 import root.git_turl.domain.answer.dto.AnswerResDto;
+import root.git_turl.domain.answer.dto.VoiceFeedback;
 import root.git_turl.domain.answer.entity.Answer;
 import root.git_turl.domain.answer.enums.AnswerType;
 import root.git_turl.domain.question.entity.Question;
+import root.git_turl.domain.report.enums.GenerationStatus;
 
 public class AnswerConverter {
 
@@ -26,6 +28,16 @@ public class AnswerConverter {
                 .content(answer.getContent())
                 .feedback(answer.getFeedback())
                 .createdAt(answer.getCreatedAt().toLocalDate())
+                .build();
+    }
+
+    public static Answer toVoiceAnswer(
+            String voiceFileUrl
+    ) {
+        return Answer.builder()
+                .answerType(AnswerType.VOICE)
+                .voiceFile(voiceFileUrl)
+                .generationStatus(GenerationStatus.PROCESSING)
                 .build();
     }
 }
