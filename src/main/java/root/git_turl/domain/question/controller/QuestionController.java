@@ -29,7 +29,7 @@ public class QuestionController implements QuestionControllerDocs{
     public ApiResponse<QuestionResDto.QuestionId> saveQuestion(
             @CurrentUser @Parameter(hidden = true) Member member,
             @PathVariable Long reportId,
-            @RequestBody @Valid QuestionReqDto.QuestionCount dto
+            @RequestBody @Valid QuestionReqDto.QuestionInfo dto
     ) {
         QuestionResDto.QuestionId response = questionService.saveQuestion(member, reportId, dto);
         return ApiResponse.onSuccess(QuestionSuccessCode.QUESTION_POST_OK, response);

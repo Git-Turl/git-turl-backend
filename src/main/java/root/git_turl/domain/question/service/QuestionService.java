@@ -37,7 +37,7 @@ public class QuestionService {
     private final AsyncQuestionService asyncQuestionService;
 
     @Transactional
-    public QuestionResDto.QuestionId saveQuestion(Member currentMember, Long reportId, QuestionReqDto.QuestionCount dto) {
+    public QuestionResDto.QuestionId saveQuestion(Member currentMember, Long reportId, QuestionReqDto.QuestionInfo dto) {
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new ReportException(ReportErrorCode.REPORT_NOT_FOUND));
         Member member = memberRepository.findById(currentMember.getId())
@@ -45,7 +45,7 @@ public class QuestionService {
 
         List<Question> questions = new ArrayList<>();
         for (int i=0; i<dto.getQuestionCount(); i++) {
-            Question question = QuestionConverter.toQuestion(report, member);
+            Question question = QuestionConverter.toQuestion(report, member, dto.getAnswerType());
             questions.add(question);
         }
         questionRepository.saveAll(questions);

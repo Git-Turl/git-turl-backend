@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import root.git_turl.domain.answer.enums.AnswerType;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.question.repository.QuestionRepository;
 import root.git_turl.domain.report.code.ReportErrorCode;
@@ -74,13 +75,15 @@ public class ReportService {
         return ReportConverter.toNewStatus(report.getStatus());
     }
 
+    @Transactional(readOnly = true)
     public ReportResDto.Pagination<ReportResDto.ReportPreview> getReportList(
             Member currentMember,
             Integer pageSize,
             String cursor,
             LocalDate startDate,
             LocalDate endDate,
-            Status status
+            Status status,
+            AnswerType answerType
     ) {
         if (pageSize == null) pageSize = 10;
         if (cursor == null) cursor = "-1";
@@ -129,7 +132,7 @@ public class ReportService {
                         .map(report ->
                                 ReportConverter.toReportPreview(
                                         report,
-                                        questionRepository.countByReportAndStatus(report, GenerationStatus.DONE))
+                                        questionRepository.countByReportAndStatus(report, GenerationStatus.DONE, answerType))
                         ).toList();
 
         return Pagination.toPagination(reportPreviewList, reportList.hasNext(), nextCursor, reportList.getContent().size());

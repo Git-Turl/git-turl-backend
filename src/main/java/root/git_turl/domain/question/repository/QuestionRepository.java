@@ -4,6 +4,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import root.git_turl.domain.answer.enums.AnswerType;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.question.entity.Question;
 import root.git_turl.domain.report.entity.Report;
@@ -15,7 +16,15 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     Slice<Question> findQuestionByReport_IdAndIdLessThanOrderByIdDesc(Long reportId, Long idCursor, PageRequest pageRequest);
     Slice<Question> findQuestionByReport_IdOrderByIdDesc(Long reportId, PageRequest pageRequest);
     long countByMemberAndStatus(Member member, GenerationStatus status);
-    long countByReportAndStatus(Report report, GenerationStatus status);
+
+    @Query("""
+            SELECT COUNT(DISTINCT q)
+            FROM Question q
+            WHERE q.report = :report
+            AND q.status = :status
+            AND q.answerType = :answerType
+    """)
+    long countByReportAndStatus(Report report, GenerationStatus status, AnswerType answerType);
 
     @Query("""
             SELECT q

@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import root.git_turl.domain.answer.enums.AnswerType;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.report.code.ReportSuccessCode;
 import root.git_turl.domain.report.dto.ReportReqDto;
@@ -69,9 +70,10 @@ public class ReportController implements ReportControllerDocs{
             @RequestParam(required = false) String cursor,
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
-            @RequestParam(required = false) Status status
+            @RequestParam(required = false) Status status,
+            @RequestParam AnswerType answerType
     ) {
-        ReportResDto.Pagination<ReportResDto.ReportPreview> response = reportService.getReportList(member, pageSize, cursor, startDate, endDate, status);
+        ReportResDto.Pagination<ReportResDto.ReportPreview> response = reportService.getReportList(member, pageSize, cursor, startDate, endDate, status, answerType);
         if (response == null) {
             return ApiResponse.onSuccess(ReportSuccessCode.NO_REPORT_FOUND, null);
         }

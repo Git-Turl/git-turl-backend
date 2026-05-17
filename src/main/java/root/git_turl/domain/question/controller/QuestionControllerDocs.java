@@ -25,7 +25,7 @@ public interface QuestionControllerDocs {
     public ApiResponse<QuestionResDto.QuestionId> saveQuestion(
             @CurrentUser @Parameter(hidden = true) Member member,
             @PathVariable Long reportId,
-            @RequestBody @Valid QuestionReqDto.QuestionCount dto
+            @RequestBody @Valid QuestionReqDto.QuestionInfo dto
     );
 
     @Operation(
