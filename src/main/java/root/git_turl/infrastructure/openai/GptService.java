@@ -4,13 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import root.git_turl.domain.answer.dto.AnswerResDto;
 import root.git_turl.domain.answer.dto.Feedback;
+import root.git_turl.domain.answer.dto.VoiceFeedback;
 import root.git_turl.domain.question.dto.QuestionContent;
 import root.git_turl.domain.report.dto.gpt.GptMessage;
 import root.git_turl.domain.report.dto.gpt.GptRequest;
@@ -25,6 +27,8 @@ public class GptService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
+    private final String OPENAI_API = "https://api.openai.com/v1";
+
     @Value("${openai.api-key}")
     public String openAiApiKey;
 
@@ -38,6 +42,10 @@ public class GptService {
 
     public Feedback makeFeedback(String prompt) {
         return requestGpt(prompt, Feedback.class);
+    }
+
+    public VoiceFeedback makeVoiceFeedback(String prompt) {
+        return requestGpt(prompt, VoiceFeedback.class);
     }
 
     private <T> T requestGpt(String prompt, Class<T> classType) {
@@ -57,7 +65,7 @@ public class GptService {
 
         ResponseEntity<GptResponse> response =
                 restTemplate.postForEntity(
-                        "https://api.openai.com/v1/chat/completions",
+                        OPENAI_API + "/chat/completions",
                         entity,
                         GptResponse.class
                 );

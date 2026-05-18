@@ -27,7 +27,7 @@ public enum MemberErrorCode implements BaseErrorCode {
 
     FILE_TYPE_ERROR(HttpStatus.BAD_REQUEST,
                 "FILE400",
-                    "이미지 파일만 업로드 가능합니다."),
+                    "올바르지 않은 파일 타입입니다."),
 
     IMAGE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR,
                 "FILE404",

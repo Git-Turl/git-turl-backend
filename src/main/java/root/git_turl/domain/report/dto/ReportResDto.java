@@ -1,11 +1,11 @@
 package root.git_turl.domain.report.dto;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import root.git_turl.domain.report.dto.reportDetail.ReportWrapper;
 import root.git_turl.domain.report.enums.Status;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -57,15 +57,16 @@ public class ReportResDto {
     @Builder
     public static class ReportPreview {
         private Long reportId;
-        private String reopName;
+        private String repoName;
         private String description;
-        private LocalDateTime createdAt;
+        private LocalDate createdAt;
+        private Long questionCount;
     }
 
     @Getter
     @Builder
     public static class NewTitle {
         private String title;
-        private LocalDateTime updatedAt;
+        private LocalDate updatedAt;
     }
 }
