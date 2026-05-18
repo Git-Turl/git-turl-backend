@@ -23,7 +23,11 @@ public enum AnswerSuccessCode implements BaseSuccessCode {
 
     ANSWER_DELETE_OK(HttpStatus.OK,
             "ANSWER200_4",
-            "답변이 삭제되었습니다.");
+            "답변이 삭제되었습니다."),
+
+    ANSWER_PASS_OK(HttpStatus.OK,
+            "ANSWER200_5",
+            "답변이 패스 되었습니다.");
 
 
     private final HttpStatus status;

@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import root.git_turl.domain.answer.entity.Answer;
+import root.git_turl.domain.answer.enums.AnswerType;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.report.entity.Report;
 import root.git_turl.domain.report.enums.GenerationStatus;
@@ -37,6 +38,10 @@ public class Question extends BaseEntity {
 
     @Column(name = "time")
     private Integer time;
+
+    @Column(name = "answer_type")
+    @Enumerated(EnumType.STRING)
+    private AnswerType answerType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "report_id")

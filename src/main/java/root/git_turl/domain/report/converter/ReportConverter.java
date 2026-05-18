@@ -81,13 +81,15 @@ public class ReportConverter {
     }
 
     public static ReportResDto.ReportPreview toReportPreview(
-            Report report
+            Report report,
+            long count
     ) {
         return ReportResDto.ReportPreview.builder()
                 .reportId(report.getId())
-                .reopName(report.getRepoName())
+                .repoName(report.getRepoName())
                 .description(report.getDescription())
-                .createdAt(report.getCreatedAt())
+                .createdAt(report.getCreatedAt().toLocalDate())
+                .questionCount(count)
                 .build();
     }
 
@@ -96,7 +98,7 @@ public class ReportConverter {
     ) {
         return ReportResDto.NewTitle.builder()
                 .title(report.getTitle())
-                .updatedAt(report.getUpdatedAt())
+                .updatedAt(report.getUpdatedAt().toLocalDate())
                 .build();
     }
 }

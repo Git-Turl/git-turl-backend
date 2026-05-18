@@ -1,5 +1,6 @@
 package root.git_turl.domain.question.converter;
 
+import root.git_turl.domain.answer.enums.AnswerType;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.question.dto.QuestionResDto;
 import root.git_turl.domain.question.entity.Question;
@@ -11,12 +12,13 @@ public class QuestionConverter {
 
     public static Question toQuestion(
         Report report,
-        Member member
-
+        Member member,
+        AnswerType answerType
     ) {
         return Question.builder()
                 .report(report)
                 .member(member)
+                .answerType(answerType)
                 .build();
     }
 

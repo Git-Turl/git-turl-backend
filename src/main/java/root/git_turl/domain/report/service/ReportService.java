@@ -5,7 +5,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import root.git_turl.domain.answer.enums.AnswerType;
 import root.git_turl.domain.member.entity.Member;
+import root.git_turl.domain.question.repository.QuestionRepository;
 import root.git_turl.domain.report.code.ReportErrorCode;
 import root.git_turl.domain.report.converter.ReportConverter;
 import root.git_turl.domain.report.dto.GithubRepoResponse;
@@ -31,6 +33,7 @@ public class ReportService {
     private final GithubClient githubClient;
     private final ReportAsyncService reportAsyncService;
     private final ReportRepository reportRepository;
+    private final QuestionRepository questionRepository;
 
     @Transactional(readOnly = true)
     public List<ReportResDto.RepoInfo> getRepoList(String token) {
@@ -72,13 +75,15 @@ public class ReportService {
         return ReportConverter.toNewStatus(report.getStatus());
     }
 
+    @Transactional(readOnly = true)
     public ReportResDto.Pagination<ReportResDto.ReportPreview> getReportList(
             Member currentMember,
             Integer pageSize,
             String cursor,
             LocalDate startDate,
             LocalDate endDate,
-            Status status
+            Status status,
+            AnswerType answerType
     ) {
         if (pageSize == null) pageSize = 10;
         if (cursor == null) cursor = "-1";
@@ -124,8 +129,11 @@ public class ReportService {
         nextCursor = reportList.getContent().getLast().getId().toString();
         List<ReportResDto.ReportPreview> reportPreviewList =
                 reportList.stream()
-                        .map(ReportConverter::toReportPreview)
-                        .toList();
+                        .map(report ->
+                                ReportConverter.toReportPreview(
+                                        report,
+                                        questionRepository.countByReportAndStatus(report, GenerationStatus.DONE, answerType))
+                        ).toList();
 
         return Pagination.toPagination(reportPreviewList, reportList.hasNext(), nextCursor, reportList.getContent().size());
     }
