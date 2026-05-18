@@ -49,6 +49,32 @@ public class AwsFileService {
         return getPublicUrl(fileName);
     }
 
+    public String uploadBoardImg(MultipartFile file) throws IOException {
+
+        if (file.getContentType() == null ||
+                !file.getContentType().startsWith("image/")) {
+            throw new MemberException(MemberErrorCode.FILE_TYPE_ERROR);
+        }
+
+        String originalName = file.getOriginalFilename();
+        String ext = originalName.substring(originalName.lastIndexOf("."));
+
+        String fileName = "board/" + UUID.randomUUID() + ext;
+
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(fileName)
+                .contentType(file.getContentType())
+                .build();
+
+        s3Client.putObject(
+                putObjectRequest,
+                RequestBody.fromInputStream(file.getInputStream(), file.getSize())
+        );
+
+        return getPublicUrl(fileName);
+    }
+
     private String getPublicUrl(String key) {
         return "https://" + bucket + ".s3.amazonaws.com/" + key;
     }
