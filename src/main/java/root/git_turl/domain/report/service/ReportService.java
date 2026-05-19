@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -129,11 +130,29 @@ public class ReportService {
         nextCursor = reportList.getContent().getLast().getId().toString();
         List<ReportResDto.ReportPreview> reportPreviewList =
                 reportList.stream()
-                        .map(report ->
+                        .map(report -> {
+                            long count = answerType.equals(AnswerType.ALL)
+                                    ? questionRepository.countByReportAndStatus(
+                                    report,
+                                    GenerationStatus.DONE
+                            )
+                                    : questionRepository.countByReportAndStatusAndAnswerType(
+                                    report,
+                                    GenerationStatus.DONE,
+                                    answerType
+                            );
+
+                            return Map.entry(report, count);
+                        })
+                        .filter(entry -> answerType.equals(AnswerType.ALL)
+                                || entry.getValue() > 0)
+                        .map(entry ->
                                 ReportConverter.toReportPreview(
-                                        report,
-                                        questionRepository.countByReportAndStatus(report, GenerationStatus.DONE, answerType))
-                        ).toList();
+                                        entry.getKey(),
+                                        entry.getValue()
+                                )
+                        )
+                        .toList();
 
         return Pagination.toPagination(reportPreviewList, reportList.hasNext(), nextCursor, reportList.getContent().size());
     }

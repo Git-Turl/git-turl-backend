@@ -16,6 +16,7 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     Slice<Question> findQuestionByReport_IdAndAnswerTypeAndIdLessThanOrderByIdDesc(Long reportId, AnswerType answerType, Long idCursor, PageRequest pageRequest);
     Slice<Question> findQuestionByReport_IdAndAnswerTypeOrderByIdDesc(Long reportId, AnswerType answerType, PageRequest pageRequest);
     long countByMemberAndStatus(Member member, GenerationStatus status);
+    long countByReportAndStatus(Report report, GenerationStatus status);
 
     @Query("""
             SELECT COUNT(DISTINCT q)
@@ -24,7 +25,7 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
             AND q.status = :status
             AND q.answerType = :answerType
     """)
-    long countByReportAndStatus(Report report, GenerationStatus status, AnswerType answerType);
+    long countByReportAndStatusAndAnswerType(Report report, GenerationStatus status, AnswerType answerType);
 
     @Query("""
             SELECT q
