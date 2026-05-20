@@ -42,14 +42,17 @@ public class AsyncQuestionService {
                 .orElseThrow(() -> new ReportException(ReportErrorCode.REPORT_NOT_FOUND));
         List<Question> questions =
                 questionRepository.findAllById(questionIdLists);
+        log.info("questionList={}", questions.stream().map(q -> q.getId()).toList());
         try {
             String prompt = buildPrompt.buildQuestionPrompt(report, count);
             log.info("prompt 생성 완료");
             Map<String,Integer> contents = gptService.makeQuestions(prompt).getQuestions();
             log.info("gpt raw response={}", contents);
             List<String> keys = new ArrayList<>(contents.keySet());
+            log.info("questionIdList={}", questionIdLists);
 
             for (int i=0; i<questions.size(); i++) {
+                log.info("questionId={}", questionIdLists);
                 questions.get(i).updateContent(keys.get(i));
                 questions.get(i).updateTime(contents.get(keys.get(i)));
                 questions.get(i).updateStatus(GenerationStatus.DONE);
