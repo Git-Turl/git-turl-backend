@@ -1,12 +1,12 @@
 package root.git_turl.domain.board.converter;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import root.git_turl.domain.board.dto.BoardReqDto;
 import root.git_turl.domain.board.dto.BoardResDto;
 import root.git_turl.domain.board.entity.Board;
 import root.git_turl.domain.board.repository.BoardLikeRepository;
 import root.git_turl.domain.member.entity.Member;
-import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,11 +14,24 @@ import java.util.List;
 @Component
 public class BoardConverter {
 
-    public Board toBoard(BoardReqDto.CreateBoardReqDto request, Member member, String imageUrl) {
+    public Board toBoard(
+            BoardReqDto.CreateBoardReqDto request,
+            Member member,
+            String imageUrl
+    ) {
         return Board.builder()
                 .title(request.getTitle())
                 .content(request.getContent())
                 .boardType(request.getBoardType())
+
+                // ===== 스터디 =====
+                .studyTag(request.getStudyTag())
+
+                // ===== 프로젝트 =====
+                .projectStatus(request.getProjectStatus())
+                .techFields(request.getTechFields())
+                .platformTypes(request.getPlatformTypes())
+
                 .imageUrl(imageUrl)
                 .member(member)
                 .build();
@@ -35,6 +48,15 @@ public class BoardConverter {
                 .content(board.getContent())
                 .imageUrl(board.getImageUrl())
                 .boardType(board.getBoardType())
+
+                // ===== 스터디 =====
+                .studyTag(board.getStudyTag())
+
+                // ===== 프로젝트 =====
+                .projectStatus(board.getProjectStatus())
+                .techFields(board.getTechFields())
+                .platformTypes(board.getPlatformTypes())
+
                 .authorName(board.getMember().getNickname())
                 .views(board.getViews())
                 .likeCount(likeCount)
@@ -74,6 +96,15 @@ public class BoardConverter {
                 .content(board.getContent())
                 .imageUrl(board.getImageUrl())
                 .boardType(board.getBoardType())
+
+                // ===== 스터디 =====
+                .studyTag(board.getStudyTag())
+
+                // ===== 프로젝트 =====
+                .projectStatus(board.getProjectStatus())
+                .techFields(board.getTechFields())
+                .platformTypes(board.getPlatformTypes())
+
                 .writerName(board.getMember().getNickname())
                 .likeCount(likeCount)
                 .createdAt(board.getCreatedAt())
