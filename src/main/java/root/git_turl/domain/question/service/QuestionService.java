@@ -1,6 +1,7 @@
 package root.git_turl.domain.question.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class QuestionService {
 
     private final ReportRepository reportRepository;
@@ -49,6 +51,7 @@ public class QuestionService {
             Question question = QuestionConverter.toQuestion(report, member, dto.getAnswerType());
             questions.add(question);
         }
+        log.info("questions id" + questions);
         questionRepository.saveAll(questions);
         asyncQuestionService.makeQuestion(reportId, dto.getQuestionCount(), questions.stream().map(Question::getId).toList());
         return QuestionConverter.toQuestionIdList(questions);
