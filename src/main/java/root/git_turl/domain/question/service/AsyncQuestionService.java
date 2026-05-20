@@ -1,6 +1,7 @@
 package root.git_turl.domain.question.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AsyncQuestionService {
 
     private final BuildPrompt buildPrompt;
@@ -34,13 +36,17 @@ public class AsyncQuestionService {
     @Async
     @Transactional
     public void makeQuestion(Long reportId, Integer count, List<Long> questionIdLists) {
+        log.info("async 시작");
+
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new ReportException(ReportErrorCode.REPORT_NOT_FOUND));
         List<Question> questions =
                 questionRepository.findAllById(questionIdLists);
         try {
             String prompt = buildPrompt.buildQuestionPrompt(report, count);
+            log.info("prompt 생성 완료");
             Map<String,Integer> contents = gptService.makeQuestions(prompt).getQuestions();
+            log.info("gpt raw response={}", contents);
             List<String> keys = new ArrayList<>(contents.keySet());
 
             for (int i=0; i<questions.size(); i++) {
@@ -48,7 +54,9 @@ public class AsyncQuestionService {
                 questions.get(i).updateTime(contents.get(keys.get(i)));
                 questions.get(i).updateStatus(GenerationStatus.DONE);
             }
+            log.info("update 완료");
         } catch (Exception e) {
+            log.error("비동기 실패", e);
             for (int i=0; i<count; i++) {
                 questions.get(i).updateStatus(GenerationStatus.FAIL);
             }
