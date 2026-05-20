@@ -32,6 +32,7 @@ public class ReportResDto {
     public static class ReportDetail {
         private Long reportId;
         private String repoName;
+        private String reportTitle;
         private String githubId;
         private Status status;
         private LocalDateTime createdAt;
@@ -58,6 +59,7 @@ public class ReportResDto {
     public static class ReportPreview {
         private Long reportId;
         private String repoName;
+        private String reportTitle;
         private String description;
         private LocalDate createdAt;
         private Long questionCount;

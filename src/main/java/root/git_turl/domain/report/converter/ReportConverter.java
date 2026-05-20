@@ -27,7 +27,7 @@ public class ReportConverter {
     public static Report toReport(
             String githubId,
             String fullName,
-            Member memebr
+            Member member
     ) {
         return Report.builder()
                 .githubId(githubId)
@@ -35,7 +35,7 @@ public class ReportConverter {
                 .status(Status.PRIVATE)
                 .generationStatus(GenerationStatus.PROCESSING)
                 .repoName(fullName)
-                .member(memebr)
+                .member(member)
                 .build();
     }
 
@@ -55,6 +55,7 @@ public class ReportConverter {
                 .reportId(report.getId())
                 .status(report.getStatus())
                 .repoName(report.getRepoName())
+                .reportTitle(report.getTitle())
                 .createdAt(report.getCreatedAt())
                 .githubId(report.getGithubId())
                 .content(toReportWrapper(report.getContentJson()))
@@ -87,6 +88,7 @@ public class ReportConverter {
         return ReportResDto.ReportPreview.builder()
                 .reportId(report.getId())
                 .repoName(report.getRepoName())
+                .reportTitle(report.getTitle())
                 .description(report.getDescription())
                 .createdAt(report.getCreatedAt().toLocalDate())
                 .questionCount(count)
