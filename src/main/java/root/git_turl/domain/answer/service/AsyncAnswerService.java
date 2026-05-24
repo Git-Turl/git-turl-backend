@@ -5,7 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
+import root.git_turl.domain.answer.dto.AnswerVoiceSavedEvent;
 import root.git_turl.domain.answer.dto.VoiceFeedback;
 import root.git_turl.domain.answer.entity.Answer;
 import root.git_turl.domain.answer.exception.AnswerException;
@@ -15,8 +19,6 @@ import root.git_turl.domain.report.enums.GenerationStatus;
 import root.git_turl.global.util.BuildPrompt;
 import root.git_turl.infrastructure.openai.GptService;
 import root.git_turl.infrastructure.openai.WhisperService;
-
-import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -29,20 +31,18 @@ public class AsyncAnswerService {
     private final ObjectMapper objectMapper;
 
     @Async
-    @Transactional
-    public void saveAnswerVoice(
-            String questionContent, Integer questionTime,
-            String voiceFileUrl, Long answerId
-    ) {
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void saveAnswerVoice(AnswerVoiceSavedEvent event) {
 
-        Answer answer = answerRepository.findById(answerId)
+        Answer answer = answerRepository.findById(event.answerId())
                 .orElseThrow(() -> new AnswerException(AnswerErrorCode.NOT_FOUND));
 
         // 음성 -> 텍스트 변환
-        String textAnswer = whisperService.transcribe(voiceFileUrl, answer);
+        String textAnswer = whisperService.transcribe(event.voiceFileUrl(), answer);
 
         // 답변 피드백 생성
-        String prompt = buildPrompt.buildSummaryAndFeedbackPrompt(textAnswer, questionContent, questionTime);
+        String prompt = buildPrompt.buildSummaryAndFeedbackPrompt(textAnswer, event.questionContent(), event.questionTime());
         VoiceFeedback response = gptService.makeVoiceFeedback(prompt);
 
         // 음성 답변, 피드백 저장
