@@ -2,6 +2,7 @@ package root.git_turl.domain.question.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import root.git_turl.domain.question.converter.QuestionConverter;
 import root.git_turl.domain.question.dto.QuestionContent;
 import root.git_turl.domain.question.dto.QuestionReqDto;
 import root.git_turl.domain.question.dto.QuestionResDto;
+import root.git_turl.domain.question.dto.QuestionSavedEvent;
 import root.git_turl.domain.question.entity.Question;
 import root.git_turl.domain.question.exception.QuestionException;
 import root.git_turl.domain.question.exception.code.QuestionErrorCode;
@@ -37,7 +39,7 @@ public class QuestionService {
     private final ReportRepository reportRepository;
     private final MemberRepository memberRepository;
     private final QuestionRepository questionRepository;
-    private final AsyncQuestionService asyncQuestionService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public QuestionResDto.QuestionId saveQuestion(Member currentMember, Long reportId, QuestionReqDto.QuestionInfo dto) {
@@ -53,7 +55,7 @@ public class QuestionService {
         }
         log.info("questions id" + questions);
         questionRepository.saveAll(questions);
-        asyncQuestionService.makeQuestion(reportId, dto.getQuestionCount(), questions.stream().map(Question::getId).toList());
+        eventPublisher.publishEvent(new QuestionSavedEvent(reportId, dto.getQuestionCount(), questions.stream().map(Question::getId).toList()));
         return QuestionConverter.toQuestionIdList(questions);
     }
 

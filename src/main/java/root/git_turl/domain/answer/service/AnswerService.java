@@ -4,14 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import root.git_turl.domain.answer.converter.AnswerConverter;
-import root.git_turl.domain.answer.dto.AnswerReqDto;
-import root.git_turl.domain.answer.dto.AnswerResDto;
-import root.git_turl.domain.answer.dto.Feedback;
-import root.git_turl.domain.answer.dto.VoiceFeedback;
+import root.git_turl.domain.answer.dto.*;
 import root.git_turl.domain.answer.entity.Answer;
 import root.git_turl.domain.answer.enums.AnswerType;
 import root.git_turl.domain.answer.enums.Status;
@@ -44,6 +42,7 @@ public class AnswerService {
     private final GptService gptService;
     private final AsyncAnswerService asyncAnswerService;
     private final AwsFileService awsFileService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public List<AnswerResDto.TextAnswer> getAnswerList(Member currentMember, Long questionId) {
@@ -137,8 +136,7 @@ public class AnswerService {
         }
         Answer answer = AnswerConverter.toVoiceAnswer(voiceFileUrl, question);
         answerRepository.save(answer);
-
-        asyncAnswerService.saveAnswerVoice(question.getContent(), question.getTime(), voiceFileUrl, answer.getId());
+        eventPublisher.publishEvent(new AnswerVoiceSavedEvent(question.getContent(), question.getTime(), voiceFileUrl, answer.getId()));
     }
 
     @Transactional

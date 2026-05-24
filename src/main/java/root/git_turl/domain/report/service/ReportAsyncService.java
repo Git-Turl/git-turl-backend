@@ -6,11 +6,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.report.code.ReportErrorCode;
 import root.git_turl.domain.report.dto.GitAnalysisResult;
 import root.git_turl.domain.report.dto.ReportReqDto;
+import root.git_turl.domain.report.dto.ReportSavedEvent;
 import root.git_turl.domain.report.dto.commit.GitCommit;
 import root.git_turl.domain.report.dto.reportDetail.ReportWrapper;
 import root.git_turl.domain.report.entity.Report;
@@ -39,14 +43,15 @@ public class ReportAsyncService {
     private final GitCloneService gitCloneService;
 
     @Async
-    @Transactional
-    public void generateReport(Long reportId, Member currentMember, ReportReqDto.Repo dto) {
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void generateReport(ReportSavedEvent event) {
         log.info("비동기 실행됨: {}", Thread.currentThread().getName());
-        String email = currentMember.getEmail();
-        String gitUrl = GitRepoParser.getRepoLink(dto.getFullName());
+        String email = event.email();
+        String gitUrl = GitRepoParser.getRepoLink(event.dto().getFullName());
         String repoPath = gitCloneService.cloneRepository(gitUrl);
 
-        Report report = reportRepository.findById(reportId)
+        Report report = reportRepository.findById(event.reportId())
                 .orElseThrow();
 
         report.updateGenerationStatus(GenerationStatus.PROCESSING);
@@ -55,7 +60,7 @@ public class ReportAsyncService {
         try {
             List<GitCommit> commits = gitLogParser.getCommits(repoPath);
             List<GitCommit> userCommits = commits.stream()
-                    .filter(c -> c.getAuthorEmail().equals(email) || c.getAuthorEmail().contains(currentMember.getGithubId()))
+                    .filter(c -> c.getAuthorEmail().equals(email) || c.getAuthorEmail().contains(event.githubId()))
                     .toList();
 
             GitAnalysisResult result = gitAnalysisService.analyze(GitRepoParser.getRepoFullName(gitUrl), repoPath, commits, userCommits);
