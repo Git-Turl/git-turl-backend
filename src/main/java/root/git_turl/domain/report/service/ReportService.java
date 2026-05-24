@@ -1,6 +1,7 @@
 package root.git_turl.domain.report.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import root.git_turl.domain.report.converter.ReportConverter;
 import root.git_turl.domain.report.dto.GithubRepoResponse;
 import root.git_turl.domain.report.dto.ReportReqDto;
 import root.git_turl.domain.report.dto.ReportResDto;
+import root.git_turl.domain.report.dto.ReportSavedEvent;
 import root.git_turl.domain.report.entity.Report;
 import root.git_turl.domain.report.enums.GenerationStatus;
 import root.git_turl.domain.report.enums.Status;
@@ -35,6 +37,7 @@ public class ReportService {
     private final ReportAsyncService reportAsyncService;
     private final ReportRepository reportRepository;
     private final QuestionRepository questionRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public List<ReportResDto.RepoInfo> getRepoList(String token) {
@@ -48,7 +51,7 @@ public class ReportService {
     public ReportResDto.ReportId postReport(Member currentMember, ReportReqDto.Repo dto) {
         Report report = ReportConverter.toReport(currentMember.getGithubId(), dto.getFullName(), currentMember);
         reportRepository.save(report);
-        reportAsyncService.generateReport(report.getId(), currentMember, dto);
+        eventPublisher.publishEvent(new ReportSavedEvent(report.getId(), currentMember.getEmail(), currentMember.getGithubId(), dto));
         return ReportConverter.toReportId(report);
     }
 
