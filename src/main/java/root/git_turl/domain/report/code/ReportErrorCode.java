@@ -23,7 +23,11 @@ public enum ReportErrorCode implements BaseErrorCode {
 
     NO_AUTH_REPORT(HttpStatus.FORBIDDEN,
             "REPORT403_1",
-            "해당 요약본에 대한 접근 권한이 없습니다.");
+            "해당 요약본에 대한 접근 권한이 없습니다."),
+
+    REPORT_GENERATION_FAIL(HttpStatus.INTERNAL_SERVER_ERROR,
+            "REPORT500_2",
+            "정확도가 낮아 요약본을 생성에 실패했습니다.");
 
     private final HttpStatus status;
     private final String code;

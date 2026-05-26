@@ -58,7 +58,7 @@ public class GitLogTest {
             System.out.println("\ndiffs: ");
             result.getMajorCommits().forEach(System.out::println);
 
-        String prompt = buildPrompt.buildReportPrompt(result);
+        String prompt = buildPrompt.buildReportPrompt(result, githubName);
 
         try {
             Files.writeString(

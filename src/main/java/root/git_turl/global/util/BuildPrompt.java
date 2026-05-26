@@ -8,18 +8,13 @@ import root.git_turl.domain.report.entity.Report;
 
 @Component
 public class BuildPrompt {
-    public String buildReportPrompt(GitAnalysisResult result) {
+    public String buildReportPrompt(GitAnalysisResult result, String userId) {
 
         StringBuilder sb = new StringBuilder();
 
         sb.append("다음은 한 개발자의 Git 활동 데이터입니다.\n\n");
 
-        sb.append("전체 통계\n");
-        sb.append("- 전체 커밋 수: ").append(result.getTotalCommits()).append("\n");
-        sb.append("- 개인 커밋 수: ").append(result.getUserTotalCommits()).append("\n");
-        sb.append("- 기여도: ").append(result.getContributionRate()).append("%\n\n");
-
-        sb.append("[commitContribution]\n");
+        sb.append("[commitContribution](유저 아이디: %s)\n\\n".formatted(userId));
         sb.append("{\n");
         result.getContributionAnalyze().forEach((k, v) ->
                 sb.append("  \"").append(k).append("\": ").append(v).append(",\n")
@@ -98,7 +93,7 @@ public class BuildPrompt {
                 "\n" +
                 "- purpose: 프로젝트 목적을 2~3문장으로 구체적으로 설명\n" +
                 "- stack: 분석된 기술 스택을 최대한 구체적으로 작성\n" +
-                "- commitStats: 제공된 데이터를 기반으로 정확히 작성\n" +
+                "- commitStats: 전체 커밋 수와 사용자 커밋 수를 활용하여 비율 계산\n" +
                 "- scale: 프로젝트 규모를 수치 기반으로 설명\n" +
                 "- reports: " +
                 "최소 1200자 이상 작성\n" +
