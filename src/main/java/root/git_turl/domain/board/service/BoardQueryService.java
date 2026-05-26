@@ -10,7 +10,7 @@ import root.git_turl.domain.board.code.BoardErrorCode;
 import root.git_turl.domain.board.converter.BoardConverter;
 import root.git_turl.domain.board.dto.BoardResDto;
 import root.git_turl.domain.board.entity.Board;
-import root.git_turl.domain.board.enums.BoardType;
+import root.git_turl.domain.board.enums.*;
 import root.git_turl.domain.board.exception.BoardException;
 import root.git_turl.domain.board.repository.BoardLikeRepository;
 import root.git_turl.domain.board.repository.BoardRepository;
@@ -25,16 +25,26 @@ public class BoardQueryService {
     private final BoardLikeRepository boardLikeRepository;
 
     @Transactional(readOnly = true)
-    public BoardResDto.BoardPreviewListDto getBoardList(Integer page, BoardType boardType) {
-        PageRequest pageRequest = PageRequest.of(
-                page,
-                10,
-                Sort.by(Sort.Direction.DESC, "createdAt")
-        );
+    public BoardResDto.BoardPreviewListDto getBoardList(
+            Integer page,
+            BoardType boardType,
+            StudyTag studyTag,
+            ProjectStatus projectStatus,
+            TechField techField,
+            PlatformType platformType,
+            BoardSortType sort
+    ) {
+        PageRequest pageRequest = PageRequest.of(page, 10);
 
-        Page<Board> boardPage = boardType == null
-                ? boardRepository.findAll(pageRequest)
-                : boardRepository.findAllByBoardType(boardType, pageRequest);
+        Page<Board> boardPage = boardRepository.findBoardListWithFilters(
+                boardType,
+                studyTag,
+                projectStatus,
+                techField,
+                platformType,
+                sort,
+                pageRequest
+        );
 
         return BoardConverter.toBoardPreviewListDto(
                 boardPage,

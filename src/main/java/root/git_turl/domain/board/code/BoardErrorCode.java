@@ -43,7 +43,13 @@ public enum BoardErrorCode implements BaseErrorCode {
             HttpStatus.BAD_REQUEST,
             "BOARD400_4",
             "수정할 게시글 정보가 없습니다"
-    );;
+    ),
+
+    INVALID_BOARD_TYPE(
+            HttpStatus.BAD_REQUEST,
+            "BOARD400_5",
+            "잘못된 게시판 타입입니다"
+    ),;
 
     private final HttpStatus status;
     private final String code;

@@ -9,11 +9,10 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import root.git_turl.domain.board.code.BoardSuccessCode;
-import root.git_turl.domain.board.enums.BoardType;
+import root.git_turl.domain.board.enums.*;
 import root.git_turl.domain.board.service.BoardCommandService;
 import root.git_turl.domain.board.service.BoardQueryService;
 import root.git_turl.domain.member.entity.Member;
-import root.git_turl.domain.member.repository.MemberRepository;
 import root.git_turl.global.annotation.CurrentUser;
 import root.git_turl.global.annotation.SwaggerBody;
 import root.git_turl.global.apiPayload.ApiResponse;
@@ -94,11 +93,24 @@ public class BoardRestController implements BoardControllerDocs {
     @GetMapping
     public ApiResponse<BoardResDto.BoardPreviewListDto> getBoardList(
             @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(required = false) BoardType boardType
+            @RequestParam(required = false) BoardType boardType,
+            @RequestParam(required = false) StudyTag studyTag,
+            @RequestParam(required = false) ProjectStatus projectStatus,
+            @RequestParam(required = false) TechField techField,
+            @RequestParam(required = false) PlatformType platformType,
+            @RequestParam(defaultValue = "LATEST") BoardSortType sort
     ) {
         return ApiResponse.onSuccess(
                 BoardSuccessCode.BOARD_LIST_FOUND,
-                boardQueryService.getBoardList(page, boardType)
+                boardQueryService.getBoardList(
+                        page,
+                        boardType,
+                        studyTag,
+                        projectStatus,
+                        techField,
+                        platformType,
+                        sort
+                )
         );
     }
 

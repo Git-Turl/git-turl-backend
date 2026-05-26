@@ -3,14 +3,13 @@ package root.git_turl.domain.board.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 import root.git_turl.domain.board.dto.BoardReqDto;
 import root.git_turl.domain.board.dto.BoardResDto;
-import root.git_turl.domain.board.enums.BoardType;
+import root.git_turl.domain.board.enums.*;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.global.annotation.CurrentUser;
 import root.git_turl.global.apiPayload.ApiResponse;
@@ -52,8 +51,27 @@ public interface BoardControllerDocs {
             description = "게시글 목록을 조회합니다."
     )
     ApiResponse<BoardResDto.BoardPreviewListDto> getBoardList(
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(required = false) BoardType boardType
+
+            @RequestParam(defaultValue = "0")
+            Integer page,
+
+            @RequestParam(required = false)
+            BoardType boardType,
+
+            @RequestParam(required = false)
+            StudyTag studyTag,
+
+            @RequestParam(required = false)
+            ProjectStatus projectStatus,
+
+            @RequestParam(required = false)
+            TechField techField,
+
+            @RequestParam(required = false)
+            PlatformType platformType,
+
+            @RequestParam(defaultValue = "LATEST")
+            BoardSortType sort
     );
 
     @Operation(
