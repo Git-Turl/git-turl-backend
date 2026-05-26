@@ -4,8 +4,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.Getter;
-import org.springframework.web.multipart.MultipartFile;
-import root.git_turl.domain.board.enums.BoardType;
+import root.git_turl.domain.board.enums.*;
+
+import java.util.List;
 
 public class BoardReqDto {
 
@@ -21,6 +22,16 @@ public class BoardReqDto {
         @NotNull
         private BoardType boardType;
 
+        // ===== 스터디 게시판 =====
+        private StudyTag studyTag;
+
+        // ===== 프로젝트 게시판 =====
+        private ProjectStatus projectStatus;
+
+        private List<TechField> techFields;
+
+        private List<PlatformType> platformTypes;
+
         //private MultipartFile boardImage;
     }
 
@@ -32,6 +43,16 @@ public class BoardReqDto {
         private String content;
 
         private BoardType boardType;
+
+        // ===== 스터디 게시판 =====
+        private StudyTag studyTag;
+
+        // ===== 프로젝트 게시판 =====
+        private ProjectStatus projectStatus;
+
+        private List<TechField> techFields;
+
+        private List<PlatformType> platformTypes;
 
         //private MultipartFile boardImage;
     }

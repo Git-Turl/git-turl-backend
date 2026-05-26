@@ -9,6 +9,7 @@ import root.git_turl.domain.board.converter.BoardConverter;
 import root.git_turl.domain.board.dto.BoardReqDto;
 import root.git_turl.domain.board.dto.BoardResDto;
 import root.git_turl.domain.board.entity.Board;
+import root.git_turl.domain.board.enums.BoardType;
 import root.git_turl.domain.board.exception.BoardException;
 import root.git_turl.domain.board.repository.BoardRepository;
 import root.git_turl.domain.member.code.MemberErrorCode;
@@ -37,6 +38,8 @@ public class BoardCommandService {
         Member member = memberRepository.findById(currentMember.getId())
                 .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
 
+        validateCreateRequest(request);
+
         String imageUrl = null;
 
         if (image != null && !image.isEmpty()) {
@@ -63,6 +66,10 @@ public class BoardCommandService {
         if (request.getTitle() == null
                 && request.getContent() == null
                 && request.getBoardType() == null
+                && request.getStudyTag() == null
+                && request.getProjectStatus() == null
+                && request.getTechFields() == null
+                && request.getPlatformTypes() == null
                 && (image == null || image.isEmpty())) {
             throw new BoardException(BoardErrorCode.NO_EDIT);
         }
@@ -71,6 +78,7 @@ public class BoardCommandService {
                 .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
 
         validateWriter(board, currentMember);
+        validateUpdateRequest(board, request);
 
         String imageUrl = board.getImageUrl();
 
@@ -82,11 +90,19 @@ public class BoardCommandService {
             }
         }
 
+        BoardType boardType = request.getBoardType() != null
+                ? request.getBoardType()
+                : board.getBoardType();
+
         board.update(
                 request.getTitle(),
                 request.getContent(),
                 imageUrl,
-                request.getBoardType()
+                boardType,
+                boardType == BoardType.STUDY ? request.getStudyTag() : null,
+                boardType == BoardType.PROJECT ? request.getProjectStatus() : null,
+                boardType == BoardType.PROJECT ? request.getTechFields() : null,
+                boardType == BoardType.PROJECT ? request.getPlatformTypes() : null
         );
 
         return BoardConverter.toUpdateResultDto(board);
@@ -105,6 +121,42 @@ public class BoardCommandService {
         boardRepository.delete(board);
 
         return BoardConverter.toDeleteResultDto(boardId);
+    }
+
+    private void validateCreateRequest(BoardReqDto.CreateBoardReqDto request) {
+        if (request.getBoardType() == BoardType.STUDY) {
+            if (request.getStudyTag() == null) {
+                throw new BoardException(BoardErrorCode.INVALID_BOARD_TYPE);
+            }
+        }
+
+        if (request.getBoardType() == BoardType.PROJECT) {
+            if (request.getProjectStatus() == null
+                    || request.getTechFields() == null || request.getTechFields().isEmpty()
+                    || request.getPlatformTypes() == null || request.getPlatformTypes().isEmpty()) {
+                throw new BoardException(BoardErrorCode.INVALID_BOARD_TYPE);
+            }
+        }
+    }
+
+    private void validateUpdateRequest(Board board, BoardReqDto.UpdateDto request) {
+        BoardType boardType = request.getBoardType() != null
+                ? request.getBoardType()
+                : board.getBoardType();
+
+        if (boardType == BoardType.STUDY) {
+            if (request.getStudyTag() == null && board.getStudyTag() == null) {
+                throw new BoardException(BoardErrorCode.INVALID_BOARD_TYPE);
+            }
+        }
+
+        if (boardType == BoardType.PROJECT) {
+            if ((request.getProjectStatus() == null && board.getProjectStatus() == null)
+                    || (request.getTechFields() == null && (board.getTechFields() == null || board.getTechFields().isEmpty()))
+                    || (request.getPlatformTypes() == null && (board.getPlatformTypes() == null || board.getPlatformTypes().isEmpty()))) {
+                throw new BoardException(BoardErrorCode.INVALID_BOARD_TYPE);
+            }
+        }
     }
 
     private void validateWriter(Board board, Member currentMember) {
