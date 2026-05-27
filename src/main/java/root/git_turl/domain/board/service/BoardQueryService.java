@@ -36,15 +36,27 @@ public class BoardQueryService {
     ) {
         PageRequest pageRequest = PageRequest.of(page, 10);
 
-        Page<Board> boardPage = boardRepository.findBoardListWithFilters(
-                boardType,
-                studyTag,
-                projectStatus,
-                techField,
-                platformType,
-                sort,
-                pageRequest
-        );
+        Page<Board> boardPage;
+
+        if (sort == BoardSortType.LIKE) {
+            boardPage = boardRepository.findBoardListWithFiltersOrderByLike(
+                    boardType,
+                    studyTag,
+                    projectStatus,
+                    techField,
+                    platformType,
+                    pageRequest
+            );
+        } else {
+            boardPage = boardRepository.findBoardListWithFiltersOrderByLatest(
+                    boardType,
+                    studyTag,
+                    projectStatus,
+                    techField,
+                    platformType,
+                    pageRequest
+            );
+        }
 
         return BoardConverter.toBoardPreviewListDto(
                 boardPage,
