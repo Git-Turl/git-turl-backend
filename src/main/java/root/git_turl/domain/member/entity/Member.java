@@ -123,6 +123,7 @@ public class Member extends BaseEntity {
 
     public void activateMember() {
         this.status = Status.ACTIVATE;
+        this.deletedAt = null;
     }
 
     public void inactivateMember() {
