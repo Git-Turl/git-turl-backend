@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import root.git_turl.domain.board.dto.BoardReqDto;
 import root.git_turl.domain.board.dto.BoardResDto;
 import root.git_turl.domain.board.entity.Board;
+import root.git_turl.domain.board.enums.BoardType;
 import root.git_turl.domain.board.repository.BoardLikeRepository;
 import root.git_turl.domain.member.entity.Member;
 
@@ -24,13 +25,23 @@ public class BoardConverter {
                 .content(request.getContent())
                 .boardType(request.getBoardType())
 
+                // ===== 모집 공통 =====
+                .recruitCount(request.getRecruitCount())
+                .recruitDeadline(request.getRecruitDeadline())
+
                 // ===== 스터디 =====
-                .studyTag(request.getStudyTag())
+                .studyTag(request.getBoardType() == BoardType.STUDY ? request.getStudyTag() : null)
+                .certificateType(
+                        request.getBoardType() == BoardType.STUDY
+                                ? request.getCertificateType()
+                                : null
+                )
 
                 // ===== 프로젝트 =====
-                .projectStatus(request.getProjectStatus())
-                .techFields(request.getTechFields())
-                .platformTypes(request.getPlatformTypes())
+                .projectStatus(request.getBoardType() == BoardType.PROJECT ? request.getProjectStatus() : null)
+                .recruitStacks(request.getBoardType() == BoardType.PROJECT ? request.getRecruitStacks() : List.of())
+                .projectStacks(request.getBoardType() == BoardType.PROJECT ? request.getProjectStacks() : List.of())
+                .platformTypes(request.getBoardType() == BoardType.PROJECT ? request.getPlatformTypes() : List.of())
 
                 .imageUrl(imageUrl)
                 .member(member)
@@ -49,13 +60,19 @@ public class BoardConverter {
                 .imageUrl(board.getImageUrl())
                 .boardType(board.getBoardType())
 
+                // ===== 모집 공통 =====
+                .recruitCount(board.getRecruitCount())
+                .recruitDeadline(board.getRecruitDeadline())
+
                 // ===== 스터디 =====
                 .studyTag(board.getStudyTag())
+                .certificateType(board.getCertificateType())
 
                 // ===== 프로젝트 =====
                 .projectStatus(board.getProjectStatus())
-                .techFields(board.getTechFields())
                 .platformTypes(board.getPlatformTypes())
+                .recruitStacks(board.getRecruitStacks())
+                .projectStacks(board.getProjectStacks())
 
                 .authorName(board.getMember().getNickname())
                 .views(board.getViews())
@@ -97,13 +114,19 @@ public class BoardConverter {
                 .imageUrl(board.getImageUrl())
                 .boardType(board.getBoardType())
 
+                // ===== 모집 공통 =====
+                .recruitCount(board.getRecruitCount())
+                .recruitDeadline(board.getRecruitDeadline())
+
                 // ===== 스터디 =====
                 .studyTag(board.getStudyTag())
+                .certificateType(board.getCertificateType())
 
                 // ===== 프로젝트 =====
                 .projectStatus(board.getProjectStatus())
-                .techFields(board.getTechFields())
                 .platformTypes(board.getPlatformTypes())
+                .recruitStacks(board.getRecruitStacks())
+                .projectStacks(board.getProjectStacks())
 
                 .writerName(board.getMember().getNickname())
                 .likeCount(likeCount)
