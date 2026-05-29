@@ -1,15 +1,33 @@
 package root.git_turl.global.util.prompt;
 
 import org.springframework.stereotype.Component;
+import root.git_turl.domain.question.entity.Question;
 import root.git_turl.domain.report.dto.GitAnalysisResult;
 import root.git_turl.domain.report.dto.commit.MajorCommit;
 import root.git_turl.global.util.parser.DiffStructureParser;
 
+import java.util.List;
+
 @Component
 public class BuildJudgePrompt {
+    private static String BASE_PROMPT = """
+        [출력 형식]
+        반드시 JSON만 출력한다.
+         {
+           "deductions": [
+             {"item": "A", "count": 0, "detail": ""},
+             {"item": "B", "count": 0, "detail": ""},
+             {"item": "C", "count": 0, "detail": ""},
+             {"item": "D", "count": 0, "detail": ""},
+             {"item": "E", "count": 0, "detail": ""}
+           ],
+           "score": 0,
+           "result": "SUCCESS",
+           "reason": ""
+         }""";
     private static String REPORT_PROMPT = """
         너는 리포트 품질 평가자다. 아래 체크리스트로 감점하여 최종 점수를 계산하라.
-            
+    
        [기본 점수: 10점]
 
          [감점 규칙 - 해당 항목 발견 시 즉시 감점]
@@ -31,26 +49,33 @@ public class BuildJudgePrompt {
         4. 일반론만 반복하지 않는가
         5. 프로젝트 고유의 근거가 있는가
         
-        [출력 형식]
-        반드시 JSON만 출력한다.
-         {
-           "deductions": [
-             {"item": "A", "count": 0, "detail": ""},
-             {"item": "B", "count": 0, "detail": ""},
-             {"item": "C", "count": 0, "detail": ""},
-             {"item": "D", "count": 0, "detail": ""},
-             {"item": "E", "count": 0, "detail": ""}
-           ],
-           "score": 0,
-           "result": "SUCCESS",
-           "reason": ""
-         }
+      
+    """;
+
+    private static String QUESTION_PROMPT = """
+         너는 개발자 면접 질문 품질 평가자다. 아래 체크리스트로 감점하여 최종 점수를 계산하라.
+    
+        [기본 점수: 10점]
+
+        [감점 규칙]
+        A. 질문이 "~를 아시나요?", "~란 무엇인가요?" 수준의 단순 암기형인 경우 → -1점/개
+        B. 질문이 신입/주니어 수준에 비해 너무 쉬운 경우 (예: "Java가 뭔가요?") → -1점/개
+        C. 질문이 해당 레포와 무관한 일반 CS 지식만 묻는 경우 → -2점/개
+           (예: 레포에 JWT 코드가 있는데 "OSI 7계층을 설명하세요" 같은 질문)
+        D. 질문이 실무 면접에서 나오기 어려운 수준으로 난해한 경우 → -1점/개
+        E. 유사한 질문이 중복되는 경우 → -1점/쌍
+
+        [판정]
+        최종 점수 = 10 - 감점 합산 (최저 1점)
+        7점 이상 = SUCCESS, 6점 이하 = FAIL
+  
     """;
 
     public String buildReportJudgePrompt(GitAnalysisResult result, String contentJson) {
 
         StringBuilder sb = new StringBuilder();
         sb.append(REPORT_PROMPT);
+        sb.append(BASE_PROMPT);
 
         sb.append("다음은 개발자의 Git 활동 데이터와 이를 바탕으로 생성한 요약본이다.\n\n");
 
@@ -113,6 +138,15 @@ public class BuildJudgePrompt {
                 "  \"result\": \"SUCCESS 또는 FAIL\",\n" +
                 "  \"reason\": \"근거 부족, 예시 없음등 이유 1~2줄\"\n" +
                 "}" );
+        return sb.toString();
+    }
+
+    public String buildQuestionJudgePrompt (String question) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(QUESTION_PROMPT);
+        sb.append(BASE_PROMPT);
+
         return sb.toString();
     }
 }

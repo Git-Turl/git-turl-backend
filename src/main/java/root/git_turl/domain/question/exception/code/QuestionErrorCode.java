@@ -16,7 +16,11 @@ public enum QuestionErrorCode implements BaseErrorCode {
 
     NOT_FOUND(HttpStatus.NOT_FOUND,
             "QUESTION404_1",
-            "존재하지 않는 질문입니다.");
+            "존재하지 않는 질문입니다."),
+
+    QUESTION_GENERATION_FAIL(HttpStatus.INTERNAL_SERVER_ERROR,
+            "QUESTION500_1",
+            "품질 문제로 질문 생성에 실패했습니다.");
 
     private final HttpStatus status;
     private final String code;

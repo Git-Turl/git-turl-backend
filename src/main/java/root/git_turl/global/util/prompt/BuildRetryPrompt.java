@@ -3,6 +3,7 @@ package root.git_turl.global.util.prompt;
 import org.springframework.stereotype.Component;
 import root.git_turl.domain.report.dto.GitAnalysisResult;
 import root.git_turl.domain.report.dto.commit.MajorCommit;
+import root.git_turl.domain.report.entity.Report;
 
 @Component
 public class BuildRetryPrompt {
@@ -159,6 +160,31 @@ public class BuildRetryPrompt {
         위 항목 중 하나라도 NO이면 해당 항목을 재작성 후 출력하라.
         """.formatted(userId));
 
+        return sb.toString();
+    }
+
+    public String buildQuestionRetryPrompt(Report report, int questionCount, String reason) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("다음 실패 사유를 참고하여 질문을 재생성하여라. 실패 이유: $s".formatted(reason));
+
+        sb.append("다음은 한 개발자의 Github repository 분석본입니다. \n");
+        sb.append(report.getContentJson());
+        sb.append("\n 해당 분석본을 읽고, 아래 기준을 참고하여 적절한 개발자 면접 질문을 %d개 생성하세요." .formatted(questionCount));
+        sb.append("\n레포 연관성:t레포의 특정 코드, 기능, 설계 의도에서 직접 도출된 질문임.\n");
+        sb.append("면접 적합성: 실제 기술면접에서 물어볼 만한 수준이며, 지원자의 사고 과정을 확인할 수 있음.");
+        sb.append("""
+            반드시 아래 JSON 형식으로만 응답하세요.
+            설명, 마크다운, 번호, 코드블록 없이 JSON만 반환하세요.
+            Map 형태로, key값은 질문, value값은 해당 질문을 답변하기 적정한 초수를 정수형으로 표기하세요.
+             {
+              "questions": {
+                "생성한 질문1": 60,
+                "질문2": 45,
+                "질문3": 60
+              }
+            }
+        """);
         return sb.toString();
     }
 }
