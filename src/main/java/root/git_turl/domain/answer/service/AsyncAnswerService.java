@@ -17,6 +17,7 @@ import root.git_turl.domain.answer.exception.code.AnswerErrorCode;
 import root.git_turl.domain.answer.repository.AnswerRepository;
 import root.git_turl.domain.report.enums.GenerationStatus;
 import root.git_turl.global.util.prompt.BuildPrompt;
+import root.git_turl.infrastructure.judge.FeedbackJudge;
 import root.git_turl.infrastructure.openai.GptService;
 import root.git_turl.infrastructure.openai.WhisperService;
 
@@ -29,6 +30,7 @@ public class AsyncAnswerService {
     private final GptService gptService;
     private final WhisperService whisperService;
     private final ObjectMapper objectMapper;
+    private final FeedbackJudge feedbackJudge;
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -44,6 +46,7 @@ public class AsyncAnswerService {
         // 답변 피드백 생성
         String prompt = buildPrompt.buildSummaryAndFeedbackPrompt(textAnswer, event.questionContent(), event.questionTime());
         VoiceFeedback response = gptService.makeVoiceFeedback(prompt);
+        String feedbackContent = feedbackJudge.judgeAndGetFeedback(answer, response.getContent());
 
         // 음성 답변, 피드백 저장
         String keywords = null;
@@ -55,7 +58,7 @@ public class AsyncAnswerService {
         }
         answer.updateVoiceAnswer(
                 textAnswer,
-                response.getContent(),
+                feedbackContent,
                 response.getAnswerSummary(),
                 keywords);
     }

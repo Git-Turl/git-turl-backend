@@ -71,6 +71,52 @@ public class BuildJudgePrompt {
   
     """;
 
+    private static String FEEDBACK_PROMPT = """
+        너는 개발자 면접 답변 피드백 품질 평가자다. 아래 체크리스트로 감점하여 최종 점수를 계산하라.
+    
+         [기본 점수: 10점]
+
+         [감점 규칙]
+         A. 피드백이 기술적으로 잘못된 내용을 포함하는 경우 → -3점/개
+            (예: "JWT는 서버에 상태를 저장합니다"처럼 틀린 설명)
+         B. 피드백이 질문과 무관한 내용을 다루는 경우 → -2점/개
+            (예: JWT 질문인데 DB 최적화 얘기)
+         C. 피드백이 "더 공부하세요", "좋은 답변입니다" 수준의 추상적 내용인 경우 → -2점/개
+         D. 개선 방향이 없거나 "추가 학습이 필요합니다" 수준인 경우 → -1점/개
+            (예: "JWT의 만료 처리는 jwtProvider.isExpired()에 추가하면 됩니다"처럼 구체적이어야 함)
+         E. 답변에서 맞은 부분과 틀린 부분을 구분하지 않고 전체를 뭉뚱그려 평가한 경우 → -1점
+
+         [판정]
+         최종 점수 = 10 - 감점 합산 (최저 1점)
+         7점 이상 = SUCCESS, 6점 이하 = FAIL
+
+         [출력 - JSON만, 마크다운 코드블록 금지]
+         {
+           "deductions": [
+             {"item": "A", "count": 0, "detail": ""},
+             {"item": "B", "count": 0, "detail": ""},
+             {"item": "C", "count": 0, "detail": ""},
+             {"item": "D", "count": 0, "detail": ""},
+             {"item": "E", "count": 0, "detail": ""}
+           ],
+           "score": 0,
+           "result": "SUCCESS",
+           "reason": "1~2줄 구체적 근거"
+         }
+     ""\";
+
+     public String buildFeedbackJudgePrompt(String question, String userAnswer, String feedback) {
+         StringBuilder sb = new StringBuilder();
+         sb.append(FEEDBACK_JUDGE_PROMPT);
+
+         sb.append("[면접 질문]\\n").append(question).append("\\n\\n");
+         sb.append("[지원자 답변]\\n").append(userAnswer).append("\\n\\n");
+         sb.append("[평가할 피드백]\\n").append(feedback).append("\\n");
+
+         return sb.toString();
+  
+    """;
+
     public String buildReportJudgePrompt(GitAnalysisResult result, String contentJson) {
 
         StringBuilder sb = new StringBuilder();
@@ -146,6 +192,19 @@ public class BuildJudgePrompt {
 
         sb.append(QUESTION_PROMPT);
         sb.append(BASE_PROMPT);
+        sb.append("\n[평가할 면접 질문]\n").append(question).append("\n");
+
+        return sb.toString();
+    }
+
+    public String buildFeedbackPrompt (String content, String question, String feedback) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(FEEDBACK_PROMPT);
+        sb.append(BASE_PROMPT);
+        sb.append("\n[평가할 면접 질문]\n").append(question).append("\n");
+        sb.append("\n[평가할 면접 답변]\n").append(content).append("\n");
+        sb.append("\n[평가할 답변 피드백 내용]\n").append(feedback).append("\n");
 
         return sb.toString();
     }
