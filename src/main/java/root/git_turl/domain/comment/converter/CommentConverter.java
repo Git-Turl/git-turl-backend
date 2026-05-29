@@ -63,6 +63,8 @@ public class CommentConverter {
             Boolean isLiked
     ) {
 
+        boolean isDeleted = comment.getDeletedAt() != null;
+
         boolean canReadSecretComment =
                 !comment.getIsSecret()
                         || comment.getMember().getId().equals(currentMember.getId())
@@ -77,10 +79,13 @@ public class CommentConverter {
                 )
                 .depth(comment.getDepth())
                 .isSecret(comment.getIsSecret())
+                .isDeleted(isDeleted)
                 .content(
-                        canReadSecretComment
-                                ? comment.getContent()
-                                : "비밀 댓글입니다."
+                        isDeleted
+                                ? "삭제된 댓글입니다."
+                                : canReadSecretComment
+                                    ? comment.getContent()
+                                    : "비밀 댓글입니다."
                 )
                 .writerName(comment.getMember().getNickname())
                 .likeCount(likeCount)

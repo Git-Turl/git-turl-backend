@@ -37,6 +37,7 @@ public class CommentResDto {
         private Long parentId;
         private Integer depth;
         private Boolean isSecret;
+        private Boolean isDeleted;
         private String content;
         private String writerName;
         private Long likeCount;

@@ -12,12 +12,16 @@ import root.git_turl.domain.board.entity.Board;
 import root.git_turl.domain.board.enums.BoardType;
 import root.git_turl.domain.board.enums.StudyTag;
 import root.git_turl.domain.board.exception.BoardException;
+import root.git_turl.domain.board.repository.BoardLikeRepository;
 import root.git_turl.domain.board.repository.BoardRepository;
+import root.git_turl.domain.comment.repository.CommentLikeRepository;
+import root.git_turl.domain.comment.repository.CommentRepository;
 import root.git_turl.domain.member.code.MemberErrorCode;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.member.exception.MemberException;
 import root.git_turl.domain.member.repository.MemberRepository;
 import root.git_turl.global.aws.AwsFileService;
+
 
 import java.io.IOException;
 
@@ -28,6 +32,9 @@ public class BoardCommandService {
     private final BoardRepository boardRepository;
     private final BoardConverter boardConverter;
     private final MemberRepository memberRepository;
+    private final BoardLikeRepository boardLikeRepository;
+    private final CommentRepository commentRepository;
+    private final CommentLikeRepository commentLikeRepository;
     private final AwsFileService awsFileService;
 
     @Transactional
@@ -146,6 +153,10 @@ public class BoardCommandService {
                 .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
 
         validateWriter(board, currentMember);
+
+        commentLikeRepository.deleteAllByCommentBoard(board);
+        commentRepository.deleteAllByBoard(board);
+        boardLikeRepository.deleteAllByBoard(board);
 
         boardRepository.delete(board);
 
