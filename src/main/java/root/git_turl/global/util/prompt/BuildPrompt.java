@@ -1,4 +1,4 @@
-package root.git_turl.global.util;
+package root.git_turl.global.util.prompt;
 
 import org.springframework.stereotype.Component;
 import root.git_turl.domain.question.entity.Question;
@@ -6,6 +6,7 @@ import root.git_turl.domain.report.dto.GitAnalysisResult;
 import root.git_turl.domain.report.dto.ProblemList;
 import root.git_turl.domain.report.dto.commit.MajorCommit;
 import root.git_turl.domain.report.entity.Report;
+import root.git_turl.global.util.parser.DiffStructureParser;
 
 @Component
 public class BuildPrompt {

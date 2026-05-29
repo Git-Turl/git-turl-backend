@@ -7,9 +7,9 @@ import root.git_turl.domain.report.dto.commit.CommitTypeCount;
 import root.git_turl.domain.report.dto.GitAnalysisResult;
 import root.git_turl.domain.report.dto.commit.GitCommit;
 import root.git_turl.domain.report.dto.commit.MajorCommit;
-import root.git_turl.global.util.DiffStructureParser;
+import root.git_turl.global.util.parser.DiffStructureParser;
 import root.git_turl.global.util.GithubUserMapper;
-import root.git_turl.global.util.ReadmeParser;
+import root.git_turl.global.util.parser.ReadmeParser;
 import root.git_turl.infrastructure.github.GitLogService;
 
 import java.time.LocalDate;

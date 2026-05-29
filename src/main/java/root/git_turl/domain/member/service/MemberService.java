@@ -9,13 +9,12 @@ import root.git_turl.domain.member.converter.MemberConverter;
 import root.git_turl.domain.member.dto.MemberReqDto;
 import root.git_turl.domain.member.dto.MemberResDto;
 import root.git_turl.domain.member.entity.Member;
-import root.git_turl.domain.member.enums.Status;
 import root.git_turl.domain.member.exception.MemberException;
 import root.git_turl.domain.member.repository.MemberRepository;
 import root.git_turl.domain.question.repository.QuestionRepository;
 import root.git_turl.domain.report.enums.GenerationStatus;
 import root.git_turl.domain.report.repository.ReportRepository;
-import root.git_turl.global.aws.AwsFileService;
+import root.git_turl.infrastructure.aws.AwsFileService;
 import root.git_turl.infrastructure.github.GithubClient;
 
 import java.io.IOException;

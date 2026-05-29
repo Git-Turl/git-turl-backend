@@ -1,4 +1,4 @@
-package root.git_turl.global.util;
+package root.git_turl.global.util.parser;
 
 import lombok.Builder;
 import lombok.Getter;

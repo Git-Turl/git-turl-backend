@@ -12,7 +12,6 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 import root.git_turl.domain.report.code.ReportErrorCode;
 import root.git_turl.domain.report.dto.GitAnalysisResult;
-import root.git_turl.domain.report.dto.Problem;
 import root.git_turl.domain.report.dto.ProblemList;
 import root.git_turl.domain.report.dto.ReportSavedEvent;
 import root.git_turl.domain.report.dto.commit.GitCommit;
@@ -21,17 +20,20 @@ import root.git_turl.domain.report.entity.Report;
 import root.git_turl.domain.report.enums.GenerationStatus;
 import root.git_turl.domain.report.exception.ReportException;
 import root.git_turl.domain.report.repository.ReportRepository;
-import root.git_turl.global.util.*;
+import root.git_turl.global.util.parser.GitLogParser;
+import root.git_turl.global.util.parser.GitRepoParser;
+import root.git_turl.global.util.prompt.BuildJudgePrompt;
+import root.git_turl.global.util.prompt.BuildProblemPrompt;
+import root.git_turl.global.util.prompt.BuildPrompt;
+import root.git_turl.global.util.prompt.BuildRetryPrompt;
 import root.git_turl.infrastructure.github.GitCloneService;
 import root.git_turl.infrastructure.judge.JudgeResult;
 import root.git_turl.infrastructure.judge.JudgeService;
 import root.git_turl.infrastructure.judge.Result;
 import root.git_turl.infrastructure.openai.GptService;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j

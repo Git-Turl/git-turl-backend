@@ -1,4 +1,4 @@
-package root.git_turl.global.util;
+package root.git_turl.global.util.prompt;
 
 import org.springframework.stereotype.Component;
 import root.git_turl.domain.report.dto.GitAnalysisResult;

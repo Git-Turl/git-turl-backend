@@ -16,7 +16,7 @@ import root.git_turl.domain.answer.exception.AnswerException;
 import root.git_turl.domain.answer.exception.code.AnswerErrorCode;
 import root.git_turl.domain.answer.repository.AnswerRepository;
 import root.git_turl.domain.report.enums.GenerationStatus;
-import root.git_turl.global.util.BuildPrompt;
+import root.git_turl.global.util.prompt.BuildPrompt;
 import root.git_turl.infrastructure.openai.GptService;
 import root.git_turl.infrastructure.openai.WhisperService;
 

@@ -15,7 +15,7 @@ import root.git_turl.domain.member.code.MemberErrorCode;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.member.exception.MemberException;
 import root.git_turl.domain.member.repository.MemberRepository;
-import root.git_turl.global.aws.AwsFileService;
+import root.git_turl.infrastructure.aws.AwsFileService;
 
 import java.io.IOException;
 

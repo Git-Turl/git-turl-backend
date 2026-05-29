@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import root.git_turl.domain.report.dto.commit.CommitTypeCount;
 import root.git_turl.domain.report.dto.commit.MajorCommit;
-import root.git_turl.global.util.DiffStructureParser;
+import root.git_turl.global.util.parser.DiffStructureParser;
 
 import java.util.List;
 import java.util.Map;

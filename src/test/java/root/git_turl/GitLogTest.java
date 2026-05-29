@@ -4,11 +4,11 @@ import org.springframework.web.client.RestClient;
 import root.git_turl.domain.report.dto.GitAnalysisResult;
 import root.git_turl.domain.report.dto.commit.GitCommit;
 import root.git_turl.domain.report.service.GitAnalysisService;
-import root.git_turl.global.util.BuildPrompt;
-import root.git_turl.global.util.GitRepoParser;
+import root.git_turl.global.util.prompt.BuildPrompt;
+import root.git_turl.global.util.parser.GitRepoParser;
 import root.git_turl.global.util.GithubUserMapper;
 import root.git_turl.infrastructure.github.GitCloneService;
-import root.git_turl.global.util.GitLogParser;
+import root.git_turl.global.util.parser.GitLogParser;
 import root.git_turl.infrastructure.github.GitLogService;
 import root.git_turl.infrastructure.github.GithubClient;
 
