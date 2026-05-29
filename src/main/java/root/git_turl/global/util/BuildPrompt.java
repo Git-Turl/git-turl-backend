@@ -3,18 +3,40 @@ package root.git_turl.global.util;
 import org.springframework.stereotype.Component;
 import root.git_turl.domain.question.entity.Question;
 import root.git_turl.domain.report.dto.GitAnalysisResult;
+import root.git_turl.domain.report.dto.ProblemList;
 import root.git_turl.domain.report.dto.commit.MajorCommit;
 import root.git_turl.domain.report.entity.Report;
 
 @Component
 public class BuildPrompt {
-    public String buildReportPrompt(GitAnalysisResult result, String userId) {
-
+    public String buildReportPrompt(GitAnalysisResult result, String userId, ProblemList extractedProblems) {
         StringBuilder sb = new StringBuilder();
 
+        // 0. improvements 가이드에 추출된 문제점 직접 주입
+        sb.append("""
+        - improvements: 아래 [추출된 문제점] 목록을 기반으로 작성하라.
+          목록에 없는 내용을 임의로 만들지 마라.
+          각 문제점을 improvement로 변환할 때 다음을 반드시 포함:
+          · currentStatus: [추출된 문제점]의 file과 issue를 인용하여 작성
+          · example: [추출된 문제점]의 evidence를 기반으로 실제 흐름 기술
+          · actionPlan: 1/2/3단계로 구체적 해결 계획
+        
+        [추출된 문제점]
+        """);
+        extractedProblems.getProblems().forEach(p ->
+                sb.append("- file: ").append(p.getFile()).append("\n")
+                        .append("  issue: ").append(p.getIssue()).append("\n")
+                        .append("  evidence: ").append(p.getEvidence()).append("\n\n")
+        );
+
+        // 1. 데이터 섹션
         sb.append("다음은 한 개발자의 Git 활동 데이터입니다.\n\n");
 
-        sb.append("[commitContribution](유저 아이디: %s)\n\\n".formatted(userId));
+        sb.append("[서비스 개요]\n").append(result.getReadmeSummary());
+
+        sb.append("[전체 커밋 메시지]\n").append(result.getAllCommitMessages());
+
+        sb.append("[commitContribution](분석 대상 유저 아이디: ").append(userId).append(")\n");
         sb.append("{\n");
         result.getContributionAnalyze().forEach((k, v) ->
                 sb.append("  \"").append(k).append("\": ").append(v).append(",\n")
@@ -25,7 +47,6 @@ public class BuildPrompt {
         }
         sb.append("}\n\n");
 
-
         sb.append("\n주요 커밋\n");
         for (MajorCommit mc : result.getMajorCommits()) {
             sb.append("- ").append(mc.getMessage()).append("\n");
@@ -33,85 +54,132 @@ public class BuildPrompt {
             sb.append(mc.getDiff()).append("\n\n");
         }
 
-        sb.append("다음 Git 분석 데이터를 기반으로 개발자 분석 리포트를 작성하라.\n" +
-                "\n" +
-                "반드시 아래 조건을 모두 지켜라:\n" +
-                "\n" +
-                "1. 반드시 JSON 형식으로만 응답하라.\n" +
-                "2. JSON 외의 텍스트(설명, 마크다운, 코드블록, 주석) 절대 포함 금지.\n" +
-                "3. 모든 필드는 반드시 채워라\n" +
-                "4. key 이름은 절대 변경하지 마라.\n" +
-                "5. 문자열은 모두 큰따옴표(\"\") 사용.\n" +
-                "6. 숫자는 숫자 타입으로 작성 (따옴표 금지).\n" +
-                "7. JSON 문법 오류 발생 시 실패로 간주한다.\n" +
-                "8. 추측성 말투를 쓰지 말것.\n" +
-                "\n" +
-                "---\n" +
-                "\n" +
-                "다음 구조를 정확히 따라라:\n" +
-                "\n" +
-                "{\n" +
-                "  \"content\": {\n" +
-                "    \"purpose\": \"\",\n" +
-                "    \"stack\": {\n" +
-                "      \"language\": \"\",\n" +
-                "      \"framework\": \"\",\n" +
-                "      \"library\": \"\",\n" +
-                "      \"security\": \"\"\n" +
-                "    },\n" +
-                "    \"commitStats\": {\n" +
-                "      \"totalCommits\": 0,\n" +
-                "      \"myCommits\": 0,\n" +
-                "      \"myCommitRate\": 0.0\n" +
-                "    },\n" +
-                "   \"commitContribution\": {\n" +
-                "    \"username\": 0,\n" +
-                "   }" +
-                "    \"scale\": {\n" +
-                "      \"fileCount\": 0,\n" +
-                "      \"commitCount\": 0\n" +
-                "    },\n" +
-                "    \"reports\": \"\"\n" +
-                "    \"features\": {\n" +
-                "       \"feature1\": {\n" +
-                "           \"title\": \"\", \n" +
-                "           \"files\": [], \n" +
-                "           \"content\": \"\", \n" +
-                "       },\n" +
-                "    },\n" +
-                "    \"improvements\": {\n" +
-                "       \"improvement1\": {\n" +
-                "           \"title\": \"\", \n" +
-                "           \"content\": \"\", \n" +
-                "       }\n" +
-                "   }\n" +
-                "}\n" +
-                "\n" +
-                "---\n" +
-                "\n" +
-                "작성 가이드:\n" +
-                "\n" +
-                "- purpose: 프로젝트 목적을 2~3문장으로 구체적으로 설명\n" +
-                "- stack: 분석된 기술 스택을 최대한 구체적으로 작성\n" +
-                "- commitStats: 전체 커밋 수와 사용자 커밋 수를 활용하여 비율 계산\n" +
-                "- scale: 프로젝트 규모를 수치 기반으로 설명\n" +
-                "- reports: " +
-                "최소 1200자 이상 작성\n" +
-                "  다음 항목을 모두 포함:\n" +
-                "    - 커밋 패턴 분석\n" +
-                "    - 코드 변경 스타일\n" +
-                "    - 협업 방식\n" +
-                "    - 개발 성향\n" +
-                "    - 프로젝트 구조 추론\n" +
-                "- commitContribution: 위 JSON 데이터를 그대로 반영" +
-                "- features: 구현 기능 분석 5개, 다음 정보를 포함해서 작성" +
-                "    - title: 기능 요약 제목 (예: JWT 토큰 기반 인증)\n" +
-                "    - files: 관련 파일들 이름 리스트 (예: [\"JwtService.java\",\"JwtFilter\"]])\n" +
-                "    - content: 분석 내용 (2문장 이상)\n" +
-                "- improvements: 개선할 점 (최소 3개 이상, 각 항목 구체적 근거 포함)" +
-                "    - title: 개선할 점 제목 (예: 공통 응답 처리)\n" +
-                "    - content: 분석 내용 (2문장 이상)\n" +
-                "\n");
+        sb.append("\n[diff summary]\n");
+        for (DiffStructureParser.DiffSummary summary : result.getSummaryList()) {
+            sb.append("- 변경 파일 수: ").append(summary.getFileCount()).append("\n");
+            sb.append("  추가 라인: ").append(summary.getAddedLines()).append("\n");
+            sb.append("  삭제 라인: ").append(summary.getDeletedLines()).append("\n");
+            for (DiffStructureParser.ChangedFile file : summary.getChangedFiles()) {
+                sb.append("    * ").append(file.getFileName())
+                        .append(" (+").append(file.getAddedLines())
+                        .append(", -").append(file.getDeletedLines()).append(")\n");
+            }
+            sb.append("\n");
+        }
+
+        // 2. 지시 섹션
+        sb.append("""
+        위 Git 분석 데이터를 기반으로 개발자 분석 리포트를 작성하라.
+
+        [출력 규칙]
+        1. 반드시 JSON 형식으로만 응답하라.
+        2. JSON 외의 텍스트(설명, 마크다운, 코드블록, 주석) 절대 포함 금지.
+        3. 모든 필드는 반드시 채워라.
+        4. key 이름은 절대 변경하지 마라.
+        5. 문자열은 모두 큰따옴표("") 사용.
+        6. 숫자는 숫자 타입으로 작성 (따옴표 금지).
+        7. 후행 쉼표(trailing comma) 절대 금지.
+        8. 추측성 말투 금지. 데이터에 근거한 사실만 작성.
+
+        [출력 JSON 구조]
+        """);
+
+        // 3. JSON 스키마 - commitContribution은 예시로 실제 유저명 사용
+        sb.append("{\n")
+                .append("  \"content\": {\n")
+                .append("    \"purpose\": \"\",\n")
+                .append("    \"stack\": {\n")
+                .append("      \"language\": \"\",\n")
+                .append("      \"framework\": \"\",\n")
+                .append("      \"library\": \"\",\n")
+                .append("      \"security\": \"\"\n")
+                .append("    },\n")
+                .append("    \"commitStats\": {\n")
+                .append("      \"totalCommits\": 0,\n")
+                .append("      \"myCommits\": 0,\n")
+                .append("      \"myCommitRate\": 0.0\n")
+                .append("    },\n")
+                // commitContribution: 실제 데이터에서 키를 그대로 복사하도록 안내
+                .append("    \"commitContribution\": {\n")
+                .append("      \"유저아이디_예시\": 0\n")
+                .append("    },\n")
+                .append("    \"scale\": {\n")
+                .append("      \"fileCount\": 0,\n")
+                .append("      \"commitCount\": 0\n")
+                .append("    },\n")
+                .append("    \"reports\": \"\",\n")
+                .append("    \"features\": {\n")
+                .append("      \"feature1\": { \"title\": \"\", \"files\": [], \"content\": \"\" },\n")
+                .append("      \"feature2\": { \"title\": \"\", \"files\": [], \"content\": \"\" },\n")
+                .append("      \"feature3\": { \"title\": \"\", \"files\": [], \"content\": \"\" },\n")
+                .append("      \"feature4\": { \"title\": \"\", \"files\": [], \"content\": \"\" },\n")
+                .append("      \"feature5\": { \"title\": \"\", \"files\": [], \"content\": \"\" }\n")
+                .append("    },\n")
+                .append("    \"improvements\": {\n")
+                .append("      \"improvement1\": {\n")
+                .append("        \"title\": \"\", \"files\": [], \"currentStatus\": \"\",\n")
+                .append("        \"example\": \"\", \"actionPlan\": \"\"\n")
+                .append("      },\n")
+                .append("      \"improvement2\": {\n")
+                .append("        \"title\": \"\", \"files\": [], \"currentStatus\": \"\",\n")
+                .append("        \"example\": \"\", \"actionPlan\": \"\"\n")
+                .append("      },\n")
+                .append("      \"improvement3\": {\n")
+                .append("        \"title\": \"\", \"files\": [], \"currentStatus\": \"\",\n")
+                .append("        \"example\": \"\", \"actionPlan\": \"\"\n")
+                .append("      }\n")
+                .append("    }\n")
+                .append("  }\n")
+                .append("}\n\n");
+
+        // 4. 작성 가이드
+        sb.append("""
+        [작성 가이드]
+
+        - purpose: 프로젝트 목적을 2~3문장으로 구체적으로 설명.
+
+        - stack: diff에서 확인된 실제 기술 스택만 작성. 추측 금지.
+
+        - commitStats: 위 commitContribution 데이터 합산으로 totalCommits 계산.
+          myCommits는 분석 대상 유저(%s)의 커밋 수. myCommitRate = myCommits / totalCommits.
+
+        - commitContribution: 위 [commitContribution] 데이터의 키-값을 그대로 복사.
+          절대 추측하거나 변형하지 마라.
+
+        - scale: diff summary 기준 파일 수와 커밋 수를 수치로 작성.
+        
+        - reports: 분석 내역을 텍스트로 작성, 최소 4문장 이상 구체적으로
+
+        - features: 5개 기능을 diff에서 확인된 실제 파일 기반으로 작성.
+          각 content는 2문장 이상.
+
+        - improvements: 3개 이상 작성. 아래 기준 필수 준수.
+          ❌ FAIL 처리 (6점 이하): "테스트 코드 부족", "가독성 향상", "예외 처리 필요" 같은 일반론
+          ✅ PASS 기준 (7점 이상): 이 프로젝트 고유의 비즈니스 도메인과 연계한 구체적 분석
+          
+          각 필드 기준:
+          · currentStatus: diff/커밋에 등장한 실제 파일명·클래스명·메서드명을 반드시 인용.
+                           현재 어떤 구조적 문제가 있는지 2문장 이상.
+          · example: 해당 문제가 실제로 어떤 흐름에서 발생하는지 구체적 시나리오 기술.
+          · actionPlan: 1단계/2단계/3단계로 코드 또는 아키텍처 레벨의 해결 계획 제시.
+
+          예시 (✅ 허용):
+          currentStatus: "GithubAnalysisService.analyze()에서 GitHub API 호출 실패 시
+                          예외가 상위로 전파되어 면접 질문 생성 플로우 전체가 중단됨."
+          example: "사용자가 분석 요청 시 GitHub API rate limit 초과 → RuntimeException 전파
+                    → 면접 질문 생성 불가 → 사용자에게 500 에러 반환"
+          actionPlan: "1단계: GithubAnalysisService에 Resilience4j CircuitBreaker 적용
+                       2단계: 최근 분석 결과를 Redis에 캐싱하여 fallback 응답 제공
+                       3단계: rate limit 임박 시 사전 경고 로직 추가"
+
+        [자가검증 - 출력 전 반드시 확인]
+        □ improvements 각 항목에 실제 파일명/클래스명이 포함되었는가?
+        □ improvements 각 항목에 example과 actionPlan이 있는가?
+        □ 일반론("테스트 부족", "가독성" 등)만 있지 않은가?
+        □ reports가 5개 항목을 각각 200자 이상 포함하는가?
+        □ trailing comma가 없는가?
+        위 항목 중 하나라도 NO이면 해당 항목을 재작성 후 출력하라.
+        """.formatted(userId));
 
         return sb.toString();
     }
