@@ -3,7 +3,6 @@ package root.git_turl.domain.board.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import root.git_turl.domain.board.code.BoardErrorCode;
@@ -30,7 +29,8 @@ public class BoardQueryService {
             BoardType boardType,
             StudyTag studyTag,
             ProjectStatus projectStatus,
-            TechField techField,
+            TechStack recruitStack,
+            TechStack projectStack,
             PlatformType platformType,
             BoardSortType sort
     ) {
@@ -40,7 +40,8 @@ public class BoardQueryService {
                 boardType,
                 studyTag,
                 projectStatus,
-                techField,
+                recruitStack,
+                projectStack,
                 platformType,
                 sort,
                 pageRequest
