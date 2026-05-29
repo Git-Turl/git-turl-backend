@@ -1,12 +1,15 @@
 package root.git_turl.domain.report.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import root.git_turl.domain.report.dto.commit.CommitTypeCount;
 import root.git_turl.domain.report.dto.GitAnalysisResult;
 import root.git_turl.domain.report.dto.commit.GitCommit;
 import root.git_turl.domain.report.dto.commit.MajorCommit;
+import root.git_turl.global.util.DiffStructureParser;
 import root.git_turl.global.util.GithubUserMapper;
+import root.git_turl.global.util.ReadmeParser;
 import root.git_turl.infrastructure.github.GitLogService;
 
 import java.time.LocalDate;
@@ -15,6 +18,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GitAnalysisService {
 
     private final GitLogService gitLogService;
@@ -26,6 +30,7 @@ public class GitAnalysisService {
         int userTotalCommits = userCommits.size();
 
         Map<GitCommit, Integer> scoreMap = new HashMap<>();
+        List<DiffStructureParser.DiffSummary> summaryList = new ArrayList<>();
 
         // 타입 분류
         long feat = 0, fix = 0, refactor = 0, etc = 0;
@@ -79,10 +84,24 @@ public class GitAnalysisService {
                     h -> gitLogService.getCommitDiff(repoPath, h)
             );
 
+            DiffStructureParser parser = new DiffStructureParser();
+            DiffStructureParser.DiffSummary summary = parser.parse(diff);;
+            summaryList.add(summary);
+
             int diffScore = calculateDiffScore(diff);
 
             finalScoreMap.put(commit, score + diffScore);
         }
+
+        // 전체 커밋 메세지
+        List<String> allCommitMessages = commits.stream()
+                .map(GitCommit::getMessage)
+                .distinct()
+                .limit(80)
+                .toList();
+
+        // readme
+        String readme = ReadmeParser.readReadme(repoPath);
 
         // 상위 커밋
         List<MajorCommit> majorCommits = finalScoreMap.entrySet().stream()
@@ -127,6 +146,9 @@ public class GitAnalysisService {
                 .sampleMessages(sampleMessages)
                 .majorCommits(majorCommits)
                 .contributionAnalyze(contributionAnalyze)
+                .summaryList(summaryList)
+                .readmeSummary(readme)
+                .allCommitMessages(allCommitMessages)
                 .build();
     }
 

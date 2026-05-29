@@ -10,10 +10,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
-import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.report.code.ReportErrorCode;
 import root.git_turl.domain.report.dto.GitAnalysisResult;
-import root.git_turl.domain.report.dto.ReportReqDto;
+import root.git_turl.domain.report.dto.Problem;
+import root.git_turl.domain.report.dto.ProblemList;
 import root.git_turl.domain.report.dto.ReportSavedEvent;
 import root.git_turl.domain.report.dto.commit.GitCommit;
 import root.git_turl.domain.report.dto.reportDetail.ReportWrapper;
@@ -28,7 +28,10 @@ import root.git_turl.infrastructure.judge.JudgeService;
 import root.git_turl.infrastructure.judge.Result;
 import root.git_turl.infrastructure.openai.GptService;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -45,12 +48,13 @@ public class ReportAsyncService {
     private final JudgeService judgeService;
     private final BuildJudgePrompt buildJudgePrompt;
     private final BuildRetryPrompt buildRetryPrompt;
+    private final BuildProblemPrompt buildProblemPrompt;
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void generateReport(ReportSavedEvent event) {
-        log.info("비동기 실행됨: {}", Thread.currentThread().getName());
+        log.info("비동기 실행됨: {}", LocalDateTime.now());
         String email = event.email();
         String gitUrl = GitRepoParser.getRepoLink(event.dto().getFullName());
         String repoPath = gitCloneService.cloneRepository(gitUrl);
@@ -65,7 +69,9 @@ public class ReportAsyncService {
 
             GitAnalysisResult result = gitAnalysisService.analyze(GitRepoParser.getRepoFullName(gitUrl), repoPath, commits, userCommits);
 
-            String prompt = buildPrompt.buildReportPrompt(result, event.githubId());
+            String problemPrompt = buildProblemPrompt.buildReportProblemPrompt(result);
+            ProblemList extractedProblems = gptService.makeReportProblem(problemPrompt);
+            String prompt = buildPrompt.buildReportPrompt(result, event.githubId(), extractedProblems);
             ReportWrapper content = getContent(prompt);
             String contentJson;
 
@@ -110,10 +116,12 @@ public class ReportAsyncService {
                 String description = content.getContent().getPurpose();
                 report.updateDescription(description);
                 report.updateGenerationStatus(GenerationStatus.DONE);
+                log.info("리포트 저장 완료: {}", LocalDateTime.now());
             } catch (JsonProcessingException e) {
                 throw new RuntimeException("JSON 변환 실패", e);
             }
         } catch (Exception e) {
+            log.error(e.getMessage());
             report.updateGenerationStatus(GenerationStatus.FAIL);
         }
     }

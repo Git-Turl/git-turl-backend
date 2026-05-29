@@ -14,8 +14,10 @@ public class GitLogService {
                     "git",
                     "-C", repoPath,
                     "show",
-                    "--stat",
+                    "--patch",          // 실제 코드 +/- 라인 포함
+                    "--stat",           // 파일 요약도 함께
                     "--oneline",
+                    "-U3",              // 변경 전후 3줄씩만 (토큰 절약)
                     hash
             );
 
