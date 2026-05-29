@@ -18,6 +18,8 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        jdbc:
+          time_zone: Asia/Seoul
 
   security:
     oauth2:
@@ -30,6 +32,11 @@ spring:
               - read:user
               - user:email
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
 
 jwt:
   token:
