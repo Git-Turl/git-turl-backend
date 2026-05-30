@@ -7,14 +7,51 @@ public enum TechStack {
     NEST_JS,
     SPRING_BOOT,
     DJANGO,
+    FLASK,
+    FAST_API,
+    RUBY_ON_RAILS,
+    ASP_NET,
+    GO,
+    RUST,
 
     // Frontend
     REACT,
+    VUE_JS,
+    ANGULAR,
     TYPESCRIPT,
-    KOTLIN,
-    SWIFT,
     JAVASCRIPT,
+    NEXT_JS,
+    SVELTE,
+    JQUERY,
+    HTML_CSS,
+    TAILWIND_CSS,
 
-    // 기타
-    ETC
+    // Mobile
+    REACT_NATIVE,
+    FLUTTER,
+    SWIFT,
+    KOTLIN,
+    XAMARIN,
+
+    // Database
+    MYSQL,
+    POSTGRESQL,
+    MONGODB,
+    REDIS,
+    ORACLE,
+    SQLITE,
+
+    // DevOps / Infra
+    DOCKER,
+    KUBERNETES,
+    AWS,
+    AZURE,
+    GCP,
+    JENKINS,
+    GITHUB_ACTIONS,
+
+    // Etc
+    GIT,
+    RESTFUL_API,
+    GRAPHQL
 }
