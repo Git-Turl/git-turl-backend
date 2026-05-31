@@ -20,4 +20,6 @@ public interface BoardLikeRepository extends JpaRepository<BoardLike, Long> {
             Board board,
             Member member
     );
+
+    void deleteAllByBoard(Board board);
 }

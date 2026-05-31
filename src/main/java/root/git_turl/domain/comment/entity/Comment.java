@@ -59,6 +59,7 @@ public class Comment extends BaseEntity {
     }
 
     public void softDelete() {
+        this.content = "삭제된 댓글입니다.";
         this.deletedAt = LocalDateTime.now();
     }
 }
