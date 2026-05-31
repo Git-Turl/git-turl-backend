@@ -13,12 +13,13 @@ import root.git_turl.domain.comment.dto.CommentReqDto;
 import root.git_turl.domain.comment.dto.CommentResDto;
 import root.git_turl.domain.comment.entity.Comment;
 import root.git_turl.domain.comment.exception.CommentException;
+import root.git_turl.domain.comment.repository.CommentLikeRepository;
 import root.git_turl.domain.comment.repository.CommentRepository;
 import root.git_turl.domain.member.code.MemberErrorCode;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.member.exception.MemberException;
 import root.git_turl.domain.member.repository.MemberRepository;
-import root.git_turl.domain.comment.repository.CommentLikeRepository;
+import root.git_turl.domain.notification.service.NotificationService;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +30,7 @@ public class CommentCommandService {
     private final MemberRepository memberRepository;
     private final CommentConverter commentConverter;
     private final CommentLikeRepository commentLikeRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public CommentResDto.CommentCreateResultDto createComment(
@@ -51,6 +53,12 @@ public class CommentCommandService {
 
         Comment comment = commentConverter.toComment(request, board, member, parent);
         commentRepository.save(comment);
+
+        if (parent == null) {
+            notificationService.sendCommentNotification(member, board, comment);
+        } else {
+            notificationService.sendReplyNotification(member, board, parent, comment);
+        }
 
         return CommentConverter.toCreateResultDto(comment);
     }
