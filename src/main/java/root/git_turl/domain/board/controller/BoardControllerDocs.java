@@ -65,7 +65,10 @@ public interface BoardControllerDocs {
             ProjectStatus projectStatus,
 
             @RequestParam(required = false)
-            TechField techField,
+            TechStack recruitStack,
+
+            @RequestParam(required = false)
+            TechStack projectStack,
 
             @RequestParam(required = false)
             PlatformType platformType,

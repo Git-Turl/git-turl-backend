@@ -3,7 +3,6 @@ package root.git_turl.domain.board.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import root.git_turl.domain.board.code.BoardErrorCode;
@@ -30,33 +29,23 @@ public class BoardQueryService {
             BoardType boardType,
             StudyTag studyTag,
             ProjectStatus projectStatus,
-            TechField techField,
+            TechStack recruitStack,
+            TechStack projectStack,
             PlatformType platformType,
             BoardSortType sort
     ) {
         PageRequest pageRequest = PageRequest.of(page, 10);
 
-        Page<Board> boardPage;
-
-        if (sort == BoardSortType.LIKE) {
-            boardPage = boardRepository.findBoardListWithFiltersOrderByLike(
-                    boardType,
-                    studyTag,
-                    projectStatus,
-                    techField,
-                    platformType,
-                    pageRequest
-            );
-        } else {
-            boardPage = boardRepository.findBoardListWithFiltersOrderByLatest(
-                    boardType,
-                    studyTag,
-                    projectStatus,
-                    techField,
-                    platformType,
-                    pageRequest
-            );
-        }
+        Page<Board> boardPage = boardRepository.findBoardListWithFilters(
+                boardType,
+                studyTag,
+                projectStatus,
+                recruitStack,
+                projectStack,
+                platformType,
+                sort,
+                pageRequest
+        );
 
         return BoardConverter.toBoardPreviewListDto(
                 boardPage,
