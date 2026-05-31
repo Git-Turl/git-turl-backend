@@ -12,21 +12,19 @@ import root.git_turl.domain.answer.converter.AnswerConverter;
 import root.git_turl.domain.answer.dto.*;
 import root.git_turl.domain.answer.entity.Answer;
 import root.git_turl.domain.answer.enums.AnswerType;
-import root.git_turl.domain.answer.enums.Status;
 import root.git_turl.domain.answer.exception.AnswerException;
 import root.git_turl.domain.answer.exception.code.AnswerErrorCode;
 import root.git_turl.domain.answer.repository.AnswerRepository;
-import root.git_turl.domain.member.code.MemberErrorCode;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.member.exception.MemberException;
 import root.git_turl.domain.question.entity.Question;
 import root.git_turl.domain.question.exception.QuestionException;
 import root.git_turl.domain.question.exception.code.QuestionErrorCode;
 import root.git_turl.domain.question.repository.QuestionRepository;
-import root.git_turl.domain.report.enums.GenerationStatus;
 import root.git_turl.global.apiPayload.exception.GeneralException;
-import root.git_turl.global.aws.AwsFileService;
-import root.git_turl.global.util.BuildPrompt;
+import root.git_turl.infrastructure.aws.AwsFileService;
+import root.git_turl.global.util.prompt.BuildPrompt;
+import root.git_turl.infrastructure.judge.FeedbackJudge;
 import root.git_turl.infrastructure.openai.GptService;
 
 import java.io.IOException;
@@ -40,9 +38,9 @@ public class AnswerService {
     private final AnswerRepository answerRepository;
     private final BuildPrompt buildPrompt;
     private final GptService gptService;
-    private final AsyncAnswerService asyncAnswerService;
     private final AwsFileService awsFileService;
     private final ApplicationEventPublisher eventPublisher;
+    private final FeedbackJudge feedbackJudge;
 
     @Transactional(readOnly = true)
     public List<AnswerResDto.TextAnswer> getAnswerList(Member currentMember, Long questionId) {
@@ -76,7 +74,9 @@ public class AnswerService {
 
         String prompt = buildPrompt.buildFeedbackPrompt(answer.getContent(), answer.getQuestion());
         Feedback feedback = gptService.makeFeedback(prompt);
-        answer.updateFeedback(feedback.getContent());
+        String feedbackContent = feedbackJudge.judgeAndGetFeedback(answer, feedback.getContent());
+
+        answer.updateFeedback(feedbackContent);
     }
 
     @Transactional

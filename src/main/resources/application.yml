@@ -6,5 +6,11 @@ spring:
   application:
     name: git-turl
 
-openai:
-  api-key: ${OPENAI_KEY}
+  ai:
+    openai:
+      api-key: ${OPENAI_KEY}
+
+      chat:
+        options:
+          model: gpt-4o-mini
+          temperature: 0.2

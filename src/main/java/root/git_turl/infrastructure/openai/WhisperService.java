@@ -23,7 +23,7 @@ public class WhisperService {
 
     private final String OPENAI_API = "https://api.openai.com/v1";
 
-    @Value("${openai.api-key}")
+    @Value("${spring.ai.openai.api-key}")
     public String openAiApiKey;
 
     public String transcribe(String url, Answer answer) {

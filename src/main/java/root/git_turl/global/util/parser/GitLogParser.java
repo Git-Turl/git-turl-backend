@@ -1,8 +1,9 @@
-package root.git_turl.global.util;
+package root.git_turl.global.util.parser;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import root.git_turl.domain.report.dto.commit.GitCommit;
+import root.git_turl.global.util.GithubUserMapper;
 
 import java.io.*;
 import java.time.LocalDate;

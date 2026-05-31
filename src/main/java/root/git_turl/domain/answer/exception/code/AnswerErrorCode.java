@@ -19,11 +19,15 @@ public enum AnswerErrorCode implements BaseErrorCode {
 
     FEEDBACK_ALREADY_EXISTS(HttpStatus.CONFLICT,
             "ANSWER409_1",
-            "해당 답변이 존재하지 않습니다."),
+            "이미 피드백이 존재합니다."),
 
     VOICE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR,
             "VOICE500_1",
-            "영상 업로드에 실패했습니다.");
+            "영상 업로드에 실패했습니다."),
+
+    FEEDBACK_GENERATION_FAIL(HttpStatus.INTERNAL_SERVER_ERROR,
+            "FEEDBACK500_1",
+            "품질 문제로 피드백 생성에 실패했습니다.");
 
     private final HttpStatus status;
     private final String code;

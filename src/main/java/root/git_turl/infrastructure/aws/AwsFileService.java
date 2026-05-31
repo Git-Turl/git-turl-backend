@@ -1,4 +1,4 @@
-package root.git_turl.global.aws;
+package root.git_turl.infrastructure.aws;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
