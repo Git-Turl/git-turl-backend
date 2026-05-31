@@ -96,7 +96,8 @@ public class BoardRestController implements BoardControllerDocs {
             @RequestParam(required = false) BoardType boardType,
             @RequestParam(required = false) StudyTag studyTag,
             @RequestParam(required = false) ProjectStatus projectStatus,
-            @RequestParam(required = false) TechField techField,
+            @RequestParam(required = false) TechStack recruitStack,
+            @RequestParam(required = false) TechStack projectStack,
             @RequestParam(required = false) PlatformType platformType,
             @RequestParam(defaultValue = "LATEST") BoardSortType sort
     ) {
@@ -107,7 +108,8 @@ public class BoardRestController implements BoardControllerDocs {
                         boardType,
                         studyTag,
                         projectStatus,
-                        techField,
+                        recruitStack,
+                        projectStack,
                         platformType,
                         sort
                 )

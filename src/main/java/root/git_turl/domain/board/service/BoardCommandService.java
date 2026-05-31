@@ -10,13 +10,18 @@ import root.git_turl.domain.board.dto.BoardReqDto;
 import root.git_turl.domain.board.dto.BoardResDto;
 import root.git_turl.domain.board.entity.Board;
 import root.git_turl.domain.board.enums.BoardType;
+import root.git_turl.domain.board.enums.StudyTag;
 import root.git_turl.domain.board.exception.BoardException;
+import root.git_turl.domain.board.repository.BoardLikeRepository;
 import root.git_turl.domain.board.repository.BoardRepository;
+import root.git_turl.domain.comment.repository.CommentLikeRepository;
+import root.git_turl.domain.comment.repository.CommentRepository;
 import root.git_turl.domain.member.code.MemberErrorCode;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.member.exception.MemberException;
 import root.git_turl.domain.member.repository.MemberRepository;
 import root.git_turl.infrastructure.aws.AwsFileService;
+
 
 import java.io.IOException;
 
@@ -27,6 +32,9 @@ public class BoardCommandService {
     private final BoardRepository boardRepository;
     private final BoardConverter boardConverter;
     private final MemberRepository memberRepository;
+    private final BoardLikeRepository boardLikeRepository;
+    private final CommentRepository commentRepository;
+    private final CommentLikeRepository commentLikeRepository;
     private final AwsFileService awsFileService;
 
     @Transactional
@@ -68,8 +76,12 @@ public class BoardCommandService {
                 && request.getBoardType() == null
                 && request.getStudyTag() == null
                 && request.getProjectStatus() == null
-                && request.getTechFields() == null
+                && request.getRecruitStacks() == null
+                && request.getProjectStacks() == null
                 && request.getPlatformTypes() == null
+                && request.getRecruitCount() == null
+                && request.getRecruitDeadline() == null
+                && request.getCertificateType() == null
                 && (image == null || image.isEmpty())) {
             throw new BoardException(BoardErrorCode.NO_EDIT);
         }
@@ -99,10 +111,34 @@ public class BoardCommandService {
                 request.getContent(),
                 imageUrl,
                 boardType,
+
+                // study
                 boardType == BoardType.STUDY ? request.getStudyTag() : null,
+
+                // project
                 boardType == BoardType.PROJECT ? request.getProjectStatus() : null,
-                boardType == BoardType.PROJECT ? request.getTechFields() : null,
-                boardType == BoardType.PROJECT ? request.getPlatformTypes() : null
+
+                boardType == BoardType.PROJECT ? request.getPlatformTypes() : null,
+
+                // common
+                request.getRecruitCount(),
+                request.getRecruitDeadline(),
+
+                // certificate
+                boardType == BoardType.STUDY
+                        && request.getStudyTag() == StudyTag.CERTIFICATE
+                        ? request.getCertificateType()
+                        : null,
+
+                // recruit stacks
+                boardType == BoardType.PROJECT
+                        ? request.getRecruitStacks()
+                        : null,
+
+                // project stacks
+                boardType == BoardType.PROJECT
+                        ? request.getProjectStacks()
+                        : null
         );
 
         return BoardConverter.toUpdateResultDto(board);
@@ -118,6 +154,10 @@ public class BoardCommandService {
 
         validateWriter(board, currentMember);
 
+        commentLikeRepository.deleteAllByCommentBoard(board);
+        commentRepository.deleteAllByBoard(board);
+        boardLikeRepository.deleteAllByBoard(board);
+
         boardRepository.delete(board);
 
         return BoardConverter.toDeleteResultDto(boardId);
@@ -132,8 +172,10 @@ public class BoardCommandService {
 
         if (request.getBoardType() == BoardType.PROJECT) {
             if (request.getProjectStatus() == null
-                    || request.getTechFields() == null || request.getTechFields().isEmpty()
+                    || request.getRecruitStacks() == null || request.getRecruitStacks().isEmpty()
+                    || request.getProjectStacks() == null || request.getProjectStacks().isEmpty()
                     || request.getPlatformTypes() == null || request.getPlatformTypes().isEmpty()) {
+
                 throw new BoardException(BoardErrorCode.INVALID_BOARD_TYPE);
             }
         }
@@ -152,8 +194,16 @@ public class BoardCommandService {
 
         if (boardType == BoardType.PROJECT) {
             if ((request.getProjectStatus() == null && board.getProjectStatus() == null)
-                    || (request.getTechFields() == null && (board.getTechFields() == null || board.getTechFields().isEmpty()))
-                    || (request.getPlatformTypes() == null && (board.getPlatformTypes() == null || board.getPlatformTypes().isEmpty()))) {
+
+                    || (request.getRecruitStacks() == null
+                    && (board.getRecruitStacks() == null || board.getRecruitStacks().isEmpty()))
+
+                    || (request.getProjectStacks() == null
+                    && (board.getProjectStacks() == null || board.getProjectStacks().isEmpty()))
+
+                    || (request.getPlatformTypes() == null
+                    && (board.getPlatformTypes() == null || board.getPlatformTypes().isEmpty()))) {
+
                 throw new BoardException(BoardErrorCode.INVALID_BOARD_TYPE);
             }
         }

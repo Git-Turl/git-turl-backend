@@ -7,6 +7,7 @@ import root.git_turl.domain.board.enums.*;
 import root.git_turl.global.entity.BaseEntity;
 import root.git_turl.domain.member.entity.Member;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,11 +44,23 @@ public class Board extends BaseEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    // ===== 모집 공통 =====
+
+    @Column(name = "recruit_count")
+    private Integer recruitCount;
+
+    @Column(name = "recruit_deadline")
+    private LocalDate recruitDeadline;
+
     // ===== 스터디 게시판 =====
 
     @Enumerated(EnumType.STRING)
     @Column(name = "study_tag")
     private StudyTag studyTag;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "certificate_type")
+    private CertificateType certificateType;
 
     // ===== 프로젝트 게시판 =====
 
@@ -55,14 +68,25 @@ public class Board extends BaseEntity {
     @Column(name = "project_status")
     private ProjectStatus projectStatus;
 
-    @ElementCollection(targetClass = TechField.class)
+    @ElementCollection(targetClass = TechStack.class)
     @Enumerated(EnumType.STRING)
     @CollectionTable(
-            name = "board_tech_fields",
+            name = "board_recruit_stacks",
             joinColumns = @JoinColumn(name = "board_id")
     )
-    @Column(name = "tech_field")
-    private List<TechField> techFields = new ArrayList<>();
+    @Builder.Default
+    @Column(name = "recruit_stack")
+    private List<TechStack> recruitStacks = new ArrayList<>();
+
+    @ElementCollection(targetClass = TechStack.class)
+    @Enumerated(EnumType.STRING)
+    @CollectionTable(
+            name = "board_project_stacks",
+            joinColumns = @JoinColumn(name = "board_id")
+    )
+    @Builder.Default
+    @Column(name = "project_stack")
+    private List<TechStack> projectStacks = new ArrayList<>();
 
     @ElementCollection(targetClass = PlatformType.class)
     @Enumerated(EnumType.STRING)
@@ -70,6 +94,7 @@ public class Board extends BaseEntity {
             name = "board_platform_types",
             joinColumns = @JoinColumn(name = "board_id")
     )
+    @Builder.Default
     @Column(name = "platform_type")
     private List<PlatformType> platformTypes = new ArrayList<>();
 
@@ -81,8 +106,12 @@ public class Board extends BaseEntity {
             BoardType boardType,
             StudyTag studyTag,
             ProjectStatus projectStatus,
-            List<TechField> techFields,
-            List<PlatformType> platformTypes
+            List<PlatformType> platformTypes,
+            Integer recruitCount,
+            LocalDate recruitDeadline,
+            CertificateType certificateType,
+            List<TechStack> recruitStacks,
+            List<TechStack> projectStacks
     ) {
         if (title != null) this.title = title;
         if (content != null) this.content = content;
@@ -91,8 +120,13 @@ public class Board extends BaseEntity {
 
         this.studyTag = studyTag;
         this.projectStatus = projectStatus;
-        this.techFields = techFields;
         this.platformTypes = platformTypes;
+
+        this.recruitCount = recruitCount;
+        this.recruitDeadline = recruitDeadline;
+        this.certificateType = certificateType;
+        this.recruitStacks = recruitStacks;
+        this.projectStacks = projectStacks;
     }
 
     public void increaseViews() {

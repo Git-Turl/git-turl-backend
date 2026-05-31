@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import root.git_turl.domain.board.enums.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,13 +24,22 @@ public class BoardResDto {
 
         private BoardType boardType;
 
+        // ===== 모집 공통 =====
+        private Integer recruitCount;
+
+        private LocalDate recruitDeadline;
+
         // ===== 스터디 게시판 =====
         private StudyTag studyTag;
+
+        private CertificateType certificateType;
 
         // ===== 프로젝트 게시판 =====
         private ProjectStatus projectStatus;
 
-        private List<TechField> techFields;
+        private List<TechStack> recruitStacks;
+
+        private List<TechStack> projectStacks;
 
         private List<PlatformType> platformTypes;
 
@@ -85,13 +95,22 @@ public class BoardResDto {
 
         private BoardType boardType;
 
+        // ===== 모집 공통 =====
+        private Integer recruitCount;
+
+        private LocalDate recruitDeadline;
+
         // ===== 스터디 게시판 =====
         private StudyTag studyTag;
+
+        private CertificateType certificateType;
 
         // ===== 프로젝트 게시판 =====
         private ProjectStatus projectStatus;
 
-        private List<TechField> techFields;
+        private List<TechStack> recruitStacks;
+
+        private List<TechStack> projectStacks;
 
         private List<PlatformType> platformTypes;
 

@@ -18,6 +18,7 @@ import root.git_turl.domain.member.code.MemberErrorCode;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.member.exception.MemberException;
 import root.git_turl.domain.member.repository.MemberRepository;
+import root.git_turl.domain.comment.repository.CommentLikeRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +28,7 @@ public class CommentCommandService {
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
     private final CommentConverter commentConverter;
+    private final CommentLikeRepository commentLikeRepository;
 
     @Transactional
     public CommentResDto.CommentCreateResultDto createComment(
@@ -83,7 +85,14 @@ public class CommentCommandService {
 
         validateWriter(comment, currentMember);
 
-        comment.softDelete();
+        boolean hasReply = commentRepository.existsByParentAndDeletedAtIsNull(comment);
+
+        if (hasReply) {
+            comment.softDelete();
+        } else {
+            commentLikeRepository.deleteAllByComment(comment);
+            commentRepository.delete(comment);
+        }
 
         return CommentConverter.toDeleteResultDto(commentId);
     }
