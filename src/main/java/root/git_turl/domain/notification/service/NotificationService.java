@@ -30,6 +30,7 @@ public class NotificationService {
     private final EmitterRepository emitterRepository;
     private final NotificationRepository notificationRepository;
     private final NotificationConverter notificationConverter;
+    private final NotificationSettingService notificationSettingService;
 
     public SseEmitter subscribe(Long memberId, String lastEventId) {
         String emitterId = makeEmitterId(memberId);
@@ -56,6 +57,10 @@ public class NotificationService {
             return;
         }
 
+        if (!notificationSettingService.isCommentNotificationEnabled(receiver)) {
+            return;
+        }
+
         Notification notification = saveNotification(
                 actor,
                 receiver,
@@ -73,8 +78,9 @@ public class NotificationService {
         Member parentCommentWriter = parentComment.getMember();
         Member boardWriter = board.getMember();
 
-        // 원댓글 작성자에게 알림
-        if (!actor.getId().equals(parentCommentWriter.getId())) {
+        if (!actor.getId().equals(parentCommentWriter.getId())
+                && notificationSettingService.isReplyNotificationEnabled(parentCommentWriter)) {
+
             Notification notification = saveNotification(
                     actor,
                     parentCommentWriter,
@@ -87,10 +93,9 @@ public class NotificationService {
             send(parentCommentWriter.getId(), notification);
         }
 
-        // 게시글 작성자에게도 알림
-        // 단, 원댓글 작성자와 게시글 작성자가 같으면 중복 알림 방지
         if (!actor.getId().equals(boardWriter.getId())
-                && !boardWriter.getId().equals(parentCommentWriter.getId())) {
+                && !boardWriter.getId().equals(parentCommentWriter.getId())
+                && notificationSettingService.isReplyNotificationEnabled(boardWriter)) {
 
             Notification notification = saveNotification(
                     actor,
@@ -135,7 +140,7 @@ public class NotificationService {
                         emitter,
                         emitterId,
                         "notification",
-                        NotificationResDto.from(notification)
+                        notificationConverter.toNotificationResDto(notification)
                 ));
     }
 

@@ -1,17 +1,15 @@
 package root.git_turl.domain.notification.dto;
 
-import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
 
-public class NotificationSettingReqDto {
+public class NotificationSettingResDto {
 
     @Getter
-    public static class UpdateNotificationSettingReqDto {
+    @Builder
+    public static class NotificationSettingDto {
 
-        @NotNull
         private Boolean commentNotificationEnabled;
-
-        @NotNull
         private Boolean replyNotificationEnabled;
     }
 }
