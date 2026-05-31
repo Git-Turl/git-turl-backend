@@ -14,6 +14,8 @@ import root.git_turl.domain.answer.dto.AnswerResDto;
 import root.git_turl.domain.answer.dto.Feedback;
 import root.git_turl.domain.answer.dto.VoiceFeedback;
 import root.git_turl.domain.question.dto.QuestionContent;
+import root.git_turl.domain.report.dto.Problem;
+import root.git_turl.domain.report.dto.ProblemList;
 import root.git_turl.domain.report.dto.gpt.GptMessage;
 import root.git_turl.domain.report.dto.gpt.GptRequest;
 import root.git_turl.domain.report.dto.gpt.GptResponse;
@@ -29,7 +31,7 @@ public class GptService {
 
     private final String OPENAI_API = "https://api.openai.com/v1";
 
-    @Value("${openai.api-key}")
+    @Value("${spring.ai.openai.api-key}")
     public String openAiApiKey;
 
     public ReportWrapper analyzeGit(String prompt) {
@@ -47,6 +49,8 @@ public class GptService {
     public VoiceFeedback makeVoiceFeedback(String prompt) {
         return requestGpt(prompt, VoiceFeedback.class);
     }
+
+    public ProblemList makeReportProblem(String prompt) {return requestGpt(prompt, ProblemList.class);}
 
     private <T> T requestGpt(String prompt, Class<T> classType) {
         GptRequest request = new GptRequest();

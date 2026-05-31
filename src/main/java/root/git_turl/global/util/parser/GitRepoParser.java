@@ -1,4 +1,4 @@
-package root.git_turl.global.util;
+package root.git_turl.global.util.parser;
 
 public class GitRepoParser {
     public static String getRepoFullName(String repoLink) {

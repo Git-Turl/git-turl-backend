@@ -14,5 +14,7 @@ import java.util.List;
 public class Improvement {
     private String title;
     private List<String> files;
-    private String content;
+    private String currentStatus;
+    private String example;
+    private String actionPlan;
 }
