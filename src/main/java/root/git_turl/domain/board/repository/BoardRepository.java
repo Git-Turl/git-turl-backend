@@ -95,4 +95,28 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
             @Param("platformType") PlatformType platformType,
             Pageable pageable
     );
+
+    @Query(
+            value = """
+    SELECT DISTINCT b AS board, COUNT(DISTINCT bl.id) AS likeCount
+    FROM Board b
+    JOIN b.member m
+    LEFT JOIN b.recruitStacks rs
+    LEFT JOIN b.projectStacks ps
+    LEFT JOIN b.platformTypes pt
+    LEFT JOIN BoardLike bl ON bl.board = b
+    WHERE b.member.id = :memberId
+    GROUP BY b
+    ORDER BY b.createdAt DESC
+""",
+            countQuery = """
+    SELECT COUNT(DISTINCT b)
+    FROM Board b
+    WHERE b.member.id = :memberId
+"""
+    )
+    Page<BoardPreviewProjection> findBoardsByMemberIdOrderByLatest(
+            @Param("memberId") Long memberId,
+            Pageable pageable
+    );
 }
