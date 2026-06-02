@@ -7,6 +7,7 @@ import root.git_turl.domain.board.dto.BoardResDto;
 import root.git_turl.domain.board.entity.Board;
 import root.git_turl.domain.board.enums.BoardType;
 import root.git_turl.domain.board.repository.BoardLikeRepository;
+import root.git_turl.domain.board.repository.BoardPreviewProjection;
 import root.git_turl.domain.member.entity.Member;
 
 import java.time.LocalDateTime;
@@ -135,14 +136,12 @@ public class BoardConverter {
     }
 
     public static BoardResDto.BoardPreviewListDto toBoardPreviewListDto(
-            Page<Board> boardPage,
-            BoardLikeRepository boardLikeRepository
+            Page<BoardPreviewProjection> boardPage
     ) {
-
         List<BoardResDto.BoardPreviewDto> boardList = boardPage.stream()
-                .map(board -> toBoardPreviewDto(
-                        board,
-                        boardLikeRepository.countByBoard(board)
+                .map(p -> toBoardPreviewDto(
+                        p.getBoard(),
+                        p.getLikeCount()
                 ))
                 .toList();
 

@@ -12,33 +12,11 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 
     Page<Board> findAllByBoardType(BoardType boardType, Pageable pageable);
 
-    @Query("""
-        SELECT DISTINCT b
+    @Query(
+            value = """
+        SELECT b AS board, COUNT(DISTINCT bl.id) AS likeCount
         FROM Board b
-        LEFT JOIN b.recruitStacks rs
-        LEFT JOIN b.projectStacks ps
-        LEFT JOIN b.platformTypes pt
-        WHERE (:boardType IS NULL OR b.boardType = :boardType)
-          AND (:studyTag IS NULL OR b.studyTag = :studyTag)
-          AND (:projectStatus IS NULL OR b.projectStatus = :projectStatus)
-          AND (:recruitStack IS NULL OR rs = :recruitStack)
-          AND (:projectStack IS NULL OR ps = :projectStack)
-          AND (:platformType IS NULL OR pt = :platformType)
-        ORDER BY b.createdAt DESC
-        """)
-    Page<Board> findBoardListWithFiltersOrderByLatest(
-            @Param("boardType") BoardType boardType,
-            @Param("studyTag") StudyTag studyTag,
-            @Param("projectStatus") ProjectStatus projectStatus,
-            @Param("recruitStack") TechStack recruitStack,
-            @Param("projectStack") TechStack projectStack,
-            @Param("platformType") PlatformType platformType,
-            Pageable pageable
-    );
-
-    @Query("""
-        SELECT b
-        FROM Board b
+        JOIN b.member m
         LEFT JOIN b.recruitStacks rs
         LEFT JOIN b.projectStacks ps
         LEFT JOIN b.platformTypes pt
@@ -50,9 +28,65 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
           AND (:projectStack IS NULL OR ps = :projectStack)
           AND (:platformType IS NULL OR pt = :platformType)
         GROUP BY b
-        ORDER BY COUNT(bl) DESC, b.createdAt DESC
-        """)
-    Page<Board> findBoardListWithFiltersOrderByLikeCount(
+        ORDER BY b.createdAt DESC
+    """,
+            countQuery = """
+        SELECT COUNT(DISTINCT b)
+        FROM Board b
+        LEFT JOIN b.recruitStacks rs
+        LEFT JOIN b.projectStacks ps
+        LEFT JOIN b.platformTypes pt
+        WHERE (:boardType IS NULL OR b.boardType = :boardType)
+          AND (:studyTag IS NULL OR b.studyTag = :studyTag)
+          AND (:projectStatus IS NULL OR b.projectStatus = :projectStatus)
+          AND (:recruitStack IS NULL OR rs = :recruitStack)
+          AND (:projectStack IS NULL OR ps = :projectStack)
+          AND (:platformType IS NULL OR pt = :platformType)
+    """
+    )
+    Page<BoardPreviewProjection> findBoardListWithFiltersOrderByLatest(
+            @Param("boardType") BoardType boardType,
+            @Param("studyTag") StudyTag studyTag,
+            @Param("projectStatus") ProjectStatus projectStatus,
+            @Param("recruitStack") TechStack recruitStack,
+            @Param("projectStack") TechStack projectStack,
+            @Param("platformType") PlatformType platformType,
+            Pageable pageable
+    );
+
+    @Query(
+            value = """
+        SELECT b AS board, COUNT(DISTINCT bl.id) AS likeCount
+        FROM Board b
+        JOIN FETCH b.member m
+        LEFT JOIN b.recruitStacks rs
+        LEFT JOIN b.projectStacks ps
+        LEFT JOIN b.platformTypes pt
+        LEFT JOIN BoardLike bl ON bl.board = b
+        WHERE (:boardType IS NULL OR b.boardType = :boardType)
+          AND (:studyTag IS NULL OR b.studyTag = :studyTag)
+          AND (:projectStatus IS NULL OR b.projectStatus = :projectStatus)
+          AND (:recruitStack IS NULL OR rs = :recruitStack)
+          AND (:projectStack IS NULL OR ps = :projectStack)
+          AND (:platformType IS NULL OR pt = :platformType)
+        GROUP BY b
+        ORDER BY COUNT(DISTINCT bl.id) DESC, b.createdAt DESC
+    """,
+            countQuery = """
+        SELECT COUNT(DISTINCT b)
+        FROM Board b
+        LEFT JOIN b.recruitStacks rs
+        LEFT JOIN b.projectStacks ps
+        LEFT JOIN b.platformTypes pt
+        WHERE (:boardType IS NULL OR b.boardType = :boardType)
+          AND (:studyTag IS NULL OR b.studyTag = :studyTag)
+          AND (:projectStatus IS NULL OR b.projectStatus = :projectStatus)
+          AND (:recruitStack IS NULL OR rs = :recruitStack)
+          AND (:projectStack IS NULL OR ps = :projectStack)
+          AND (:platformType IS NULL OR pt = :platformType)
+    """
+    )
+    Page<BoardPreviewProjection> findBoardListWithFiltersOrderByLikeCount(
             @Param("boardType") BoardType boardType,
             @Param("studyTag") StudyTag studyTag,
             @Param("projectStatus") ProjectStatus projectStatus,

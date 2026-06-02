@@ -12,6 +12,7 @@ import root.git_turl.domain.board.entity.Board;
 import root.git_turl.domain.board.enums.*;
 import root.git_turl.domain.board.exception.BoardException;
 import root.git_turl.domain.board.repository.BoardLikeRepository;
+import root.git_turl.domain.board.repository.BoardPreviewProjection;
 import root.git_turl.domain.board.repository.BoardRepository;
 import root.git_turl.domain.member.entity.Member;
 
@@ -36,7 +37,7 @@ public class BoardQueryService {
     ) {
         PageRequest pageRequest = PageRequest.of(page, 10);
 
-        Page<Board> boardPage;
+        Page<BoardPreviewProjection> boardPage;
 
         if (sort == BoardSortType.LIKE) {
             boardPage = boardRepository.findBoardListWithFiltersOrderByLikeCount(
@@ -60,10 +61,7 @@ public class BoardQueryService {
             );
         }
 
-        return BoardConverter.toBoardPreviewListDto(
-                boardPage,
-                boardLikeRepository
-        );
+        return BoardConverter.toBoardPreviewListDto(boardPage);
     }
 
     @Transactional
