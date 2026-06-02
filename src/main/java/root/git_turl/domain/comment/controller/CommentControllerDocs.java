@@ -52,4 +52,26 @@ public interface CommentControllerDocs {
             @PathVariable Long boardId,
             @RequestParam(defaultValue = "0") Integer page
     );
+
+    @Operation(
+            summary = "내가 작성한 댓글 조회",
+            description = "로그인한 사용자가 작성한 댓글 목록을 조회합니다."
+    )
+    ApiResponse<CommentResDto.MyCommentPreviewListDto> getMyComments(
+            @CurrentUser @Parameter(hidden = true) Member member,
+
+            @RequestParam(defaultValue = "0")
+            Integer page
+    );
+
+    @Operation(
+            summary = "특정 회원이 작성한 댓글 조회",
+            description = "특정 회원이 작성한 댓글 목록을 조회합니다."
+    )
+    ApiResponse<CommentResDto.MyCommentPreviewListDto> getMemberComments(
+            @PathVariable Long memberId,
+
+            @RequestParam(defaultValue = "0")
+            Integer page
+    );
 }
