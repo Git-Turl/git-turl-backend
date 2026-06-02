@@ -58,7 +58,7 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
             value = """
         SELECT b AS board, COUNT(DISTINCT bl.id) AS likeCount
         FROM Board b
-        JOIN FETCH b.member m
+        JOIN b.member m
         LEFT JOIN b.recruitStacks rs
         LEFT JOIN b.projectStacks ps
         LEFT JOIN b.platformTypes pt
