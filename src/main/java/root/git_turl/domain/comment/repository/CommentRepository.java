@@ -37,4 +37,34 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             @Param("board") Board board,
             Pageable pageable
     );
+
+    @Query(
+            value = """
+    SELECT
+        c.id AS commentId,
+        b.id AS boardId,
+        b.title AS boardTitle,
+        b.boardType AS boardType,
+        c.content AS content,
+        COUNT(DISTINCT cl.id) AS likeCount,
+        c.createdAt AS createdAt
+    FROM Comment c
+    JOIN c.board b
+    LEFT JOIN CommentLike cl ON cl.comment = c
+    WHERE c.member.id = :memberId
+      AND c.deletedAt IS NULL
+    GROUP BY c.id, b.id, b.title, b.boardType, c.content, c.createdAt
+    ORDER BY c.createdAt DESC
+""",
+            countQuery = """
+    SELECT COUNT(c)
+    FROM Comment c
+    WHERE c.member.id = :memberId
+      AND c.deletedAt IS NULL
+"""
+    )
+    Page<MyCommentProjection> findCommentsByMemberId(
+            @Param("memberId") Long memberId,
+            Pageable pageable
+    );
 }

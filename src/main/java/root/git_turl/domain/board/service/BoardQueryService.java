@@ -90,4 +90,20 @@ public class BoardQueryService {
                 isLiked
         );
     }
+
+    @Transactional(readOnly = true)
+    public BoardResDto.BoardPreviewListDto getMyBoards(Member member, Integer page) {
+        return getMemberBoards(member.getId(), page);
+    }
+
+    @Transactional(readOnly = true)
+    public BoardResDto.BoardPreviewListDto getMemberBoards(Long memberId, Integer page) {
+        Page<BoardPreviewProjection> boardPage =
+                boardRepository.findBoardsByMemberIdOrderByLatest(
+                        memberId,
+                        PageRequest.of(page, 10)
+                );
+
+        return BoardConverter.toBoardPreviewListDto(boardPage);
+    }
 }

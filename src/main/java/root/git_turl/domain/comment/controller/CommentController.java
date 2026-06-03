@@ -73,4 +73,26 @@ public class CommentController implements CommentControllerDocs {
                 commentQueryService.getCommentList(member, boardId, page)
         );
     }
+
+    @GetMapping("/comments/me")
+    public ApiResponse<CommentResDto.MyCommentPreviewListDto> getMyComments(
+            @CurrentUser Member member,
+            @RequestParam(defaultValue = "0") Integer page
+    ) {
+        return ApiResponse.onSuccess(
+                CommentSuccessCode.COMMENT_LIST_FOUND,
+                commentQueryService.getMyComments(member, page)
+        );
+    }
+
+    @GetMapping("/comments/members/{memberId}")
+    public ApiResponse<CommentResDto.MyCommentPreviewListDto> getMemberComments(
+            @PathVariable Long memberId,
+            @RequestParam(defaultValue = "0") Integer page
+    ) {
+        return ApiResponse.onSuccess(
+                CommentSuccessCode.COMMENT_LIST_FOUND,
+                commentQueryService.getMemberComments(memberId, page)
+        );
+    }
 }

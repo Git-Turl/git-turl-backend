@@ -7,6 +7,7 @@ import root.git_turl.domain.comment.dto.CommentReqDto;
 import root.git_turl.domain.comment.dto.CommentResDto;
 import root.git_turl.domain.comment.entity.Comment;
 import root.git_turl.domain.comment.repository.CommentLikeRepository;
+import root.git_turl.domain.comment.repository.MyCommentProjection;
 import root.git_turl.domain.member.entity.Member;
 
 import java.time.LocalDateTime;
@@ -113,6 +114,37 @@ public class CommentConverter {
                 .toList();
 
         return CommentResDto.CommentPreviewListDto.builder()
+                .commentList(commentList)
+                .listSize(commentList.size())
+                .totalPage(commentPage.getTotalPages())
+                .totalElements(commentPage.getTotalElements())
+                .isFirst(commentPage.isFirst())
+                .isLast(commentPage.isLast())
+                .build();
+    }
+
+    public static CommentResDto.MyCommentPreviewDto toMyCommentPreviewDto(
+            MyCommentProjection projection
+    ) {
+        return CommentResDto.MyCommentPreviewDto.builder()
+                .commentId(projection.getCommentId())
+                .boardId(projection.getBoardId())
+                .boardTitle(projection.getBoardTitle())
+                .boardType(projection.getBoardType())
+                .content(projection.getContent())
+                .likeCount(projection.getLikeCount())
+                .createdAt(projection.getCreatedAt())
+                .build();
+    }
+
+    public static CommentResDto.MyCommentPreviewListDto toMyCommentPreviewListDto(
+            Page<MyCommentProjection> commentPage
+    ) {
+        List<CommentResDto.MyCommentPreviewDto> commentList = commentPage.stream()
+                .map(CommentConverter::toMyCommentPreviewDto)
+                .toList();
+
+        return CommentResDto.MyCommentPreviewListDto.builder()
                 .commentList(commentList)
                 .listSize(commentList.size())
                 .totalPage(commentPage.getTotalPages())

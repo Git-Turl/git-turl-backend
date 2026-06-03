@@ -85,4 +85,26 @@ public interface BoardControllerDocs {
             @CurrentUser @Parameter(hidden = true) Member member,
             @PathVariable Long boardId
     );
+
+    @Operation(
+            summary = "내가 작성한 게시글 조회",
+            description = "로그인한 사용자가 작성한 게시글 목록을 조회합니다."
+    )
+    ApiResponse<BoardResDto.BoardPreviewListDto> getMyBoards(
+            @CurrentUser @Parameter(hidden = true) Member member,
+
+            @RequestParam(defaultValue = "0")
+            Integer page
+    );
+
+    @Operation(
+            summary = "특정 회원이 작성한 게시글 조회",
+            description = "특정 회원이 작성한 게시글 목록을 조회합니다."
+    )
+    ApiResponse<BoardResDto.BoardPreviewListDto> getMemberBoards(
+            @PathVariable Long memberId,
+
+            @RequestParam(defaultValue = "0")
+            Integer page
+    );
 }

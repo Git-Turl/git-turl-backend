@@ -127,4 +127,26 @@ public class BoardRestController implements BoardControllerDocs {
                 boardQueryService.getBoardDetail(member, boardId)
         );
     }
+
+    @GetMapping("/me")
+    public ApiResponse<BoardResDto.BoardPreviewListDto> getMyBoards(
+            @CurrentUser Member member,
+            @RequestParam(defaultValue = "0") Integer page
+    ) {
+        return ApiResponse.onSuccess(
+                BoardSuccessCode.BOARD_LIST_FOUND,
+                boardQueryService.getMyBoards(member, page)
+        );
+    }
+
+    @GetMapping("/members/{memberId}")
+    public ApiResponse<BoardResDto.BoardPreviewListDto> getMemberBoards(
+            @PathVariable Long memberId,
+            @RequestParam(defaultValue = "0") Integer page
+    ) {
+        return ApiResponse.onSuccess(
+                BoardSuccessCode.BOARD_LIST_FOUND,
+                boardQueryService.getMemberBoards(memberId, page)
+        );
+    }
 }
