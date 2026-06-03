@@ -15,6 +15,7 @@ import root.git_turl.domain.comment.dto.CommentResDto;
 import root.git_turl.domain.comment.entity.Comment;
 import root.git_turl.domain.comment.repository.CommentLikeRepository;
 import root.git_turl.domain.comment.repository.CommentRepository;
+import root.git_turl.domain.comment.repository.MyCommentProjection;
 import root.git_turl.domain.member.entity.Member;
 
 @Service
@@ -49,5 +50,21 @@ public class CommentQueryService {
                 currentMember,
                 commentLikeRepository
         );
+    }
+
+    @Transactional(readOnly = true)
+    public CommentResDto.MyCommentPreviewListDto getMemberComments(Long memberId, Integer page) {
+        Page<MyCommentProjection> commentPage =
+                commentRepository.findCommentsByMemberId(
+                        memberId,
+                        PageRequest.of(page, 10)
+                );
+
+        return CommentConverter.toMyCommentPreviewListDto(commentPage);
+    }
+
+    @Transactional(readOnly = true)
+    public CommentResDto.MyCommentPreviewListDto getMyComments(Member member, Integer page) {
+        return getMemberComments(member.getId(), page);
     }
 }

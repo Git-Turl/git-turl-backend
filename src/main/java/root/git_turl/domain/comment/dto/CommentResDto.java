@@ -2,6 +2,7 @@ package root.git_turl.domain.comment.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import root.git_turl.domain.board.enums.BoardType;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -49,6 +50,29 @@ public class CommentResDto {
     @Builder
     public static class CommentPreviewListDto {
         private List<CommentPreviewDto> commentList;
+        private Integer listSize;
+        private Integer totalPage;
+        private Long totalElements;
+        private Boolean isFirst;
+        private Boolean isLast;
+    }
+
+    @Getter
+    @Builder
+    public static class MyCommentPreviewDto {
+        private Long commentId;
+        private Long boardId;
+        private String boardTitle;
+        private BoardType boardType;
+        private String content;
+        private Long likeCount;
+        private LocalDateTime createdAt;
+    }
+
+    @Getter
+    @Builder
+    public static class MyCommentPreviewListDto {
+        private List<MyCommentPreviewDto> commentList;
         private Integer listSize;
         private Integer totalPage;
         private Long totalElements;
