@@ -154,4 +154,19 @@ public class BoardConverter {
                 .isLast(boardPage.isLast())
                 .build();
     }
+
+    public BoardResDto.RecommendProjectDto toRecommendProjectDto(
+            Board board,
+            Long likeCount
+    ) {
+        return BoardResDto.RecommendProjectDto.builder()
+                .boardId(board.getId())
+                .title(board.getTitle())
+                .content(board.getContent())
+                .recruitStacks(board.getRecruitStacks())
+                .likeCount(likeCount)
+                .views(board.getViews())
+                .recruitCount(board.getRecruitCount())
+                .build();
+    }
 }

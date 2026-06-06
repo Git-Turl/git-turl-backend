@@ -19,6 +19,8 @@ import root.git_turl.global.apiPayload.ApiResponse;
 import root.git_turl.domain.board.dto.BoardReqDto;
 import root.git_turl.domain.board.dto.BoardResDto;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/boards")
 @RequiredArgsConstructor
@@ -147,6 +149,16 @@ public class BoardRestController implements BoardControllerDocs {
         return ApiResponse.onSuccess(
                 BoardSuccessCode.BOARD_LIST_FOUND,
                 boardQueryService.getMemberBoards(memberId, page)
+        );
+    }
+
+    @GetMapping("/projects/recommend")
+    public ApiResponse<List<BoardResDto.RecommendProjectDto>> getRecommendProjects(
+            @CurrentUser Member member
+    ) {
+        return ApiResponse.onSuccess(
+                BoardSuccessCode.BOARD_LIST_FOUND,
+                boardQueryService.getRecommendProjects(member)
         );
     }
 }
