@@ -137,4 +137,16 @@ public class BoardResDto {
 
         private Boolean isLast;
     }
+
+    @Getter
+    @Builder
+    public static class RecommendProjectDto {
+        private Long boardId;
+        private String title;
+        private String content;
+        private List<TechStack> recruitStacks;
+        private Long likeCount;
+        private Integer views;
+        private Integer recruitCount;
+    }
 }
