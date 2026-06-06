@@ -14,6 +14,8 @@ import root.git_turl.domain.member.entity.Member;
 import root.git_turl.global.annotation.CurrentUser;
 import root.git_turl.global.apiPayload.ApiResponse;
 
+import java.util.List;
+
 public interface BoardControllerDocs {
 
     @Operation(
@@ -106,5 +108,13 @@ public interface BoardControllerDocs {
 
             @RequestParam(defaultValue = "0")
             Integer page
+    );
+
+    @Operation(
+            summary = "추천 프로젝트 조회",
+            description = "로그인한 사용자의 관심 기술스택과 프로젝트 구인스택을 기반으로 추천 프로젝트 게시글을 최대 3개 조회합니다."
+    )
+    ApiResponse<List<BoardResDto.RecommendProjectDto>> getRecommendProjects(
+            @CurrentUser @Parameter(hidden = true) Member member
     );
 }

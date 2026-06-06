@@ -8,6 +8,8 @@ import org.springframework.data.repository.query.Param;
 import root.git_turl.domain.board.entity.Board;
 import root.git_turl.domain.board.enums.*;
 
+import java.util.List;
+
 public interface BoardRepository extends JpaRepository<Board, Long> {
 
     Page<Board> findAllByBoardType(BoardType boardType, Pageable pageable);
@@ -119,4 +121,27 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
             @Param("memberId") Long memberId,
             Pageable pageable
     );
+
+    @Query("""
+    SELECT DISTINCT b
+    FROM Board b
+    LEFT JOIN b.recruitStacks rs
+    WHERE b.boardType = root.git_turl.domain.board.enums.BoardType.PROJECT
+      AND b.projectStatus = root.git_turl.domain.board.enums.ProjectStatus.RECRUITING
+      AND rs IN :techStacks
+    ORDER BY function('rand')
+""")
+    List<Board> findRecommendProjectsByTechStacks(
+            @Param("techStacks") List<TechStack> techStacks,
+            Pageable pageable
+    );
+
+    @Query("""
+    SELECT b
+    FROM Board b
+    WHERE b.boardType = root.git_turl.domain.board.enums.BoardType.PROJECT
+      AND b.projectStatus = root.git_turl.domain.board.enums.ProjectStatus.RECRUITING
+    ORDER BY function('rand')
+""")
+    List<Board> findRecommendProjectsAll(Pageable pageable);
 }
