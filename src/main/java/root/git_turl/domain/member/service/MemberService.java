@@ -74,7 +74,9 @@ public class MemberService {
             throw new MemberException(MemberErrorCode.NO_EDIT);
         }
 
-        validateNicknameDuplicate(dto.getNickname());
+        if (dto.getNickname() != null) {
+            validateNicknameDuplicate(dto.getNickname());
+        }
 
         Member member = getMember(currentMember.getId());
 
