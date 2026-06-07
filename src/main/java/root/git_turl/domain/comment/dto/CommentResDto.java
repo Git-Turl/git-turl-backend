@@ -41,6 +41,7 @@ public class CommentResDto {
         private Boolean isDeleted;
         private String content;
         private String writerName;
+        private String profileImage;
         private Long likeCount;
         private Boolean isLiked;
         private LocalDateTime createdAt;
