@@ -45,6 +45,8 @@ public class BoardResDto {
 
         private String authorName;
 
+        private String profileImage;
+
         private Integer views;
 
         private Long likeCount;
@@ -141,10 +143,14 @@ public class BoardResDto {
     @Getter
     @Builder
     public static class RecommendProjectDto {
+
         private Long boardId;
+
         private String title;
         private String content;
+
         private List<TechStack> recruitStacks;
+
         private Long likeCount;
         private Integer views;
         private Integer recruitCount;

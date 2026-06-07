@@ -76,6 +76,7 @@ public class BoardConverter {
                 .projectStacks(board.getProjectStacks())
 
                 .authorName(board.getMember().getNickname())
+                .profileImage(board.getMember().getProfileImage())
                 .views(board.getViews())
                 .likeCount(likeCount)
                 .isLiked(isLiked)
