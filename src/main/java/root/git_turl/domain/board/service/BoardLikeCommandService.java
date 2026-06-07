@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import root.git_turl.domain.board.code.BoardErrorCode;
+import root.git_turl.domain.board.dto.BoardResDto;
 import root.git_turl.domain.board.entity.Board;
 import root.git_turl.domain.board.entity.BoardLike;
 import root.git_turl.domain.board.exception.BoardException;
@@ -23,7 +24,7 @@ public class BoardLikeCommandService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public void likeBoard(Member currentMember, Long boardId) {
+    public BoardResDto.BoardLikeResultDto likeBoard(Member currentMember, Long boardId) {
 
         Member member = memberRepository.findById(currentMember.getId())
                 .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
@@ -34,20 +35,23 @@ public class BoardLikeCommandService {
         boolean alreadyLiked =
                 boardLikeRepository.existsByBoardAndMember(board, member);
 
-        if (alreadyLiked) {
-            return;
+        if (!alreadyLiked) {
+            BoardLike boardLike = BoardLike.builder()
+                    .board(board)
+                    .member(member)
+                    .build();
+
+            boardLikeRepository.save(boardLike);
         }
 
-        BoardLike boardLike = BoardLike.builder()
-                .board(board)
-                .member(member)
+        return BoardResDto.BoardLikeResultDto.builder()
+                .isLiked(true)
+                .likeCount(boardLikeRepository.countByBoard(board))
                 .build();
-
-        boardLikeRepository.save(boardLike);
     }
 
     @Transactional
-    public void unlikeBoard(Member currentMember, Long boardId) {
+    public BoardResDto.BoardLikeResultDto unlikeBoard(Member currentMember, Long boardId) {
 
         Member member = memberRepository.findById(currentMember.getId())
                 .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
@@ -59,10 +63,13 @@ public class BoardLikeCommandService {
                 boardLikeRepository.findByBoardAndMember(board, member)
                         .orElse(null);
 
-        if (boardLike == null) {
-            return;
+        if (boardLike != null) {
+            boardLikeRepository.delete(boardLike);
         }
 
-        boardLikeRepository.delete(boardLike);
+        return BoardResDto.BoardLikeResultDto.builder()
+                .isLiked(false)
+                .likeCount(boardLikeRepository.countByBoard(board))
+                .build();
     }
 }
