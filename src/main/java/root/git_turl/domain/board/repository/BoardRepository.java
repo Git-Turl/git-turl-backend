@@ -123,25 +123,31 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     );
 
     @Query("""
-    SELECT DISTINCT b
+    SELECT b AS board, COUNT(DISTINCT bl.id) AS likeCount
     FROM Board b
     LEFT JOIN b.recruitStacks rs
+    LEFT JOIN b.projectStacks ps
+    LEFT JOIN BoardLike bl ON bl.board = b
     WHERE b.boardType = root.git_turl.domain.board.enums.BoardType.PROJECT
-      AND b.projectStatus = root.git_turl.domain.board.enums.ProjectStatus.RECRUITING
-      AND rs IN :techStacks
-    ORDER BY function('rand')
+      AND (
+          rs IN :techStacks
+          OR ps IN :techStacks
+      )
+    GROUP BY b
+    ORDER BY b.createdAt DESC
 """)
-    List<Board> findRecommendProjectsByTechStacks(
+    List<BoardPreviewProjection> findRecommendedProjectsByTechStacks(
             @Param("techStacks") List<TechStack> techStacks,
             Pageable pageable
     );
 
     @Query("""
-    SELECT b
+    SELECT b AS board, COUNT(DISTINCT bl.id) AS likeCount
     FROM Board b
+    LEFT JOIN BoardLike bl ON bl.board = b
     WHERE b.boardType = root.git_turl.domain.board.enums.BoardType.PROJECT
-      AND b.projectStatus = root.git_turl.domain.board.enums.ProjectStatus.RECRUITING
-    ORDER BY function('rand')
+    GROUP BY b
+    ORDER BY FUNCTION('RAND')
 """)
-    List<Board> findRecommendProjectsAll(Pageable pageable);
+    List<BoardPreviewProjection> findRandomProjects(Pageable pageable);
 }
