@@ -80,4 +80,11 @@ public class CommentResDto {
         private Boolean isFirst;
         private Boolean isLast;
     }
+
+    @Getter
+    @Builder
+    public static class CommentLikeResultDto {
+        private Boolean isLiked;
+        private Long likeCount;
+    }
 }

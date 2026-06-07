@@ -155,4 +155,11 @@ public class BoardResDto {
         private Integer views;
         private Integer recruitCount;
     }
+
+    @Getter
+    @Builder
+    public static class BoardLikeResultDto {
+        private Boolean isLiked;
+        private Long likeCount;
+    }
 }
