@@ -9,6 +9,7 @@ import root.git_turl.domain.board.dto.BoardResDto;
 import root.git_turl.domain.board.entity.Board;
 import root.git_turl.domain.board.enums.TechStack;
 import root.git_turl.domain.board.repository.BoardLikeRepository;
+import root.git_turl.domain.board.repository.BoardPreviewProjection;
 import root.git_turl.domain.board.repository.BoardRepository;
 import root.git_turl.domain.member.entity.InterestStack;
 import root.git_turl.domain.member.entity.Member;
@@ -37,7 +38,7 @@ public class BoardRecommendService {
                         .distinct()
                         .toList();
 
-        List<Board> boards;
+        List<BoardPreviewProjection> boards;
 
         if (matchedStacks.isEmpty()) {
             boards = boardRepository.findRandomProjects(pageRequest);
@@ -53,9 +54,9 @@ public class BoardRecommendService {
         }
 
         return boards.stream()
-                .map(board -> boardConverter.toRecommendProjectDto(
-                        board,
-                        boardLikeRepository.countByBoard(board)
+                .map(result -> boardConverter.toRecommendProjectDto(
+                        result.getBoard(),
+                        result.getLikeCount()
                 ))
                 .toList();
     }
