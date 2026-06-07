@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import root.git_turl.domain.board.code.BoardSuccessCode;
+import root.git_turl.domain.board.dto.BoardResDto;
 import root.git_turl.domain.board.service.BoardLikeCommandService;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.member.repository.MemberRepository;
@@ -19,30 +20,30 @@ public class BoardLikeController implements BoardLikeControllerDocs {
     private final BoardLikeCommandService boardLikeCommandService;
 
     @PostMapping("/{boardId}/likes")
-    public ApiResponse<Void> likeBoard(
+    public ApiResponse<BoardResDto.BoardLikeResultDto> likeBoard(
             @CurrentUser Member member,
             @PathVariable Long boardId
     ) {
-
-        boardLikeCommandService.likeBoard(member, boardId);
+        BoardResDto.BoardLikeResultDto result =
+                boardLikeCommandService.likeBoard(member, boardId);
 
         return ApiResponse.onSuccess(
                 BoardSuccessCode.BOARD_LIKE_CREATED,
-                null
+                result
         );
     }
 
     @DeleteMapping("/{boardId}/likes")
-    public ApiResponse<Void> unlikeBoard(
+    public ApiResponse<BoardResDto.BoardLikeResultDto> unlikeBoard(
             @CurrentUser Member member,
             @PathVariable Long boardId
     ) {
-
-        boardLikeCommandService.unlikeBoard(member, boardId);
+        BoardResDto.BoardLikeResultDto result =
+                boardLikeCommandService.unlikeBoard(member, boardId);
 
         return ApiResponse.onSuccess(
                 BoardSuccessCode.BOARD_LIKE_DELETED,
-                null
+                result
         );
     }
 }
