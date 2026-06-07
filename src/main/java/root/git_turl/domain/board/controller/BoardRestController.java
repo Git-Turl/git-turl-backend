@@ -12,6 +12,7 @@ import root.git_turl.domain.board.code.BoardSuccessCode;
 import root.git_turl.domain.board.enums.*;
 import root.git_turl.domain.board.service.BoardCommandService;
 import root.git_turl.domain.board.service.BoardQueryService;
+import root.git_turl.domain.board.service.BoardRecommendService;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.global.annotation.CurrentUser;
 import root.git_turl.global.annotation.SwaggerBody;
@@ -29,6 +30,7 @@ public class BoardRestController implements BoardControllerDocs {
 
     private final BoardCommandService boardCommandService;
     private final BoardQueryService boardQueryService;
+    private final BoardRecommendService boardRecommendService;
 
     @SwaggerBody(content = @Content(
             encoding = @Encoding(
@@ -154,11 +156,12 @@ public class BoardRestController implements BoardControllerDocs {
 
     @GetMapping("/projects/recommend")
     public ApiResponse<List<BoardResDto.RecommendProjectDto>> getRecommendProjects(
-            @CurrentUser Member member
+            @CurrentUser Member member,
+            @RequestParam(defaultValue = "0") Integer page
     ) {
         return ApiResponse.onSuccess(
                 BoardSuccessCode.BOARD_LIST_FOUND,
-                boardQueryService.getRecommendProjects(member)
+                boardRecommendService.getRecommendedProjects(member, page)
         );
     }
 }

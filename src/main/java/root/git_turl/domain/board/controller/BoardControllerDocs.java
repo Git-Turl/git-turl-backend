@@ -115,6 +115,9 @@ public interface BoardControllerDocs {
             description = "로그인한 사용자의 관심 기술스택과 프로젝트 구인스택을 기반으로 추천 프로젝트 게시글을 최대 3개 조회합니다."
     )
     ApiResponse<List<BoardResDto.RecommendProjectDto>> getRecommendProjects(
-            @CurrentUser @Parameter(hidden = true) Member member
+            @CurrentUser @Parameter(hidden = true) Member member,
+
+            @RequestParam(defaultValue = "0")
+            Integer page
     );
 }
