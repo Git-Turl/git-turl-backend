@@ -45,6 +45,8 @@ public class BoardResDto {
 
         private String authorName;
 
+        private String profileImage;
+
         private Integer views;
 
         private Long likeCount;
