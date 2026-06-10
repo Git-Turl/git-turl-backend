@@ -43,6 +43,11 @@ public class QuestionService {
 
     @Transactional
     public QuestionResDto.QuestionId saveQuestion(Member currentMember, Long reportId, QuestionReqDto.QuestionInfo dto) {
+        log.info(
+                "saveQuestion start reportId={}, thread={}",
+                reportId,
+                Thread.currentThread().getName()
+        );
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new ReportException(ReportErrorCode.REPORT_NOT_FOUND));
         Member member = memberRepository.findById(currentMember.getId())
