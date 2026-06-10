@@ -57,6 +57,11 @@ public class ReportAsyncService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void generateReport(ReportSavedEvent event) {
         log.info("비동기 실행됨: {}", LocalDateTime.now());
+        log.info(
+                "generateReport START reportId={}, thread={}",
+                event.reportId(),
+                Thread.currentThread().getName()
+        );
         String email = event.email();
         String gitUrl = GitRepoParser.getRepoLink(event.dto().getFullName());
         String repoPath = gitCloneService.cloneRepository(gitUrl);

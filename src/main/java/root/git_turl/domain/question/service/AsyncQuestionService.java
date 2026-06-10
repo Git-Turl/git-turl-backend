@@ -46,7 +46,7 @@ public class AsyncQuestionService {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void makeQuestion(QuestionSavedEvent event) {
         log.info("async 시작");
 
@@ -54,6 +54,12 @@ public class AsyncQuestionService {
                 .orElseThrow(() -> new ReportException(ReportErrorCode.REPORT_NOT_FOUND));
         List<Question> questions =
                 questionRepository.findAllById(event.questionIds());
+        log.info(
+                "makeQuestion start event={}, thread={}",
+                event.questionIds(),
+                Thread.currentThread().getName()
+        );
+
         log.info("questionList={}", questions.stream().map(q -> q.getId()).toList());
         try {
             String prompt = buildPrompt.buildQuestionPrompt(report, event.count());
