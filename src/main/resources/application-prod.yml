@@ -18,7 +18,6 @@ spring:
       keepalive-time: 240000
       connection-test-query: "SELECT 1"
       validation-timeout: 3000
-      leak-detection-threshold: 10000
 
   jpa:
     hibernate:

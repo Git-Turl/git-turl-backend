@@ -43,10 +43,10 @@ public class AsyncQuestionService {
     private final BuildJudgePrompt buildJudgePrompt;
     private final JudgeService judgeService;
     private final BuildRetryPrompt buildRetryPrompt;
+    private final QuestionUpdateService questionUpdateService;
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void makeQuestion(QuestionSavedEvent event) {
         log.info("async 시작");
 
@@ -105,7 +105,7 @@ public class AsyncQuestionService {
                 questions.get(i).updateTime(finalTime);
                 questions.get(i).updateStatus(GenerationStatus.DONE);
             }
-            questionRepository.saveAll(questions);
+            questionUpdateService.updateQuestions(questions);
             log.info("update 완료");
         } catch (Exception e) {
             log.error("비동기 실패", e);

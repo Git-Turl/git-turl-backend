@@ -51,10 +51,10 @@ public class ReportAsyncService {
     private final BuildJudgePrompt buildJudgePrompt;
     private final BuildRetryPrompt buildRetryPrompt;
     private final BuildProblemPrompt buildProblemPrompt;
+    private final ReportUpdateService reportUpdateService;
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void generateReport(ReportSavedEvent event) {
         log.info("비동기 실행됨: {}", LocalDateTime.now());
         log.info(
@@ -119,10 +119,13 @@ public class ReportAsyncService {
                     contentJson = retryContentJson;
                 }
 
-                report.updateContent(contentJson);
                 String description = content.getContent().getPurpose();
-                report.updateDescription(description);
-                report.updateGenerationStatus(GenerationStatus.DONE);
+                reportUpdateService.updateReport(
+                        event.reportId(),
+                        contentJson,
+                        description,
+                        GenerationStatus.DONE
+                );
                 log.info("리포트 저장 완료: {}", LocalDateTime.now());
             } catch (JsonProcessingException e) {
                 throw new RuntimeException("JSON 변환 실패", e);
