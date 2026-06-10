@@ -36,6 +36,7 @@ public class CommentResDto {
 
         private Long commentId;
         private Long parentId;
+        private Long writerId;
         private Integer depth;
         private Boolean isSecret;
         private Boolean isDeleted;

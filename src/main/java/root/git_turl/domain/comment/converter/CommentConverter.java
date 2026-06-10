@@ -88,6 +88,7 @@ public class CommentConverter {
                                     ? comment.getContent()
                                     : "비밀 댓글입니다."
                 )
+                .writerId(comment.getMember().getId())
                 .writerName(comment.getMember().getNickname())
                 .profileImage(comment.getMember().getProfileImage())
                 .likeCount(likeCount)
