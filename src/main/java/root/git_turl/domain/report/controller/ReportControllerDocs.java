@@ -71,6 +71,16 @@ public interface ReportControllerDocs {
     );
 
     @Operation(
+            summary = "타인 분석본 목록 조회",
+            description = "다른 사용자의 공개 리포트를 조회합니다. (커서 기반 페이징)"
+    )
+    public ApiResponse<ReportResDto.Pagination<ReportResDto.ReportPreview>> getOtherReports(
+            @PathVariable Long memberId,
+            @RequestParam(required = false, defaultValue = "10") Integer pageSize,
+            @RequestParam(required = false, defaultValue = "-1") String cursor
+    );
+
+    @Operation(
             summary = "분석본 제목 변경",
             description = "해당 id의 분석본 제목을 변경합니다."
     )

@@ -66,14 +66,27 @@ public class ReportController implements ReportControllerDocs{
     @GetMapping("/reports")
     public ApiResponse<ReportResDto.Pagination<ReportResDto.ReportPreview>> getReports(
             @CurrentUser @Parameter(hidden = true) Member member,
-            @RequestParam(required = false) Integer pageSize,
-            @RequestParam(required = false) String cursor,
+            @RequestParam(required = false, defaultValue = "10") Integer pageSize,
+            @RequestParam(required = false, defaultValue = "-1") String cursor,
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
             @RequestParam(required = false) Status status,
             @RequestParam AnswerType answerType
     ) {
         ReportResDto.Pagination<ReportResDto.ReportPreview> response = reportService.getReportList(member, pageSize, cursor, startDate, endDate, status, answerType);
+        if (response == null) {
+            return ApiResponse.onSuccess(ReportSuccessCode.NO_REPORT_FOUND, null);
+        }
+        return ApiResponse.onSuccess(ReportSuccessCode.REPORT_LIST_GET_OK, response);
+    }
+
+    @GetMapping("/reports/members/{memberId}")
+    public ApiResponse<ReportResDto.Pagination<ReportResDto.ReportPreview>> getOtherReports(
+            @PathVariable Long memberId,
+            @RequestParam(required = false, defaultValue = "10") Integer pageSize,
+            @RequestParam(required = false, defaultValue = "-1") String cursor
+    ) {
+        ReportResDto.Pagination<ReportResDto.ReportPreview> response = reportService.getOtherReportList(memberId, pageSize, cursor);
         if (response == null) {
             return ApiResponse.onSuccess(ReportSuccessCode.NO_REPORT_FOUND, null);
         }
