@@ -30,17 +30,30 @@ public class NotificationResDto {
 
     private LocalDateTime createdAt;
 
-    public static NotificationResDto from(Notification notification) {
-        return NotificationResDto.builder()
-                .notificationId(notification.getId())
-                .actorId(notification.getActor().getId())
-                .receiverId(notification.getReceiver().getId())
-                .boardId(notification.getBoardId())
-                .targetObjectId(notification.getTargetObjectId())
-                .targetType(notification.getTargetType())
-                .tag(notification.getTag())
-                .previewContent(notification.getPreviewContent())
-                .isRead(notification.getIsRead())
-                .build();
+    public NotificationResDto(
+            Long notificationId,
+            Long actorId,
+            String actorNickname,
+            Long receiverId,
+            Long boardId,
+            Long targetObjectId,
+            NotificationTargetType targetType,
+            NotificationTag tag,
+            String previewContent,
+            Boolean isRead,
+            LocalDateTime createdAt
+    ) {
+        this.notificationId = notificationId;
+        this.actorId = actorId;
+        this.actorNickname = actorNickname;
+        this.receiverId = receiverId;
+        this.boardId = boardId;
+        this.targetObjectId = targetObjectId;
+        this.targetType = targetType;
+        this.tag = tag;
+        this.previewContent = previewContent;
+        this.isRead = isRead;
+        this.createdAt = createdAt;
     }
+
 }
