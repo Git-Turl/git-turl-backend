@@ -173,9 +173,7 @@ public class NotificationService {
 
     @Transactional(readOnly = true)
     public List<NotificationResDto> getNotifications(Member member) {
-        return notificationConverter.toNotificationResDtoList(
-                notificationRepository.findAllByReceiverOrderByCreatedAtDesc(member)
-        );
+        return notificationRepository.findAllDtoByReceiver(member);
     }
 
     @Transactional
