@@ -6,11 +6,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import root.git_turl.domain.board.converter.BoardConverter;
 import root.git_turl.domain.board.dto.BoardResDto;
-import root.git_turl.domain.board.entity.Board;
 import root.git_turl.domain.board.enums.TechStack;
-import root.git_turl.domain.board.repository.BoardLikeRepository;
 import root.git_turl.domain.board.repository.BoardPreviewProjection;
 import root.git_turl.domain.board.repository.BoardRepository;
+import root.git_turl.domain.board.repository.BoardRecommendInterestStackRepository;
 import root.git_turl.domain.member.entity.InterestStack;
 import root.git_turl.domain.member.entity.Member;
 
@@ -21,8 +20,8 @@ import java.util.List;
 public class BoardRecommendService {
 
     private final BoardRepository boardRepository;
-    private final BoardLikeRepository boardLikeRepository;
     private final BoardConverter boardConverter;
+    private final BoardRecommendInterestStackRepository interestStackRepository;
 
     @Transactional(readOnly = true)
     public List<BoardResDto.RecommendProjectDto> getRecommendedProjects(
@@ -32,7 +31,7 @@ public class BoardRecommendService {
         PageRequest pageRequest = PageRequest.of(page, 10);
 
         List<TechStack> matchedStacks =
-                member.getInterestStacks().stream()
+                interestStackRepository.findAllByMemberId(member.getId()).stream()
                         .map(InterestStack::getTechStack)
                         .flatMap(stack -> convertToBoardTechStacks(stack).stream())
                         .distinct()
