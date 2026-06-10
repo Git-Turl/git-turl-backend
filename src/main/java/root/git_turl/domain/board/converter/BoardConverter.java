@@ -6,7 +6,6 @@ import root.git_turl.domain.board.dto.BoardReqDto;
 import root.git_turl.domain.board.dto.BoardResDto;
 import root.git_turl.domain.board.entity.Board;
 import root.git_turl.domain.board.enums.BoardType;
-import root.git_turl.domain.board.repository.BoardLikeRepository;
 import root.git_turl.domain.board.repository.BoardPreviewProjection;
 import root.git_turl.domain.member.entity.Member;
 
@@ -75,6 +74,7 @@ public class BoardConverter {
                 .recruitStacks(board.getRecruitStacks())
                 .projectStacks(board.getProjectStacks())
 
+                .writerId(board.getMember().getId())
                 .authorName(board.getMember().getNickname())
                 .profileImage(board.getMember().getProfileImage())
                 .views(board.getViews())
