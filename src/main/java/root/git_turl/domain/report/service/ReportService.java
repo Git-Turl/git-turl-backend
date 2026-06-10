@@ -89,8 +89,6 @@ public class ReportService {
             Status status,
             AnswerType answerType
     ) {
-        if (pageSize == null) pageSize = 10;
-        if (cursor == null) cursor = "-1";
         PageRequest pageRequest = PageRequest.of(0, pageSize);
 
         long idCursor;
@@ -149,6 +147,53 @@ public class ReportService {
                         })
                         .filter(entry -> answerType.equals(AnswerType.ALL)
                                 || entry.getValue() > 0)
+                        .map(entry ->
+                                ReportConverter.toReportPreview(
+                                        entry.getKey(),
+                                        entry.getValue()
+                                )
+                        )
+                        .toList();
+
+        return Pagination.toPagination(reportPreviewList, reportList.hasNext(), nextCursor, reportList.getContent().size());
+    }
+
+    @Transactional(readOnly = true)
+    public ReportResDto.Pagination<ReportResDto.ReportPreview> getOtherReportList(
+            Long memberId,
+            Integer pageSize,
+            String cursor
+    ) {
+        PageRequest pageRequest = PageRequest.of(0, pageSize);
+
+        long idCursor;
+        Slice<Report> reportList;
+        String nextCursor;
+        GenerationStatus done = GenerationStatus.DONE;
+
+        // 타인 공개 리포트만 조회
+        if (!cursor.equals("-1")) {
+            idCursor = Long.parseLong(cursor);
+            reportList = reportRepository.findReportByMember_IdAndGenerationStatusAndStatusAndIdLessThanOrderByIdDesc(memberId, done, Status.PUBLIC, idCursor, pageRequest);
+        } else {
+            reportList = reportRepository.findReportByMember_IdAndGenerationStatusAndStatusOrderByIdDesc(memberId, done, Status.PUBLIC, pageRequest);
+        }
+
+        if (reportList.getContent().isEmpty()) {
+            return null;
+        }
+
+        nextCursor = reportList.getContent().getLast().getId().toString();
+        List<ReportResDto.ReportPreview> reportPreviewList =
+                reportList.stream()
+                        .map(report -> {
+                            long count = questionRepository.countByReportAndStatus(
+                                    report,
+                                    GenerationStatus.DONE
+                            );
+
+                            return Map.entry(report, count);
+                        })
                         .map(entry ->
                                 ReportConverter.toReportPreview(
                                         entry.getKey(),
