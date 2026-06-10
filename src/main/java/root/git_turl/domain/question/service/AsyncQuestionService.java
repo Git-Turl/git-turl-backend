@@ -46,7 +46,7 @@ public class AsyncQuestionService {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void makeQuestion(QuestionSavedEvent event) {
         log.info("async 시작");
 
