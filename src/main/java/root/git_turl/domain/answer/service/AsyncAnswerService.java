@@ -31,10 +31,10 @@ public class AsyncAnswerService {
     private final WhisperService whisperService;
     private final ObjectMapper objectMapper;
     private final FeedbackJudge feedbackJudge;
+    private final AnswerUpdateService answerUpdateService;
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveAnswerVoice(AnswerVoiceSavedEvent event) {
 
         Answer answer = answerRepository.findById(event.answerId())
@@ -56,10 +56,13 @@ public class AsyncAnswerService {
             answer.updateGenerationStatus(GenerationStatus.FAIL);
             throw new RuntimeException(e);
         }
-        answer.updateVoiceAnswer(
+        answerUpdateService.updateVoiceAnswer(
+                event.answerId(),
                 textAnswer,
                 feedbackContent,
                 response.getAnswerSummary(),
-                keywords);
+                keywords,
+                answer
+        );
     }
 }
