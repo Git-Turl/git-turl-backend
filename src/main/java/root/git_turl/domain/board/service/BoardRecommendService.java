@@ -28,7 +28,7 @@ public class BoardRecommendService {
             Member member,
             Integer page
     ) {
-        PageRequest pageRequest = PageRequest.of(page, 10);
+        PageRequest pageRequest = PageRequest.of(page, 3);
 
         List<TechStack> matchedStacks =
                 interestStackRepository.findAllByMemberId(member.getId()).stream()
