@@ -43,6 +43,8 @@ public class BoardResDto {
 
         private List<PlatformType> platformTypes;
 
+        private Long writerId;
+
         private String authorName;
 
         private String profileImage;
