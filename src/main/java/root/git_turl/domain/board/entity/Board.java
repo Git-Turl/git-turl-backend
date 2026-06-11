@@ -3,6 +3,7 @@ package root.git_turl.domain.board.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import org.hibernate.annotations.BatchSize;
 import root.git_turl.domain.board.enums.*;
 import root.git_turl.global.entity.BaseEntity;
 import root.git_turl.domain.member.entity.Member;
@@ -68,6 +69,7 @@ public class Board extends BaseEntity {
     @Column(name = "project_status")
     private ProjectStatus projectStatus;
 
+    @BatchSize(size = 100)
     @ElementCollection(targetClass = TechStack.class)
     @Enumerated(EnumType.STRING)
     @CollectionTable(
@@ -78,6 +80,7 @@ public class Board extends BaseEntity {
     @Column(name = "recruit_stack")
     private List<TechStack> recruitStacks = new ArrayList<>();
 
+    @BatchSize(size = 100)
     @ElementCollection(targetClass = TechStack.class)
     @Enumerated(EnumType.STRING)
     @CollectionTable(
@@ -88,6 +91,7 @@ public class Board extends BaseEntity {
     @Column(name = "project_stack")
     private List<TechStack> projectStacks = new ArrayList<>();
 
+    @BatchSize(size = 100)
     @ElementCollection(targetClass = PlatformType.class)
     @Enumerated(EnumType.STRING)
     @CollectionTable(

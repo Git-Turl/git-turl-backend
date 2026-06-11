@@ -16,35 +16,28 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 
     @Query(
             value = """
-        SELECT b AS board, COUNT(DISTINCT bl.id) AS likeCount
-        FROM Board b
-        JOIN b.member m
-        LEFT JOIN b.recruitStacks rs
-        LEFT JOIN b.projectStacks ps
-        LEFT JOIN b.platformTypes pt
-        LEFT JOIN BoardLike bl ON bl.board = b
-        WHERE (:boardType IS NULL OR b.boardType = :boardType)
-          AND (:studyTag IS NULL OR b.studyTag = :studyTag)
-          AND (:projectStatus IS NULL OR b.projectStatus = :projectStatus)
-          AND (:recruitStack IS NULL OR rs = :recruitStack)
-          AND (:projectStack IS NULL OR ps = :projectStack)
-          AND (:platformType IS NULL OR pt = :platformType)
-        GROUP BY b
-        ORDER BY b.createdAt DESC
-    """,
+    SELECT b AS board, COUNT(DISTINCT bl.id) AS likeCount
+    FROM Board b
+    LEFT JOIN BoardLike bl ON bl.board = b
+    WHERE (:boardType IS NULL OR b.boardType = :boardType)
+      AND (:studyTag IS NULL OR b.studyTag = :studyTag)
+      AND (:projectStatus IS NULL OR b.projectStatus = :projectStatus)
+      AND (:recruitStack IS NULL OR :recruitStack MEMBER OF b.recruitStacks)
+      AND (:projectStack IS NULL OR :projectStack MEMBER OF b.projectStacks)
+      AND (:platformType IS NULL OR :platformType MEMBER OF b.platformTypes)
+    GROUP BY b
+    ORDER BY b.createdAt DESC
+""",
             countQuery = """
-        SELECT COUNT(DISTINCT b)
-        FROM Board b
-        LEFT JOIN b.recruitStacks rs
-        LEFT JOIN b.projectStacks ps
-        LEFT JOIN b.platformTypes pt
-        WHERE (:boardType IS NULL OR b.boardType = :boardType)
-          AND (:studyTag IS NULL OR b.studyTag = :studyTag)
-          AND (:projectStatus IS NULL OR b.projectStatus = :projectStatus)
-          AND (:recruitStack IS NULL OR rs = :recruitStack)
-          AND (:projectStack IS NULL OR ps = :projectStack)
-          AND (:platformType IS NULL OR pt = :platformType)
-    """
+    SELECT COUNT(DISTINCT b)
+    FROM Board b
+    WHERE (:boardType IS NULL OR b.boardType = :boardType)
+      AND (:studyTag IS NULL OR b.studyTag = :studyTag)
+      AND (:projectStatus IS NULL OR b.projectStatus = :projectStatus)
+      AND (:recruitStack IS NULL OR :recruitStack MEMBER OF b.recruitStacks)
+      AND (:projectStack IS NULL OR :projectStack MEMBER OF b.projectStacks)
+      AND (:platformType IS NULL OR :platformType MEMBER OF b.platformTypes)
+"""
     )
     Page<BoardPreviewProjection> findBoardListWithFiltersOrderByLatest(
             @Param("boardType") BoardType boardType,
@@ -58,35 +51,28 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 
     @Query(
             value = """
-        SELECT b AS board, COUNT(DISTINCT bl.id) AS likeCount
-        FROM Board b
-        JOIN b.member m
-        LEFT JOIN b.recruitStacks rs
-        LEFT JOIN b.projectStacks ps
-        LEFT JOIN b.platformTypes pt
-        LEFT JOIN BoardLike bl ON bl.board = b
-        WHERE (:boardType IS NULL OR b.boardType = :boardType)
-          AND (:studyTag IS NULL OR b.studyTag = :studyTag)
-          AND (:projectStatus IS NULL OR b.projectStatus = :projectStatus)
-          AND (:recruitStack IS NULL OR rs = :recruitStack)
-          AND (:projectStack IS NULL OR ps = :projectStack)
-          AND (:platformType IS NULL OR pt = :platformType)
-        GROUP BY b
-        ORDER BY COUNT(DISTINCT bl.id) DESC, b.createdAt DESC
-    """,
+    SELECT b AS board, COUNT(DISTINCT bl.id) AS likeCount
+    FROM Board b
+    LEFT JOIN BoardLike bl ON bl.board = b
+    WHERE (:boardType IS NULL OR b.boardType = :boardType)
+      AND (:studyTag IS NULL OR b.studyTag = :studyTag)
+      AND (:projectStatus IS NULL OR b.projectStatus = :projectStatus)
+      AND (:recruitStack IS NULL OR :recruitStack MEMBER OF b.recruitStacks)
+      AND (:projectStack IS NULL OR :projectStack MEMBER OF b.projectStacks)
+      AND (:platformType IS NULL OR :platformType MEMBER OF b.platformTypes)
+    GROUP BY b
+    ORDER BY COUNT(DISTINCT bl.id) DESC, b.createdAt DESC
+""",
             countQuery = """
-        SELECT COUNT(DISTINCT b)
-        FROM Board b
-        LEFT JOIN b.recruitStacks rs
-        LEFT JOIN b.projectStacks ps
-        LEFT JOIN b.platformTypes pt
-        WHERE (:boardType IS NULL OR b.boardType = :boardType)
-          AND (:studyTag IS NULL OR b.studyTag = :studyTag)
-          AND (:projectStatus IS NULL OR b.projectStatus = :projectStatus)
-          AND (:recruitStack IS NULL OR rs = :recruitStack)
-          AND (:projectStack IS NULL OR ps = :projectStack)
-          AND (:platformType IS NULL OR pt = :platformType)
-    """
+    SELECT COUNT(DISTINCT b)
+    FROM Board b
+    WHERE (:boardType IS NULL OR b.boardType = :boardType)
+      AND (:studyTag IS NULL OR b.studyTag = :studyTag)
+      AND (:projectStatus IS NULL OR b.projectStatus = :projectStatus)
+      AND (:recruitStack IS NULL OR :recruitStack MEMBER OF b.recruitStacks)
+      AND (:projectStack IS NULL OR :projectStack MEMBER OF b.projectStacks)
+      AND (:platformType IS NULL OR :platformType MEMBER OF b.platformTypes)
+"""
     )
     Page<BoardPreviewProjection> findBoardListWithFiltersOrderByLikeCount(
             @Param("boardType") BoardType boardType,
@@ -100,19 +86,15 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 
     @Query(
             value = """
-    SELECT DISTINCT b AS board, COUNT(DISTINCT bl.id) AS likeCount
+    SELECT b AS board, COUNT(DISTINCT bl.id) AS likeCount
     FROM Board b
-    JOIN b.member m
-    LEFT JOIN b.recruitStacks rs
-    LEFT JOIN b.projectStacks ps
-    LEFT JOIN b.platformTypes pt
     LEFT JOIN BoardLike bl ON bl.board = b
     WHERE b.member.id = :memberId
     GROUP BY b
     ORDER BY b.createdAt DESC
 """,
             countQuery = """
-    SELECT COUNT(DISTINCT b)
+    SELECT COUNT(b)
     FROM Board b
     WHERE b.member.id = :memberId
 """
@@ -130,8 +112,8 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     LEFT JOIN BoardLike bl ON bl.board = b
     WHERE b.boardType = root.git_turl.domain.board.enums.BoardType.PROJECT
       AND (
-          rs IN :techStacks
-          OR ps IN :techStacks
+          rs IN (:techStacks)
+          OR ps IN (:techStacks)
       )
     GROUP BY b
     ORDER BY b.createdAt DESC
