@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 import root.git_turl.domain.answer.dto.AnswerVoiceSavedEvent;
@@ -46,7 +44,13 @@ public class AsyncAnswerService {
         // 답변 피드백 생성
         String prompt = buildPrompt.buildSummaryAndFeedbackPrompt(textAnswer, event.questionContent(), event.questionTime());
         VoiceFeedback response = gptService.makeVoiceFeedback(prompt);
-        String feedbackContent = feedbackJudge.judgeAndGetFeedback(answer, response.getContent());
+        String feedbackContent = feedbackJudge.judgeAndGetFeedback(
+                textAnswer,
+                event.questionContent(),
+                event.questionTime(),
+                response.getContent()
+        );
+        log.info("feedback={}", response.getContent());
 
         // 음성 답변, 피드백 저장
         String keywords = null;
@@ -61,8 +65,7 @@ public class AsyncAnswerService {
                 textAnswer,
                 feedbackContent,
                 response.getAnswerSummary(),
-                keywords,
-                answer
+                keywords
         );
     }
 }
