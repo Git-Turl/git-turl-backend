@@ -189,18 +189,18 @@ public class BuildRetryPrompt {
         return sb.toString();
     }
 
-    public String buildFeedbackRetryPrompt(String content, Question question, String feedback, String reason) {
+    public String buildFeedbackRetryPrompt(String content, String questionContent, int questionTime, String feedback, String reason) {
         StringBuilder sb = new StringBuilder();
 
         sb.append("다음 실패 사유를 참고하여 답변애 대한 피드백을 재생성하여라. 질문: $s, 답변: $s, 피드백: $s, 실패 사유: $s"
-                .formatted(question.getContent(), content, feedback, reason));
+                .formatted(questionContent, content, feedback, reason));
 
         sb.append("개발자 면접 질문에 대한 사용자의 답변을 평가하세요. \n");
         sb.append("질문: ")
-                .append(question.getContent())
+                .append(questionContent)
                 .append("\n");
         sb.append("적당한 응답 시간: ")
-                .append(question.getTime())
+                .append(questionTime)
                 .append("\n");
         sb.append("사용자 응답: ")
                 .append(content)
