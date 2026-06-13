@@ -74,7 +74,7 @@ public class AnswerService {
 
         String prompt = buildPrompt.buildFeedbackPrompt(answer.getContent(), answer.getQuestion());
         Feedback feedback = gptService.makeFeedback(prompt);
-        String feedbackContent = feedbackJudge.judgeAndGetFeedback(answer, feedback.getContent());
+        String feedbackContent = feedbackJudge.judgeAndGetFeedback(answer.getContent(), answer.getQuestion().getContent(), answer.getQuestion().getTime(),  feedback.getContent());
 
         answer.updateFeedback(feedbackContent);
     }

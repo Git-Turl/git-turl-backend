@@ -20,12 +20,12 @@ public class FeedbackJudge {
     private final BuildRetryPrompt buildRetryPrompt;
     private final GptService gptService;
 
-    public String judgeAndGetFeedback(Answer answer, String feedback ) {
+    public String judgeAndGetFeedback(String answerContent, String questionContent, int questionTime, String feedback) {
         String feedbackContent = feedback;
         // LLM-as-a-judge
         String judgePrompt = buildJudgePrompt.buildFeedbackPrompt(
-                answer.getContent(),
-                answer.getQuestion().getContent(),
+                answerContent,
+                questionContent,
                 feedback
         );
         JudgeResult judgeResult = judgeService.evaluate(judgePrompt);
@@ -36,15 +36,16 @@ public class FeedbackJudge {
         if (judgeResult.result() == Result.FAIL) {
             // 실패 시 한 번 더
             String retryPrompt = buildRetryPrompt.buildFeedbackRetryPrompt(
-                    answer.getContent(),
-                    answer.getQuestion(),
+                    answerContent,
+                    questionContent,
+                    questionTime,
                     feedback,
                     judgeResult.reason()
             );
             Feedback retryFeedback = gptService.makeFeedback(retryPrompt);
             String retryJudgePrompt = buildJudgePrompt.buildFeedbackPrompt(
-                    answer.getContent(),
-                    answer.getQuestion().getContent(),
+                    answerContent,
+                    questionContent,
                     retryFeedback.getContent()
             );
             JudgeResult retryJudgeResult = judgeService.evaluate(retryJudgePrompt);
