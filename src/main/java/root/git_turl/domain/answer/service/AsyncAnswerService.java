@@ -50,7 +50,6 @@ public class AsyncAnswerService {
                 event.questionTime(),
                 response.getContent()
         );
-        log.info("feedback={}", response.getContent());
 
         // 음성 답변, 피드백 저장
         String keywords = null;
