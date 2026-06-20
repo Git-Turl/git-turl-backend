@@ -140,20 +140,6 @@ public class BuildPrompt {
         - purpose: 프로젝트 목적을 2~3문장으로 구체적으로 설명.
 
         - stack: diff에서 확인된 실제 기술 스택만 작성. 추측 금지.
-
-        - commitStats: 위 commitContribution 데이터 합산으로 totalCommits 계산.
-                - commitStats:
-                  totalCommits는 반드시 위 totalCommits 값을 그대로 사용한다.
-                  myCommits는 반드시 위 myCommits 값을 그대로 사용한다.
-                  myCommitRate는 반드시 위 myCommitRate 값을 그대로 사용한다.
-                  commitContribution을 이용해 재계산하지 마라.
-                  다른 값으로 변환하지 마라.
-                  퍼센트 값은 이미 계산된 값이다.
-                ""\".formatted(
-                        result.getTotalCommits(),
-                        result.getUserTotalCommits(),
-                        result.getContributionRate()
-                ));
         
         - commitContribution: 위 [commitContribution] 데이터의 키-값을 그대로 복사.
           절대 추측하거나 변형하지 마라.

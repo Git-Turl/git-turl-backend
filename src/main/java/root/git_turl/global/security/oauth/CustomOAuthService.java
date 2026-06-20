@@ -33,12 +33,11 @@ public class CustomOAuthService extends DefaultOAuth2UserService {
         String socialUid = String.valueOf(attributes.get("id"));
         String login = (String) attributes.get("login");
         String profileImage = (String) attributes.get("avatar_url");
-        String email = (String) attributes.get("email");
         String name = (String) attributes.get("name");
 
         return memberRepository.findBySocialUid(socialUid)
                 .map(m -> {
-                    m.updateGithubInfo(login, name, email);
+                    m.updateGithubInfo(login, name);
                     if (m.getStatus().equals(Status.INACTIVATE)) {
                         if (m.getDeletedAt().plusDays(7).isAfter(LocalDateTime.now())) {
                             m.activateMember();
@@ -52,7 +51,6 @@ public class CustomOAuthService extends DefaultOAuth2UserService {
                             .socialUid(socialUid)
                             .githubId(login)
                             .profileImage(profileImage)
-                            .email(email)
                             .githubName(name)
                             .status(Status.ACTIVATE)
                             .build();
