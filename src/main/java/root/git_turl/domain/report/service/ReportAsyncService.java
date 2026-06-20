@@ -15,6 +15,7 @@ import root.git_turl.domain.report.dto.GitAnalysisResult;
 import root.git_turl.domain.report.dto.ProblemList;
 import root.git_turl.domain.report.dto.ReportSavedEvent;
 import root.git_turl.domain.report.dto.commit.GitCommit;
+import root.git_turl.domain.report.dto.reportDetail.CommitStats;
 import root.git_turl.domain.report.dto.reportDetail.ReportWrapper;
 import root.git_turl.domain.report.entity.Report;
 import root.git_turl.domain.report.enums.GenerationStatus;
@@ -73,13 +74,19 @@ public class ReportAsyncService {
             List<GitCommit> userCommits = commits.stream()
                     .filter(c -> c.getAuthorEmail().equals(email) || c.getAuthorEmail().contains(event.githubId()))
                     .toList();
-
             GitAnalysisResult result = gitAnalysisService.analyze(GitRepoParser.getRepoFullName(gitUrl), repoPath, commits, userCommits);
 
             String problemPrompt = buildProblemPrompt.buildReportProblemPrompt(result);
             ProblemList extractedProblems = gptService.makeReportProblem(problemPrompt);
             String prompt = buildPrompt.buildReportPrompt(result, event.githubId(), extractedProblems);
             ReportWrapper content = getContent(prompt);
+            content.getContent().setCommitStats(
+                    new CommitStats(
+                            result.getTotalCommits(),
+                            result.getUserTotalCommits(),
+                            result.getContributionRate()
+                    )
+            );
             String contentJson;
 
             try {

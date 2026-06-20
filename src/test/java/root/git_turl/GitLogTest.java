@@ -58,16 +58,16 @@ public class GitLogTest {
             System.out.println("\ndiffs: ");
             result.getMajorCommits().forEach(System.out::println);
 
-        String prompt = buildPrompt.buildReportPrompt(result, githubName);
-
-        try {
-            Files.writeString(
-                    Path.of("prompt.txt"),
-                    prompt,
-                    StandardCharsets.UTF_8
-            );
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+//        String prompt = buildPrompt.buildReportPrompt(result, githubName);
+//
+//        try {
+//            Files.writeString(
+//                    Path.of("prompt.txt"),
+//                    prompt,
+//                    StandardCharsets.UTF_8
+//            );
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 }
