@@ -59,7 +59,9 @@ public class ReportService {
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new ReportException(ReportErrorCode.REPORT_NOT_FOUND));
 
-        validateOwner(currentMember, report);
+        if (report.getStatus().equals(Status.PRIVATE)) {
+            validateOwner(currentMember, report);
+        }
 
         if (!report.getGenerationStatus().equals(GenerationStatus.DONE)) {
             return null;
