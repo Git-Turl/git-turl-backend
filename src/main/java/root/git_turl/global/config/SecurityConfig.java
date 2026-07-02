@@ -79,8 +79,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // 프론트엔드 주소 허용
-        configuration.addAllowedOrigin("https://localhost:5173");
-        configuration.addAllowedOrigin("http://localhost:5173");
+        configuration.addAllowedOrigin("https://git-turl.vercel.app");
 
         // 허용할 헤더와 메서드
         configuration.addAllowedHeader("*");
