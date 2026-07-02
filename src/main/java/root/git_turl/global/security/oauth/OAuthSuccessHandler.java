@@ -21,6 +21,7 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
+    private static final String BASE_URL = "https://git-turl.vercel.app";
 
     private final TokenService tokenService;
     private final OAuth2AuthorizedClientService clientService;
@@ -62,9 +63,9 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
         CookieUtil.addCookie(response, "refreshToken", refreshToken);
 
         if (oAuthMember.isNew()) {
-            response.sendRedirect("http://localhost:5173/login/loading?route=signup&token=" + accessToken);
+            response.sendRedirect(BASE_URL + "/login/loading?route=signup&token=" + accessToken);
         } else {
-            response.sendRedirect("http://localhost:5173/login/loading?route=home&token=" + accessToken);
+            response.sendRedirect(BASE_URL + "/login/loading?route=home&token=" + accessToken);
         }
     }
 }
