@@ -62,10 +62,21 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
 
         CookieUtil.addCookie(response, "refreshToken", refreshToken);
 
-        if (oAuthMember.isNew()) {
-            response.sendRedirect(BASE_URL + "/login/loading?route=signup&token=" + accessToken);
-        } else {
-            response.sendRedirect(BASE_URL + "/login/loading?route=home&token=" + accessToken);
+        String redirectUri = (String) request.getSession().getAttribute("redirect_uri");
+
+        if (redirectUri != null) {
+            if (oAuthMember.isNew()) {
+                response.sendRedirect(redirectUri + "/login/loading?route=signup&token=" + accessToken);
+            } else {
+                response.sendRedirect(redirectUri + "/login/loading?route=home&token=" + accessToken);
+            }
+        }
+        else {
+            if (oAuthMember.isNew()) {
+                response.sendRedirect(BASE_URL + "/login/loading?route=signup&token=" + accessToken);
+            } else {
+                response.sendRedirect(BASE_URL + "/login/loading?route=home&token=" + accessToken);
+            }
         }
     }
 }
