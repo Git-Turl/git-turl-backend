@@ -2,6 +2,7 @@ package root.git_turl.domain.member.controller;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,8 @@ import root.git_turl.domain.member.service.TokenService;
 import root.git_turl.global.annotation.CurrentUser;
 import root.git_turl.global.apiPayload.ApiResponse;
 
+import java.io.IOException;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
@@ -21,6 +24,18 @@ public class AuthController implements AuthControllerDocs{
 
     private final TokenService tokenService;
     private final MemberService memberService;
+
+    @GetMapping("/login/github")
+    public void githubLogin(
+            @RequestParam("redirect_uri") String redirectUri,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws IOException {
+
+        request.getSession().setAttribute("redirect_uri", redirectUri);
+
+        response.sendRedirect("/oauth2/authorization/github");
+    }
 
     @PostMapping("/reissue")
     public ApiResponse<TokenDto.AccessToken> accessTokenReissue(
