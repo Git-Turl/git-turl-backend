@@ -218,6 +218,25 @@ public class ReportService {
         return ReportConverter.toNewTitle(report);
     }
 
+    @Transactional
+    public void deleteReport(Member currentMember, Long reportId) {
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new ReportException(ReportErrorCode.REPORT_NOT_FOUND));
+        validateOwner(currentMember, report);
+        reportRepository.delete(report);
+    }
+
+    @Transactional
+    public ReportResDto.Bookmark patchBookmark(Member currentMember, Long reportId) {
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new ReportException(ReportErrorCode.REPORT_NOT_FOUND));
+        validateOwner(currentMember, report);
+        report.updateBookmarked();
+        return ReportResDto.Bookmark.builder()
+                .bookmarked(report.isBookmarked())
+                .build();
+    }
+
     private static void validateOwner(Member currentMember, Report report) {
         if (!currentMember.getGithubId().equals(report.getGithubId())) {
             throw new ReportException(ReportErrorCode.NO_AUTH_REPORT);

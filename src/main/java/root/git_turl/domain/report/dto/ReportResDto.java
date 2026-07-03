@@ -37,6 +37,7 @@ public class ReportResDto {
         private Status status;
         private LocalDateTime createdAt;
         private ReportWrapper content;
+        private boolean bookmarked;
     }
 
     @Getter
@@ -63,6 +64,7 @@ public class ReportResDto {
         private String description;
         private LocalDate createdAt;
         private Long questionCount;
+        private boolean bookmarked;
     }
 
     @Getter
@@ -70,5 +72,11 @@ public class ReportResDto {
     public static class NewTitle {
         private String title;
         private LocalDate updatedAt;
+    }
+
+    @Getter
+    @Builder
+    public static class Bookmark {
+        private boolean bookmarked;
     }
 }

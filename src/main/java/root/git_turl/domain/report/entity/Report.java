@@ -50,11 +50,14 @@ public class Report extends BaseEntity {
     @Column(name = "improvements")
     private String improvements;
 
+    @Column(name = "bookmarked", nullable = false)
+    private boolean bookmarked = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(mappedBy = "report")
+    @OneToMany(mappedBy = "report", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Question> questions = new ArrayList<>();
 
     public void updateTitle(String title) { this.title = title; }
@@ -70,4 +73,8 @@ public class Report extends BaseEntity {
     public void updateStatus(Status status) { this.status = status; }
 
     public void updateDescription(String description) { this.description = description; }
+
+    public void updateBookmarked() {
+        this.bookmarked = !this.bookmarked;
+    }
 }

@@ -59,6 +59,7 @@ public class ReportConverter {
                 .createdAt(report.getCreatedAt())
                 .githubId(report.getGithubId())
                 .content(toReportWrapper(report.getContentJson()))
+                .bookmarked(report.isBookmarked())
                 .build();
     }
 
@@ -92,6 +93,7 @@ public class ReportConverter {
                 .description(report.getDescription())
                 .createdAt(report.getCreatedAt().toLocalDate())
                 .questionCount(count)
+                .bookmarked(report.isBookmarked())
                 .build();
     }
 
