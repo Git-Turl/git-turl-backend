@@ -98,4 +98,13 @@ public interface ReportControllerDocs {
             @CurrentUser @Parameter(hidden = true) Member member,
             @RequestParam Long reportId
     );
+
+    @Operation(
+            summary = "분석본 즐겨찾기 수정",
+            description = "즐겨찾기 여부를 수정합니다."
+    )
+    public ApiResponse<ReportResDto.Bookmark> patchBookmark(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @RequestParam Long reportId
+    );
 }

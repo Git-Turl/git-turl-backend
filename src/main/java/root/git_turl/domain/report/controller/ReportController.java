@@ -111,5 +111,11 @@ public class ReportController implements ReportControllerDocs{
         return ApiResponse.onSuccess(ReportSuccessCode.REPORT_DELETE_OK, null);
     }
 
-
+    @PatchMapping("/reports/{reportId}/bookmark")
+    public ApiResponse<ReportResDto.Bookmark> patchBookmark(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @RequestParam Long reportId
+    ) {
+        return ApiResponse.onSuccess(ReportSuccessCode.BOOKMARK_PATCH_OK, reportService.patchBookmark(member, reportId));
+    }
 }

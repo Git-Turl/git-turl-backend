@@ -42,7 +42,11 @@ public enum ReportSuccessCode implements BaseSuccessCode {
 
     REPORT_DELETE_OK(HttpStatus.OK,
             "REPORT200_9",
-            "요약본이 삭제되었습니다.");
+            "요약본이 삭제되었습니다."),
+
+    BOOKMARK_PATCH_OK(HttpStatus.OK,
+            "REPORT200_10",
+            "즐겨찾기가 수정되었습니다.");
 
     private final HttpStatus status;
     private final String code;

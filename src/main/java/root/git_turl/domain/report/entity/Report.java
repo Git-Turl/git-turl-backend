@@ -50,6 +50,9 @@ public class Report extends BaseEntity {
     @Column(name = "improvements")
     private String improvements;
 
+    @Column(name = "bookmarked", nullable = false)
+    private boolean bookmarked = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
@@ -70,4 +73,8 @@ public class Report extends BaseEntity {
     public void updateStatus(Status status) { this.status = status; }
 
     public void updateDescription(String description) { this.description = description; }
+
+    public void updateBookmarked() {
+        this.bookmarked = !this.bookmarked;
+    }
 }
