@@ -122,6 +122,8 @@ public class BoardResDto {
 
         private Long likeCount;
 
+        private Long commentCount;
+
         private LocalDateTime createdAt;
     }
 
