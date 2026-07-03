@@ -38,7 +38,11 @@ public enum ReportSuccessCode implements BaseSuccessCode {
 
     NO_REPORT_FOUND(HttpStatus.OK,
             "REPORT200_8",
-            "해당 조건의 요약본이 존재하지 않습니다.");
+            "해당 조건의 요약본이 존재하지 않습니다."),
+
+    REPORT_DELETE_OK(HttpStatus.OK,
+            "REPORT200_9",
+            "요약본이 삭제되었습니다.");
 
     private final HttpStatus status;
     private final String code;

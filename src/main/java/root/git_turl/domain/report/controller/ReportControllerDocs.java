@@ -89,4 +89,13 @@ public interface ReportControllerDocs {
             @Valid @RequestBody ReportReqDto.NewTitle dto,
             @RequestParam Long reportId
     );
+
+    @Operation(
+            summary = "분석본 삭제",
+            description = "해당 id의 분석본과 연관된 질문, 답변들을 삭제합니다."
+    )
+    public ApiResponse<Void> deleteReportTitle(
+            @CurrentUser @Parameter(hidden = true) Member member,
+            @RequestParam Long reportId
+    );
 }
