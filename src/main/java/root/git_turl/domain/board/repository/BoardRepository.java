@@ -16,9 +16,12 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 
     @Query(
             value = """
-    SELECT b AS board, COUNT(DISTINCT bl.id) AS likeCount
+    SELECT b AS board,
+      COUNT(DISTINCT bl.id) AS likeCount,
+      COUNT(DISTINCT c.id) AS commentCount
     FROM Board b
     LEFT JOIN BoardLike bl ON bl.board = b
+    LEFT JOIN Comment c ON c.board = b AND c.deletedAt IS NULL
     WHERE (:boardType IS NULL OR b.boardType = :boardType)
       AND (:studyTag IS NULL OR b.studyTag = :studyTag)
       AND (:projectStatus IS NULL OR b.projectStatus = :projectStatus)
@@ -51,9 +54,12 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 
     @Query(
             value = """
-    SELECT b AS board, COUNT(DISTINCT bl.id) AS likeCount
+    SELECT b AS board,
+      COUNT(DISTINCT bl.id) AS likeCount,
+      COUNT(DISTINCT c.id) AS commentCount
     FROM Board b
     LEFT JOIN BoardLike bl ON bl.board = b
+    LEFT JOIN Comment c ON c.board = b AND c.deletedAt IS NULL
     WHERE (:boardType IS NULL OR b.boardType = :boardType)
       AND (:studyTag IS NULL OR b.studyTag = :studyTag)
       AND (:projectStatus IS NULL OR b.projectStatus = :projectStatus)
@@ -86,9 +92,12 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 
     @Query(
             value = """
-    SELECT b AS board, COUNT(DISTINCT bl.id) AS likeCount
+    SELECT b AS board,
+      COUNT(DISTINCT bl.id) AS likeCount,
+      COUNT(DISTINCT c.id) AS commentCount
     FROM Board b
     LEFT JOIN BoardLike bl ON bl.board = b
+    LEFT JOIN Comment c ON c.board = b AND c.deletedAt IS NULL
     WHERE b.member.id = :memberId
     GROUP BY b
     ORDER BY b.createdAt DESC
@@ -118,7 +127,7 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     GROUP BY b
     ORDER BY b.createdAt DESC
 """)
-    List<BoardPreviewProjection> findRecommendedProjectsByTechStacks(
+    List<BoardRecommendProjection> findRecommendedProjectsByTechStacks(
             @Param("techStacks") List<TechStack> techStacks,
             Pageable pageable
     );
@@ -131,5 +140,5 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     GROUP BY b
     ORDER BY FUNCTION('RAND')
 """)
-    List<BoardPreviewProjection> findRandomProjects(Pageable pageable);
+    List<BoardRecommendProjection> findRandomProjects(Pageable pageable);
 }
