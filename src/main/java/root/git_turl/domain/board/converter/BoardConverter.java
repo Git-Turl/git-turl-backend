@@ -107,7 +107,8 @@ public class BoardConverter {
 
     public static BoardResDto.BoardPreviewDto toBoardPreviewDto(
             Board board,
-            Long likeCount
+            Long likeCount,
+            Long commentCount
     ) {
         return BoardResDto.BoardPreviewDto.builder()
                 .boardId(board.getId())
@@ -132,6 +133,7 @@ public class BoardConverter {
 
                 .writerName(board.getMember().getNickname())
                 .likeCount(likeCount)
+                .commentCount(commentCount)
                 .createdAt(board.getCreatedAt())
                 .build();
     }
@@ -142,7 +144,8 @@ public class BoardConverter {
         List<BoardResDto.BoardPreviewDto> boardList = boardPage.stream()
                 .map(p -> toBoardPreviewDto(
                         p.getBoard(),
-                        p.getLikeCount()
+                        p.getLikeCount(),
+                        p.getCommentCount()
                 ))
                 .toList();
 

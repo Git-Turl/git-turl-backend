@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import root.git_turl.domain.board.converter.BoardConverter;
 import root.git_turl.domain.board.dto.BoardResDto;
 import root.git_turl.domain.board.enums.TechStack;
-import root.git_turl.domain.board.repository.BoardPreviewProjection;
+import root.git_turl.domain.board.repository.BoardRecommendProjection;
 import root.git_turl.domain.board.repository.BoardRepository;
 import root.git_turl.domain.board.repository.BoardRecommendInterestStackRepository;
 import root.git_turl.domain.member.entity.InterestStack;
@@ -37,7 +37,7 @@ public class BoardRecommendService {
                         .distinct()
                         .toList();
 
-        List<BoardPreviewProjection> boards;
+        List<BoardRecommendProjection> boards;
 
         if (matchedStacks.isEmpty()) {
             boards = boardRepository.findRandomProjects(pageRequest);
