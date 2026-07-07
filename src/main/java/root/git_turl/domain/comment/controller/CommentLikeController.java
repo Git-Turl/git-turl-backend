@@ -7,7 +7,6 @@ import root.git_turl.domain.comment.code.CommentSuccessCode;
 import root.git_turl.domain.comment.dto.CommentResDto;
 import root.git_turl.domain.comment.service.CommentLikeCommandService;
 import root.git_turl.domain.member.entity.Member;
-import root.git_turl.domain.member.repository.MemberRepository;
 import root.git_turl.global.annotation.CurrentUser;
 import root.git_turl.global.apiPayload.ApiResponse;
 
@@ -20,7 +19,7 @@ public class CommentLikeController implements CommentLikeControllerDocs {
     private final CommentLikeCommandService commentLikeCommandService;
 
 
-    @PostMapping("/{commentId}/likes")
+    @PostMapping("/comments/{commentId}/likes")
     public ApiResponse<CommentResDto.CommentLikeResultDto> likeComment(
             @CurrentUser Member member,
             @PathVariable Long commentId
@@ -35,7 +34,7 @@ public class CommentLikeController implements CommentLikeControllerDocs {
         );
     }
 
-    @DeleteMapping("/{commentId}/likes")
+    @DeleteMapping("/comments/{commentId}/likes")
     public ApiResponse<CommentResDto.CommentLikeResultDto> unlikeComment(
             @CurrentUser Member member,
             @PathVariable Long commentId
