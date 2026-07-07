@@ -3,6 +3,7 @@ package root.git_turl.infrastructure.openai;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
@@ -21,10 +22,14 @@ import root.git_turl.domain.report.dto.gpt.GptRequest;
 import root.git_turl.domain.report.dto.gpt.GptResponse;
 import root.git_turl.domain.report.dto.reportDetail.ReportWrapper;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GptService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
@@ -74,10 +79,26 @@ public class GptService {
                         GptResponse.class
                 );
 
-        String json = response.getBody().getChoices().get(0).getMessage().getContent();
+        String json = response.getBody().getChoices().get(0).getMessage().getContent().trim();
+        if (json.startsWith("```")) {
+            json = json.replaceFirst("^```(?:json)?\\s*", "");
+            json = json.replaceFirst("\\s*```$", "");
+        }
+
         try {
+            objectMapper.readTree(json);  // JSON 문법 검사
             return objectMapper.readValue(json, classType);
         } catch (JsonProcessingException e) {
+            try {
+                Files.writeString(
+                        Path.of("failed-json-" + System.currentTimeMillis() + ".json"),
+                        json
+                );
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+
+            log.error("JSON parse failed", e);
             throw new RuntimeException("GPT 응답 파싱 실패: " + json, e);
         }
     }
