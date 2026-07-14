@@ -63,6 +63,10 @@ public class ReportService {
             validateOwner(currentMember, report);
         }
 
+        if (report.getGenerationStatus().equals(GenerationStatus.FAIL)) {
+            throw new ReportException(ReportErrorCode.REPORT_GENERATION_FAIL);
+        }
+
         if (!report.getGenerationStatus().equals(GenerationStatus.DONE)) {
             return null;
         }
