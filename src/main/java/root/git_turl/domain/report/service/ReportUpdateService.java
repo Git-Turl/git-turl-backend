@@ -41,4 +41,11 @@ public class ReportUpdateService {
 
         report.updateGenerationStatus(GenerationStatus.FAIL);
     }
+
+    @Transactional
+    public void updateGenerationStatus(Long reportId, GenerationStatus status) {
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow();
+        report.updateGenerationStatus(GenerationStatus.FAIL);
+    }
 }

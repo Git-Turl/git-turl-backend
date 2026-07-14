@@ -65,20 +65,31 @@ public class ReportAsyncService {
         );
         String email = event.email();
         String gitUrl = GitRepoParser.getRepoLink(event.dto().getFullName());
+        log.info("1. clone 시작");
         String repoPath = gitCloneService.cloneRepository(gitUrl);
-        Report report = reportRepository.findById(event.reportId())
-                .orElseThrow();
+        log.info("1. clone 완료");
 
         try {
+            log.info("2. git log 시작");
             List<GitCommit> commits = gitLogParser.getCommits(repoPath);
+            log.info("2. git log 완료");
             List<GitCommit> userCommits = commits.stream()
                     .filter(c -> c.getAuthorEmail().equals(email) || c.getAuthorEmail().contains(event.githubId()))
                     .toList();
+            log.info("3. analyze 시작");
             GitAnalysisResult result = gitAnalysisService.analyze(GitRepoParser.getRepoFullName(gitUrl), repoPath, commits, userCommits);
+            log.info("3. analyze 완료");
 
             String problemPrompt = buildProblemPrompt.buildReportProblemPrompt(result);
+
+            log.info("4. 문제 추출 시작");
             ProblemList extractedProblems = gptService.makeReportProblem(problemPrompt);
+            log.info("4. 문제 추출 완료");
+
+            log.info("5. GPT 분석 시작");
             String prompt = buildPrompt.buildReportPrompt(result, event.githubId(), extractedProblems);
+            log.info("5. GPT 분석 완료");
+
             ReportWrapper content = getContent(prompt);
             content.getContent().setCommitStats(
                     new CommitStats(
@@ -91,8 +102,12 @@ public class ReportAsyncService {
 
             try {
                 contentJson = objectMapper.writeValueAsString(content);
+
+                log.info("6. LLM 분석 프롬프트 생성");
                 // LLM-as-a-Judge
                 String judgePrompt = buildJudgePrompt.buildReportJudgePrompt(result, contentJson);
+                log.info("judgeprompt={}", judgePrompt);
+                log.info("7. Judge 시작");
                 JudgeResult judgeResult = judgeService.evaluate(judgePrompt);
                 log.info("분석 요약본: {}",contentJson);
                 log.info("평가 점수: {}",judgeResult.score());
@@ -101,6 +116,7 @@ public class ReportAsyncService {
 
                 // 실패 시 한 번 더 시도
                 if (judgeResult.result().equals(Result.FAIL)) {
+                    log.info("7-2. GPT 분석 재시도");
                     String retryPrompt = buildRetryPrompt.buildReportRetryPrompt(
                             result,
                             event.githubId(),
@@ -118,7 +134,10 @@ public class ReportAsyncService {
                     log.info("평가 이유: {}",retryResult.reason());
 
                     if (retryResult.result() == Result.FAIL) {
-                        report.updateGenerationStatus(GenerationStatus.FAIL);
+                        reportUpdateService.updateGenerationStatus(
+                                event.reportId(),
+                                GenerationStatus.FAIL
+                        );
                         throw new ReportException(ReportErrorCode.REPORT_GENERATION_FAIL);
                     }
 
@@ -138,8 +157,11 @@ public class ReportAsyncService {
                 throw new RuntimeException("JSON 변환 실패", e);
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
-            report.updateGenerationStatus(GenerationStatus.FAIL);
+            log.error("리포트 생성 실패", e);
+            reportUpdateService.updateGenerationStatus(
+                    event.reportId(),
+                    GenerationStatus.FAIL
+            );
         }
     }
 
