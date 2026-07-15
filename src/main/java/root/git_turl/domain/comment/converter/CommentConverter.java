@@ -67,9 +67,20 @@ public class CommentConverter {
         boolean isDeleted = comment.getDeletedAt() != null;
 
         boolean canReadSecretComment =
+                // 공개 댓글이면 누구나 조회 가능
                 !comment.getIsSecret()
+
+                        // 비밀댓글 작성자는 자신의 댓글 조회 가능
                         || comment.getMember().getId().equals(currentMember.getId())
-                        || comment.getBoard().getMember().getId().equals(currentMember.getId());
+
+                        // 게시글 작성자는 모든 비밀댓글 조회 가능
+                        || comment.getBoard().getMember().getId().equals(currentMember.getId())
+
+                        // 비밀 대댓글의 부모(원댓글) 작성자는 해당 비밀 대댓글 조회 가능
+                        || (
+                        comment.getParent() != null
+                                && comment.getParent().getMember().getId().equals(currentMember.getId())
+                );
 
         return CommentResDto.CommentPreviewDto.builder()
                 .commentId(comment.getId())
