@@ -46,6 +46,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
         b.title AS boardTitle,
         b.boardType AS boardType,
         c.content AS content,
+        c.isSecret AS isSecret,
         COUNT(DISTINCT cl.id) AS likeCount,
         c.createdAt AS createdAt
     FROM Comment c
@@ -53,7 +54,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     LEFT JOIN CommentLike cl ON cl.comment = c
     WHERE c.member.id = :memberId
       AND c.deletedAt IS NULL
-    GROUP BY c.id, b.id, b.title, b.boardType, c.content, c.createdAt
+    GROUP BY c.id, b.id, b.title, b.boardType, c.content, c.isSecret, c.createdAt
     ORDER BY c.createdAt DESC
 """,
             countQuery = """
