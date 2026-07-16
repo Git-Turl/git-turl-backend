@@ -10,6 +10,10 @@ public interface MyCommentProjection {
     String getBoardTitle();
     BoardType getBoardType();
     String getContent();
+
+    // 비밀댓글 여부
+    Boolean getIsSecret();
+
     Long getLikeCount();
     LocalDateTime getCreatedAt();
 }

@@ -68,7 +68,7 @@ public class CommentConverter {
 
         boolean canReadSecretComment =
                 // 공개 댓글이면 누구나 조회 가능
-                !comment.getIsSecret()
+                !Boolean.TRUE.equals(comment.getIsSecret())
 
                         // 비밀댓글 작성자는 자신의 댓글 조회 가능
                         || comment.getMember().getId().equals(currentMember.getId())
@@ -137,24 +137,33 @@ public class CommentConverter {
     }
 
     public static CommentResDto.MyCommentPreviewDto toMyCommentPreviewDto(
-            MyCommentProjection projection
+            MyCommentProjection projection,
+            boolean isMyComments
     ) {
         return CommentResDto.MyCommentPreviewDto.builder()
                 .commentId(projection.getCommentId())
                 .boardId(projection.getBoardId())
                 .boardTitle(projection.getBoardTitle())
                 .boardType(projection.getBoardType())
-                .content(projection.getContent())
+                .content(
+                        // 내 댓글 목록이거나 공개 댓글이면 실제 내용 표시
+                        isMyComments || !Boolean.TRUE.equals(projection.getIsSecret())
+                                ? projection.getContent()
+                                : "비밀 댓글입니다."
+                )
                 .likeCount(projection.getLikeCount())
                 .createdAt(projection.getCreatedAt())
                 .build();
     }
 
     public static CommentResDto.MyCommentPreviewListDto toMyCommentPreviewListDto(
-            Page<MyCommentProjection> commentPage
+            Page<MyCommentProjection> commentPage,
+            boolean isMyComments
     ) {
         List<CommentResDto.MyCommentPreviewDto> commentList = commentPage.stream()
-                .map(CommentConverter::toMyCommentPreviewDto)
+                .map(projection ->
+                        toMyCommentPreviewDto(projection, isMyComments)
+                )
                 .toList();
 
         return CommentResDto.MyCommentPreviewListDto.builder()
