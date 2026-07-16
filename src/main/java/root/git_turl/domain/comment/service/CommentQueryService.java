@@ -60,11 +60,19 @@ public class CommentQueryService {
                         PageRequest.of(page, 10)
                 );
 
-        return CommentConverter.toMyCommentPreviewListDto(commentPage);
+        // 타 유저 댓글 조회이므로 비밀댓글 내용 가림
+        return CommentConverter.toMyCommentPreviewListDto(commentPage, false);
     }
 
     @Transactional(readOnly = true)
     public CommentResDto.MyCommentPreviewListDto getMyComments(Member member, Integer page) {
-        return getMemberComments(member.getId(), page);
+        Page<MyCommentProjection> commentPage =
+                commentRepository.findCommentsByMemberId(
+                        member.getId(),
+                        PageRequest.of(page, 10)
+                );
+
+        // 내 댓글 조회이므로 비밀댓글 실제 내용 표시
+        return CommentConverter.toMyCommentPreviewListDto(commentPage, true);
     }
 }
