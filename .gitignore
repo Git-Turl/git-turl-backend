@@ -39,3 +39,4 @@ out/
 .env
 git-turl.pem
 prompt.txt
+application-test.yml
