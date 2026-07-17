@@ -27,7 +27,13 @@ public enum ReportErrorCode implements BaseErrorCode {
 
     REPORT_GENERATION_FAIL(HttpStatus.INTERNAL_SERVER_ERROR,
             "REPORT500_2",
-            "정확도가 낮아 요약본을 생성에 실패했습니다.");
+            "정확도가 낮아 요약본을 생성에 실패했습니다."),
+
+    OPENAI_RATE_LIMIT(
+            HttpStatus.TOO_MANY_REQUESTS,
+            "REPORT429_1",
+            "현재 요청이 많아 일시적으로 리포트를 생성할 수 없습니다. 잠시 후 다시 시도해주세요."
+    );
 
     private final HttpStatus status;
     private final String code;
