@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.springframework.context.ApplicationEventPublisher;
 import root.git_turl.domain.board.entity.Board;
 import root.git_turl.domain.comment.entity.Comment;
 import root.git_turl.domain.member.entity.Member;
@@ -16,13 +17,13 @@ import root.git_turl.domain.notification.enums.NotificationTargetType;
 import root.git_turl.domain.notification.exception.NotificationException;
 import root.git_turl.domain.notification.repository.EmitterRepository;
 import root.git_turl.domain.notification.repository.NotificationRepository;
+import root.git_turl.domain.notification.event.NotificationCreatedEvent;
 
 import java.io.IOException;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class NotificationService {
 
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
@@ -31,6 +32,7 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationConverter notificationConverter;
     private final NotificationSettingService notificationSettingService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public SseEmitter subscribe(Long memberId, String lastEventId) {
         String emitterId = makeEmitterId(memberId);
@@ -70,7 +72,7 @@ public class NotificationService {
                 comment.getContent()
         );
 
-        send(receiver.getId(), notification);
+        publishNotification(receiver.getId(), notification);
     }
 
     @Transactional
@@ -90,7 +92,7 @@ public class NotificationService {
                     replyComment.getContent()
             );
 
-            send(parentCommentWriter.getId(), notification);
+            publishNotification(parentCommentWriter.getId(), notification);
         }
 
         if (!actor.getId().equals(boardWriter.getId())
@@ -106,7 +108,7 @@ public class NotificationService {
                     replyComment.getContent()
             );
 
-            send(boardWriter.getId(), notification);
+            publishNotification(boardWriter.getId(), notification);
         }
     }
 
@@ -132,25 +134,32 @@ public class NotificationService {
         return notificationRepository.save(notification);
     }
 
-    private void send(Long receiverId, Notification notification) {
-        String emitterId = makeEmitterId(receiverId);
+    private void publishNotification(
+            Long receiverId,
+            Notification notification
+    ) {
+        NotificationResDto response =
+                notificationConverter.toNotificationResDto(notification);
 
-        emitterRepository.findById(emitterId)
-                .ifPresent(emitter -> sendToClient(
-                        emitter,
-                        emitterId,
-                        "notification",
-                        notificationConverter.toNotificationResDto(notification)
-                ));
+        eventPublisher.publishEvent(
+                new NotificationCreatedEvent(receiverId, response)
+        );
     }
 
-    private void sendToClient(SseEmitter emitter, String emitterId, String eventName, Object data) {
+    private void sendToClient(
+            SseEmitter emitter,
+            String emitterId,
+            String eventName,
+            Object data
+    ) {
         try {
-            emitter.send(SseEmitter.event()
-                    .id(emitterId)
-                    .name(eventName)
-                    .data(data));
-        } catch (IOException e) {
+            emitter.send(
+                    SseEmitter.event()
+                            .id(emitterId)
+                            .name(eventName)
+                            .data(data)
+            );
+        } catch (IOException | IllegalStateException e) {
             emitterRepository.deleteById(emitterId);
         }
     }
