@@ -1,8 +1,12 @@
 package root.git_turl.global.util.prompt;
 
 import org.springframework.stereotype.Component;
+import root.git_turl.domain.question.entity.Question;
 import root.git_turl.domain.report.dto.GitAnalysisResult;
-import root.git_turl.domain.report.dto.RepresentativeFile;
+import root.git_turl.domain.report.dto.commit.MajorCommit;
+import root.git_turl.global.util.parser.DiffStructureParser;
+
+import java.util.List;
 
 @Component
 public class BuildJudgePrompt {
@@ -121,26 +125,40 @@ public class BuildJudgePrompt {
 
         sb.append("다음은 개발자의 Git 활동 데이터와 이를 바탕으로 생성한 요약본이다.\n\n");
 
-        sb.append("[서비스 개요]\n").append(result.getReadmeSummary()).append("\n\n");
-
-        sb.append("[프로젝트 대표 파일] (purpose/stack/features 검증 근거)\n\n");
-        for (RepresentativeFile f : result.getProjectRepresentativeFiles()) {
-            sb.append("--- 파일: ").append(f.filePath())
-                    .append(" (커밋 ").append(f.commitCount()).append("회, 누적 변경 ")
-                    .append(f.changedLines()).append("줄")
-                    .append(f.truncated() ? ", 내용 일부 생략됨" : "")
-                    .append(") ---\n");
-            sb.append(f.content()).append("\n\n");
+        sb.append("\n주요 커밋\n");
+        for (MajorCommit mc : result.getMajorCommits()) {
+            sb.append("- ").append(mc.getMessage()).append("\n");
+            sb.append("  diff:\n");
+            sb.append(mc.getDiff()).append("\n\n");
         }
 
-        sb.append("[유저 기여 파일] (improvements 검증 근거 - 이 파일에 없는 내용을 인용했다면 근거 부족으로 감점하라)\n\n");
-        for (RepresentativeFile f : result.getUserRepresentativeFiles()) {
-            sb.append("--- 파일: ").append(f.filePath())
-                    .append(" (해당 유저 커밋 ").append(f.commitCount()).append("회, 해당 유저 변경 ")
-                    .append(f.changedLines()).append("줄")
-                    .append(f.truncated() ? ", 내용 일부 생략됨" : "")
-                    .append(") ---\n");
-            sb.append(f.content()).append("\n\n");
+        // diff 반영
+        sb.append("\n[diff summary]\n");
+
+        for (DiffStructureParser.DiffSummary summary : result.getSummaryList()) {
+            sb.append("- 변경 파일 수: ")
+                    .append(summary.getFileCount())
+                    .append("\n");
+
+            sb.append("  추가 라인: ")
+                    .append(summary.getAddedLines())
+                    .append("\n");
+
+            sb.append("  삭제 라인: ")
+                    .append(summary.getDeletedLines())
+                    .append("\n");
+
+            for (DiffStructureParser.ChangedFile file : summary.getChangedFiles()) {
+                sb.append("    * ")
+                        .append(file.getFileName())
+                        .append(" (+")
+                        .append(file.getAddedLines())
+                        .append(", -")
+                        .append(file.getDeletedLines())
+                        .append(")\n");
+            }
+
+            sb.append("\n");
         }
 
         sb.append("생성된 리포트 내용: %s".formatted(contentJson));
@@ -157,8 +175,6 @@ public class BuildJudgePrompt {
                 "6. 숫자는 숫자 타입으로 작성 (따옴표 금지).\n" +
                 "7. JSON 문법 오류 발생 시 실패로 간주한다.\n" +
                 "8. 추측성 말투를 쓰지 말것.\n" +
-                "9. improvements의 currentStatus/example에 언급된 파일이 [유저 기여 파일] 목록에 실제로 존재하는지 반드시 대조하라.\n" +
-                "   존재하지 않는 파일을 근거로 들었다면 A 항목(-2점/개)으로 감점하라.\n" +
                 "\n" +
                 "---\n" +
                 "\n" +

@@ -4,8 +4,9 @@ import org.springframework.stereotype.Component;
 import root.git_turl.domain.question.entity.Question;
 import root.git_turl.domain.report.dto.GitAnalysisResult;
 import root.git_turl.domain.report.dto.ProblemList;
-import root.git_turl.domain.report.dto.RepresentativeFile;
+import root.git_turl.domain.report.dto.commit.MajorCommit;
 import root.git_turl.domain.report.entity.Report;
+import root.git_turl.global.util.parser.DiffStructureParser;
 
 @Component
 public class BuildPrompt {
@@ -29,11 +30,12 @@ public class BuildPrompt {
                         .append("  evidence: ").append(p.getEvidence()).append("\n\n")
         );
 
-
         // 1. 데이터 섹션
         sb.append("다음은 한 개발자의 Git 활동 데이터입니다.\n\n");
 
-        sb.append("[서비스 개요]\n").append(result.getReadmeSummary()).append("\n\n");
+        sb.append("[서비스 개요]\n").append(result.getReadmeSummary());
+
+        sb.append("[전체 커밋 메시지]\n").append(result.getAllCommitMessages());
 
         sb.append("[commitContribution](분석 대상 유저 아이디: ").append(userId).append(")\n");
         sb.append("{\n");
@@ -46,34 +48,25 @@ public class BuildPrompt {
         }
         sb.append("}\n\n");
 
-        // 1-1. 프로젝트 전체 파악용 대표 파일 (작성자 무관, churn/구조 기준 선정)
-        sb.append("[프로젝트 대표 파일] (아래 파일들은 프로젝트 전체의 구조와 목적을 파악하기 위한 자료이다. ")
-                .append("purpose, stack, features 작성 시 이 자료를 근거로 사용하라.)\n\n");
-        for (RepresentativeFile f : result.getProjectRepresentativeFiles()) {
-            sb.append("--- 파일: ").append(f.filePath())
-                    .append(" (커밋 ").append(f.commitCount()).append("회, 누적 변경 ")
-                    .append(f.changedLines()).append("줄")
-                    .append(f.truncated() ? ", 내용 일부 생략됨" : "")
-                    .append(") ---\n");
-            sb.append(f.content()).append("\n\n");
+        sb.append("\n주요 커밋\n");
+        for (MajorCommit mc : result.getMajorCommits()) {
+            sb.append("- ").append(mc.getMessage()).append("\n");
+            sb.append("  diff:\n");
+            sb.append(mc.getDiff()).append("\n\n");
         }
 
-        // 1-2. 유저 기여 파악용 대표 파일 (해당 유저가 주로 작성/수정한 파일)
-        sb.append("[유저 기여 파일] (아래 파일들은 분석 대상 유저(").append(userId)
-                .append(")가 실제로 작성/수정한 비중이 높은 파일이다. improvements 작성 시 이 자료만을 근거로 사용하라.)\n\n");
-        for (RepresentativeFile f : result.getUserRepresentativeFiles()) {
-            sb.append("--- 파일: ").append(f.filePath())
-                    .append(" (해당 유저 커밋 ").append(f.commitCount()).append("회, 해당 유저 변경 ")
-                    .append(f.changedLines()).append("줄")
-                    .append(f.truncated() ? ", 내용 일부 생략됨" : "")
-                    .append(") ---\n");
-            sb.append(f.content()).append("\n\n");
+        sb.append("\n[diff summary]\n");
+        for (DiffStructureParser.DiffSummary summary : result.getSummaryList()) {
+            sb.append("- 변경 파일 수: ").append(summary.getFileCount()).append("\n");
+            sb.append("  추가 라인: ").append(summary.getAddedLines()).append("\n");
+            sb.append("  삭제 라인: ").append(summary.getDeletedLines()).append("\n");
+            for (DiffStructureParser.ChangedFile file : summary.getChangedFiles()) {
+                sb.append("    * ").append(file.getFileName())
+                        .append(" (+").append(file.getAddedLines())
+                        .append(", -").append(file.getDeletedLines()).append(")\n");
+            }
+            sb.append("\n");
         }
-
-        // 1-3. 커밋 메시지 샘플 (보조 컨텍스트 - 유저 작업 흐름 파악용)
-        sb.append("[유저 커밋 메시지 샘플] (참고용, 위 파일 분석의 보조 근거로만 사용)\n");
-        result.getSampleMessages().forEach(m -> sb.append("- ").append(m).append("\n"));
-        sb.append("\n");
 
         // 2. 지시 섹션
         sb.append("""
@@ -107,6 +100,7 @@ public class BuildPrompt {
                 .append("      \"myCommits\": 0,\n")
                 .append("      \"myCommitRate\": 0.0\n")
                 .append("    },\n")
+                // commitContribution: 실제 데이터에서 키를 그대로 복사하도록 안내
                 .append("    \"commitContribution\": {\n")
                 .append("      \"유저아이디_예시\": 0\n")
                 .append("    },\n")
@@ -143,31 +137,27 @@ public class BuildPrompt {
         sb.append("""
         [작성 가이드]
 
-        - purpose: [프로젝트 대표 파일]과 [서비스 개요]를 근거로 프로젝트 목적을 2~3문장으로 구체적으로 설명.
-                   특정 유저의 커밋이 아니라 프로젝트 전체 관점에서 작성하라.
+        - purpose: 프로젝트 목적을 2~3문장으로 구체적으로 설명.
 
-        - stack: [프로젝트 대표 파일]의 코드(import문, 어노테이션, 설정 파일 등)에서 확인된
-                 실제 기술 스택만 작성. 추측 금지.
+        - stack: diff에서 확인된 실제 기술 스택만 작성. 추측 금지.
         
         - commitContribution: 위 [commitContribution] 데이터의 키-값을 그대로 복사.
           절대 추측하거나 변형하지 마라.
 
-        - scale: [commitStats]와 파일 통계 기준 파일 수와 커밋 수를 수치로 작성.
+        - scale: diff summary 기준 파일 수와 커밋 수를 수치로 작성.
         
         - reports: 분석 내역을 텍스트로 작성, 최소 4문장 이상 구체적으로
 
-        - features: 5개 기능을 [프로젝트 대표 파일]에서 확인된 실제 파일과 코드 기반으로 작성.
-          각 content는 2문장 이상. 특정 유저의 기여가 아닌 프로젝트 전체의 기능을 다룬다.
+        - features: 5개 기능을 diff에서 확인된 실제 파일 기반으로 작성.
+          각 content는 2문장 이상.
 
-        - improvements: 3개 이상 작성. 반드시 [유저 기여 파일]에 포함된 파일만을 근거로 작성하라.
-          [유저 기여 파일]에 없는 파일을 인용하지 마라.
-          아래 기준 필수 준수.
+        - improvements: 3개 이상 작성. 아래 기준 필수 준수.
           ❌ FAIL 처리 (6점 이하): "테스트 코드 부족", "가독성 향상", "예외 처리 필요" 같은 일반론
           ✅ PASS 기준 (7점 이상): 이 프로젝트 고유의 비즈니스 도메인과 연계한 구체적 분석
           
           각 필드 기준:
-          · currentStatus: [유저 기여 파일]에 등장한 실제 파일명·클래스명·메서드명을 반드시 인용.
-                           현재 어떤 구조적 문제가 있는지 2문장 이상. 코드 내용을 근거로 제시하라.
+          · currentStatus: diff/커밋에 등장한 실제 파일명·클래스명·메서드명을 반드시 인용.
+                           현재 어떤 구조적 문제가 있는지 2문장 이상.
           · example: 해당 문제가 실제로 어떤 흐름에서 발생하는지 구체적 시나리오 기술.
           · actionPlan: 1단계/2단계/3단계로 코드 또는 아키텍처 레벨의 해결 계획 제시.
 
@@ -181,10 +171,9 @@ public class BuildPrompt {
                        3단계: rate limit 임박 시 사전 경고 로직 추가"
 
         [자가검증 - 출력 전 반드시 확인]
-        □ improvements 각 항목에 [유저 기여 파일]에 실제 존재하는 파일명/클래스명이 포함되었는가?
+        □ improvements 각 항목에 실제 파일명/클래스명이 포함되었는가?
         □ improvements 각 항목에 example과 actionPlan이 있는가?
         □ 일반론("테스트 부족", "가독성" 등)만 있지 않은가?
-        □ features가 [프로젝트 대표 파일] 기준으로 작성되어 특정 유저 편향이 없는가?
         □ reports가 5개 항목을 각각 200자 이상 포함하는가?
         □ trailing comma가 없는가?
         위 항목 중 하나라도 NO이면 해당 항목을 재작성 후 출력하라.
