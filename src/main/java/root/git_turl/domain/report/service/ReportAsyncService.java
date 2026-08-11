@@ -2,6 +2,7 @@ package root.git_turl.domain.report.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jdk.jfr.Event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -18,6 +19,7 @@ import root.git_turl.domain.report.dto.commit.GitCommit;
 import root.git_turl.domain.report.dto.reportDetail.CommitStats;
 import root.git_turl.domain.report.dto.reportDetail.ReportWrapper;
 import root.git_turl.domain.report.entity.Report;
+import root.git_turl.domain.report.enums.ErrorType;
 import root.git_turl.domain.report.enums.GenerationStatus;
 import root.git_turl.domain.report.exception.ReportException;
 import root.git_turl.domain.report.repository.ReportRepository;
@@ -90,7 +92,7 @@ public class ReportAsyncService {
             String prompt = buildPrompt.buildReportPrompt(result, event.githubId(), extractedProblems);
             log.info("5. GPT 분석 완료");
 
-            ReportWrapper content = getContent(prompt);
+            ReportWrapper content = getContent(prompt, event.reportId());
             content.getContent().setCommitStats(
                     new CommitStats(
                             result.getTotalCommits(),
@@ -123,7 +125,7 @@ public class ReportAsyncService {
                             judgeResult.score(),
                             judgeResult.reason()
                     );
-                    ReportWrapper retryContent = getContent(retryPrompt);
+                    ReportWrapper retryContent = getContent(retryPrompt, event.reportId());
 
                     String retryContentJson = objectMapper.writeValueAsString(retryContent);
                     String retryJudgePrompt = buildJudgePrompt.buildReportJudgePrompt(result, retryContentJson);
@@ -137,6 +139,10 @@ public class ReportAsyncService {
                         reportUpdateService.updateGenerationStatus(
                                 event.reportId(),
                                 GenerationStatus.FAIL
+                        );
+                        reportUpdateService.updateErrorType(
+                                event.reportId(),
+                                ErrorType.LOW_PRECISION_ERROR
                         );
                         throw new ReportException(ReportErrorCode.REPORT_GENERATION_FAIL);
                     }
@@ -154,6 +160,10 @@ public class ReportAsyncService {
                 );
                 log.info("리포트 저장 완료: {}", LocalDateTime.now());
             } catch (JsonProcessingException e) {
+                reportUpdateService.updateErrorType(
+                        event.reportId(),
+                        ErrorType.JSON_PARSING_ERROR
+                );
                 throw new RuntimeException("JSON 변환 실패", e);
             }
         } catch (Exception e) {
@@ -162,12 +172,20 @@ public class ReportAsyncService {
                     event.reportId(),
                     GenerationStatus.FAIL
             );
+            reportUpdateService.updateErrorType(
+                    event.reportId(),
+                    ErrorType.UNKNOWN_ERROR
+            );
         }
     }
 
-    private ReportWrapper getContent(String prompt) {
+    private ReportWrapper getContent(String prompt, Long reportId) {
         ReportWrapper content = gptService.analyzeGit(prompt);
         if (content.getContent() == null) {
+            reportUpdateService.updateErrorType(
+                    reportId,
+                    ErrorType.GPT_RESPONSE_ERROR
+            );
             throw new ReportException(ReportErrorCode.GPT_RESPONSE_NOT_FOUND);
         }
         return content;
