@@ -1,11 +1,15 @@
 package root.git_turl.infrastructure.github;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Component
+@Slf4j
 public class GitLogService {
 
     public String getCommitDiff(String repoPath, String hash) {
@@ -35,6 +39,44 @@ public class GitLogService {
 
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public String getNumstat(String repoPath, String commitHash) {
+        List<String> command = List.of(
+                "git", "log", "-1", "--numstat", "--format=", commitHash
+        );
+
+        try {
+            ProcessBuilder pb = new ProcessBuilder(command);
+            pb.directory(new File(repoPath));
+            pb.redirectErrorStream(false);
+
+            Process process = pb.start();
+
+            String output;
+            try (InputStream is = process.getInputStream()) {
+                output = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            }
+
+            boolean finished = process.waitFor(30, TimeUnit.SECONDS);
+            if (!finished) {
+                process.destroyForcibly();
+                log.warn("git numstat 명령 타임아웃: hash={}", commitHash);
+                return "";
+            }
+
+            int exitCode = process.exitValue();
+            if (exitCode != 0) {
+                log.warn("git numstat 명령 실패: hash={}, exitCode={}", commitHash, exitCode);
+                return "";
+            }
+
+            return output;
+        } catch (IOException | InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.warn("git numstat 실행 중 예외: hash={}", commitHash, e);
+            return "";
         }
     }
 }
