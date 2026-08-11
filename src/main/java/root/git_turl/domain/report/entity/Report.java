@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.question.entity.Question;
-import root.git_turl.domain.report.enums.ErrorType;
 import root.git_turl.domain.report.enums.GenerationStatus;
 import root.git_turl.domain.report.enums.Status;
 import root.git_turl.global.entity.BaseEntity;
@@ -54,10 +53,6 @@ public class Report extends BaseEntity {
     @Column(name = "bookmarked", nullable = false)
     private boolean bookmarked = false;
 
-    @Column(name = "error_type")
-    @Enumerated(EnumType.STRING)
-    private ErrorType errorType;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
@@ -81,9 +76,5 @@ public class Report extends BaseEntity {
 
     public void updateBookmarked() {
         this.bookmarked = !this.bookmarked;
-    }
-
-    public void updateErrorType(ErrorType errorType) {
-        this.errorType = errorType;
     }
 }
