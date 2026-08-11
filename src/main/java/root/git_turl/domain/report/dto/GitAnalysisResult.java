@@ -3,8 +3,6 @@ package root.git_turl.domain.report.dto;
 import lombok.Builder;
 import lombok.Getter;
 import root.git_turl.domain.report.dto.commit.CommitTypeCount;
-import root.git_turl.domain.report.dto.commit.MajorCommit;
-import root.git_turl.global.util.parser.DiffStructureParser;
 
 import java.util.List;
 import java.util.Map;
@@ -20,10 +18,9 @@ public class GitAnalysisResult {
     private CommitTypeCount commitTypeCount;
 
     private List<String> sampleMessages;
-    private List<MajorCommit> majorCommits;
     private Map<String, Long> contributionAnalyze;
-    private List<DiffStructureParser.DiffSummary> summaryList;
 
     private String readmeSummary;
-    private List<String> allCommitMessages;
+    private List<RepresentativeFile> projectRepresentativeFiles;
+    private List<RepresentativeFile> userRepresentativeFiles;
 }

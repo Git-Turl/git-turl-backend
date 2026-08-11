@@ -2,7 +2,7 @@ package root.git_turl.global.util.prompt;
 
 import org.springframework.stereotype.Component;
 import root.git_turl.domain.report.dto.GitAnalysisResult;
-import root.git_turl.domain.report.dto.commit.MajorCommit;
+import root.git_turl.domain.report.dto.RepresentativeFile;
 
 @Component
 public class BuildProblemPrompt {
@@ -10,13 +10,14 @@ public class BuildProblemPrompt {
         StringBuilder sb = new StringBuilder();
 
         sb.append("""
-        아래 diff 데이터를 분석하여 코드에서 발견되는 구체적인 문제점을 추출하라.
+        아래 [유저 기여 파일] 데이터를 분석하여 코드에서 발견되는 구체적인 문제점을 추출하라.
         
         [추출 규칙]
          - 반드시 실제 파일명, 클래스명, 메서드명을 언급하라
-         - 추측 금지. diff에 보이는 것만 작성하라
+         - 추측 금지. 아래 제공된 파일 코드에 실제로 보이는 것만 작성하라
+         - [유저 기여 파일] 목록에 없는 파일을 언급하지 마라
          - 일반론 금지 ("예외 처리 부족", "테스트 필요" 같은 표현 사용 금지)
-         - 위 [프로젝트 개요]의 비즈니스 도메인과 연결하여 설명하라
+         - [서비스 개요]의 비즈니스 도메인과 연결하여 설명하라
          - 최소 3개, 최대 5개 문제점 추출
         
         [출력 형식]
@@ -28,17 +29,23 @@ public class BuildProblemPrompt {
             {
               "file": "실제파일명",
               "issue": "구체적 문제 1문장",
-              "evidence": "diff에서 발견한 근거 (코드 스니펫 또는 변경 내용)"
+              "evidence": "코드에서 발견한 근거 (실제 코드 스니펫 또는 구조적 문제)"
             }
           ]
         }
         
-        [diff 데이터]
+        [서비스 개요]
         """);
+        sb.append(result.getReadmeSummary()).append("\n\n");
 
-        for (MajorCommit mc : result.getMajorCommits()) {
-            sb.append("- ").append(mc.getMessage()).append("\n");
-            sb.append(mc.getDiff()).append("\n\n");
+        sb.append("[유저 기여 파일]\n\n");
+        for (RepresentativeFile f : result.getUserRepresentativeFiles()) {
+            sb.append("--- 파일: ").append(f.filePath())
+                    .append(" (커밋 ").append(f.commitCount()).append("회, 변경 ")
+                    .append(f.changedLines()).append("줄")
+                    .append(f.truncated() ? ", 내용 일부 생략됨" : "")
+                    .append(") ---\n");
+            sb.append(f.content()).append("\n\n");
         }
 
         return sb.toString();
