@@ -136,10 +136,6 @@ public class ReportAsyncService {
                     log.info("평가 이유: {}",retryResult.reason());
 
                     if (retryResult.result() == Result.FAIL) {
-                        reportUpdateService.updateGenerationStatus(
-                                event.reportId(),
-                                GenerationStatus.FAIL
-                        );
                         reportUpdateService.updateErrorType(
                                 event.reportId(),
                                 ErrorType.LOW_PRECISION_ERROR
@@ -166,8 +162,14 @@ public class ReportAsyncService {
                 );
                 throw new RuntimeException("JSON 변환 실패", e);
             }
-        } catch (Exception e) {
+        } catch (ReportException e) {
             log.error("리포트 생성 실패", e);
+            reportUpdateService.updateGenerationStatus(
+                    event.reportId(),
+                    GenerationStatus.FAIL
+            );
+        } catch (Exception e) {
+            log.error("알 수 없는 리포트 생성 실패", e);
             reportUpdateService.updateGenerationStatus(
                     event.reportId(),
                     GenerationStatus.FAIL
