@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -20,4 +21,5 @@ public class ReportContent {
     private String reports;
     private Features features;
     private Improvements improvements;
+    private List<String> warnings;
 }

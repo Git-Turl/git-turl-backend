@@ -7,9 +7,11 @@ import root.git_turl.domain.report.dto.ProblemList;
 import root.git_turl.domain.report.dto.RepresentativeFile;
 import root.git_turl.domain.report.entity.Report;
 
+import java.util.List;
+
 @Component
 public class BuildPrompt {
-    public String buildReportPrompt(GitAnalysisResult result, String userId, ProblemList extractedProblems) {
+    public String buildReportPrompt(GitAnalysisResult result, String userId, ProblemList extractedProblems, List<String> warnings) {
         StringBuilder sb = new StringBuilder();
 
         // 0. improvements 가이드에 추출된 문제점 직접 주입
@@ -136,6 +138,7 @@ public class BuildPrompt {
                 .append("        \"example\": \"\", \"actionPlan\": \"\"\n")
                 .append("      }\n")
                 .append("    }\n")
+                .append("    \"warnings\": []\n")
                 .append("  }\n")
                 .append("}\n\n");
 
@@ -179,6 +182,8 @@ public class BuildPrompt {
           actionPlan: "1단계: GithubAnalysisService에 Resilience4j CircuitBreaker 적용
                        2단계: 최근 분석 결과를 Redis에 캐싱하여 fallback 응답 제공
                        3단계: rate limit 임박 시 사전 경고 로직 추가"
+        - warnings: [데이터 품질 주의사항]에 나열된 항목을 문자열 배열로 그대로 포함하라.
+            새로운 문구를 만들거나 임의로 수정하지 마라. 해당 주의사항이 없으면 빈 배열 []로 두어라.
 
         [자가검증 - 출력 전 반드시 확인]
         □ improvements 각 항목에 [유저 기여 파일]에 실제 존재하는 파일명/클래스명이 포함되었는가?

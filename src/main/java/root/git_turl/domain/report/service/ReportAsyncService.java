@@ -23,6 +23,7 @@ import root.git_turl.domain.report.enums.ErrorType;
 import root.git_turl.domain.report.enums.GenerationStatus;
 import root.git_turl.domain.report.exception.ReportException;
 import root.git_turl.domain.report.repository.ReportRepository;
+import root.git_turl.domain.report.service.warn.ReportWarningEvaluator;
 import root.git_turl.global.util.parser.GitLogParser;
 import root.git_turl.global.util.parser.GitRepoParser;
 import root.git_turl.global.util.prompt.BuildJudgePrompt;
@@ -55,6 +56,7 @@ public class ReportAsyncService {
     private final BuildRetryPrompt buildRetryPrompt;
     private final BuildProblemPrompt buildProblemPrompt;
     private final ReportUpdateService reportUpdateService;
+    private final ReportWarningEvaluator reportWarningEvaluator;
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -80,6 +82,8 @@ public class ReportAsyncService {
                     .toList();
             log.info("3. analyze 시작");
             GitAnalysisResult result = gitAnalysisService.analyze(GitRepoParser.getRepoFullName(gitUrl), repoPath, commits, userCommits);
+            boolean emailConfirmed = !userCommits.isEmpty();
+            List<String> warnings = reportWarningEvaluator.evaluate(result, emailConfirmed);
             log.info("3. analyze 완료");
 
             String problemPrompt = buildProblemPrompt.buildReportProblemPrompt(result);
@@ -89,7 +93,7 @@ public class ReportAsyncService {
             log.info("4. 문제 추출 완료");
 
             log.info("5. GPT 분석 시작");
-            String prompt = buildPrompt.buildReportPrompt(result, event.githubId(), extractedProblems);
+            String prompt = buildPrompt.buildReportPrompt(result, event.githubId(), extractedProblems, warnings);
             log.info("5. GPT 분석 완료");
 
             ReportWrapper content = getContent(prompt, event.reportId());
@@ -152,7 +156,8 @@ public class ReportAsyncService {
                         event.reportId(),
                         contentJson,
                         description,
-                        GenerationStatus.DONE
+                        GenerationStatus.DONE,
+                        warnings
                 );
                 log.info("리포트 저장 완료: {}", LocalDateTime.now());
             } catch (JsonProcessingException e) {
