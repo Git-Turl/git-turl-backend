@@ -79,4 +79,45 @@ public class GitLogService {
             return "";
         }
     }
+
+    public int countCurrentFiles(String repoPath) {
+        List<String> command = List.of("git", "ls-files");
+
+        try {
+            ProcessBuilder pb = new ProcessBuilder(command);
+            pb.directory(new File(repoPath));
+            pb.redirectErrorStream(false);
+
+            Process process = pb.start();
+
+            String output;
+            try (InputStream is = process.getInputStream()) {
+                output = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            }
+
+            boolean finished = process.waitFor(30, TimeUnit.SECONDS);
+            if (!finished) {
+                process.destroyForcibly();
+                log.warn("git ls-files 명령 타임아웃: repoPath={}", repoPath);
+                return 0;
+            }
+
+            int exitCode = process.exitValue();
+            if (exitCode != 0) {
+                log.warn("git ls-files 명령 실패: repoPath={}, exitCode={}", repoPath, exitCode);
+                return 0;
+            }
+
+            if (output.isBlank()) return 0;
+
+            return (int) output.lines()
+                    .filter(line -> !line.isBlank())
+                    .count();
+
+        } catch (IOException | InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.warn("git ls-files 실행 중 예외: repoPath={}", repoPath, e);
+            return 0;
+        }
+    }
 }

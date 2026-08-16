@@ -3,10 +3,12 @@ package root.git_turl.domain.report.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.Setter;
 import root.git_turl.domain.report.enums.Status;
 
 public class ReportReqDto {
     @Getter
+    @Setter
     public static class Repo {
         private String fullName;
     }

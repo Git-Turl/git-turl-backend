@@ -13,6 +13,7 @@ import root.git_turl.domain.report.service.stat.FileSelector;
 import root.git_turl.domain.report.service.stat.FileStatAggregator;
 import root.git_turl.global.util.GithubUserMapper;
 import root.git_turl.global.util.parser.ReadmeParser;
+import root.git_turl.infrastructure.github.GitLogService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -34,6 +35,7 @@ public class GitAnalysisService {
     private final FileStatAggregator fileStatAggregator;
     private final FileSelector fileSelector;
     private final FileContentReader fileContentReader;
+    private final GitLogService gitLogService;
 
     public GitAnalysisResult analyze(String repoFullName, String repoPath,
                                      List<GitCommit> commits, List<GitCommit> userCommits) {
@@ -86,6 +88,8 @@ public class GitAnalysisService {
                 .limit(30)
                 .toList();
 
+        int totalFileCount = gitLogService.countCurrentFiles(repoPath);
+
         return GitAnalysisResult.builder()
                 .totalCommits(totalCommits)
                 .userTotalCommits(userTotalCommits)
@@ -96,6 +100,7 @@ public class GitAnalysisService {
                         .refactorCount(refactor)
                         .etcCount(etc)
                         .build())
+                .totalFileCount(totalFileCount)
                 .sampleMessages(sampleMessages)
                 .contributionAnalyze(contributionAnalyze)
                 .readmeSummary(readme)

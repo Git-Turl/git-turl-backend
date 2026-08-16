@@ -23,7 +23,8 @@ public class ReportUpdateService {
             Long reportId,
             String contentJson,
             String description,
-            GenerationStatus status
+            GenerationStatus status,
+            List<String> warning
     ) {
 
         Report report = reportRepository.findById(reportId)
@@ -32,6 +33,7 @@ public class ReportUpdateService {
         report.updateContent(contentJson);
         report.updateDescription(description);
         report.updateGenerationStatus(status);
+        report.updateWarnings(warning);
     }
 
     @Transactional

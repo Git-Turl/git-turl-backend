@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import root.git_turl.domain.member.entity.Member;
 import root.git_turl.domain.question.entity.Question;
+import root.git_turl.domain.report.converter.StringListJsonConverter;
 import root.git_turl.domain.report.enums.ErrorType;
 import root.git_turl.domain.report.enums.GenerationStatus;
 import root.git_turl.domain.report.enums.Status;
@@ -58,6 +59,10 @@ public class Report extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ErrorType errorType;
 
+    @Convert(converter = StringListJsonConverter.class)
+    @Column(name = "warnings", columnDefinition = "TEXT")
+    private List<String> warnings;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
@@ -86,4 +91,6 @@ public class Report extends BaseEntity {
     public void updateErrorType(ErrorType errorType) {
         this.errorType = errorType;
     }
+
+    public void updateWarnings(List<String> warnings) { this.warnings = warnings;}
 }

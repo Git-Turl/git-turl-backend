@@ -7,9 +7,11 @@ import root.git_turl.domain.report.dto.ProblemList;
 import root.git_turl.domain.report.dto.RepresentativeFile;
 import root.git_turl.domain.report.entity.Report;
 
+import java.util.List;
+
 @Component
 public class BuildPrompt {
-    public String buildReportPrompt(GitAnalysisResult result, String userId, ProblemList extractedProblems) {
+    public String buildReportPrompt(GitAnalysisResult result, String userId, ProblemList extractedProblems, List<String> warnings) {
         StringBuilder sb = new StringBuilder();
 
         // 0. improvements 가이드에 추출된 문제점 직접 주입
@@ -75,6 +77,15 @@ public class BuildPrompt {
         result.getSampleMessages().forEach(m -> sb.append("- ").append(m).append("\n"));
         sb.append("\n");
 
+        // 1-4. 프로젝트 규모
+        sb.append("[프로젝트 규모]\n");
+        sb.append("- 전체 파일 수: ").append(result.getTotalFileCount()).append("\n");
+        sb.append("- 전체 커밋 수: ").append(result.getTotalCommits()).append("\n");
+
+        // 1-5. 경고 메세지
+        sb.append("[경고 메세지]\n");
+        sb.append("- warnings: ").append(warnings).append("\n");
+
         // 2. 지시 섹션
         sb.append("""
         위 Git 분석 데이터를 기반으로 개발자 분석 리포트를 작성하라.
@@ -135,7 +146,8 @@ public class BuildPrompt {
                 .append("        \"title\": \"\", \"files\": [], \"currentStatus\": \"\",\n")
                 .append("        \"example\": \"\", \"actionPlan\": \"\"\n")
                 .append("      }\n")
-                .append("    }\n")
+                .append("    },\n")
+                .append("    \"warnings\": []\n")
                 .append("  }\n")
                 .append("}\n\n");
 
@@ -152,7 +164,7 @@ public class BuildPrompt {
         - commitContribution: 위 [commitContribution] 데이터의 키-값을 그대로 복사.
           절대 추측하거나 변형하지 마라.
 
-        - scale: [commitStats]와 파일 통계 기준 파일 수와 커밋 수를 수치로 작성.
+        - scale: 위 [프로젝트 규모]에 명시된 "전체 파일 수"를 fileCount에, "전체 커밋 수"를 commitCount에 그대로 사용하라.
         
         - reports: 분석 내역을 텍스트로 작성, 최소 4문장 이상 구체적으로
 
@@ -179,6 +191,8 @@ public class BuildPrompt {
           actionPlan: "1단계: GithubAnalysisService에 Resilience4j CircuitBreaker 적용
                        2단계: 최근 분석 결과를 Redis에 캐싱하여 fallback 응답 제공
                        3단계: rate limit 임박 시 사전 경고 로직 추가"
+        - warnings: [데이터 품질 주의사항]에 나열된 항목을 문자열 배열로 그대로 포함하라.
+            새로운 문구를 만들거나 임의로 수정하지 마라. 해당 주의사항이 없으면 빈 배열 []로 두어라.
 
         [자가검증 - 출력 전 반드시 확인]
         □ improvements 각 항목에 [유저 기여 파일]에 실제 존재하는 파일명/클래스명이 포함되었는가?
