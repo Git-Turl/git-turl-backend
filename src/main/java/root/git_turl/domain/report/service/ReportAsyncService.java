@@ -127,7 +127,8 @@ public class ReportAsyncService {
                             result,
                             event.githubId(),
                             judgeResult.score(),
-                            judgeResult.reason()
+                            judgeResult.reason(),
+                            List.of()
                     );
                     ReportWrapper retryContent = getContent(retryPrompt, event.reportId());
 

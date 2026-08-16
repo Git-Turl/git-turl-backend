@@ -111,7 +111,7 @@ class ReportAsyncServiceTest {
         given(reportWarningEvaluator.evaluate(any(), anyBoolean())).willReturn(List.of("커밋 수가 적습니다"));
 
         given(buildProblemPrompt.buildReportProblemPrompt(any())).willReturn("dummy problem prompt");
-        given(buildPrompt.buildReportPrompt(any(), any(), any())).willReturn("dummy report prompt");
+        given(buildPrompt.buildReportPrompt(any(), any(), any(), any())).willReturn("dummy report prompt");
         given(buildJudgePrompt.buildReportJudgePrompt(any(), any())).willReturn("dummy judge prompt");
 
         given(gptService.makeReportProblem(any())).willReturn(sampleProblemList());
