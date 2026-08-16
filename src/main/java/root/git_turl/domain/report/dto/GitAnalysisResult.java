@@ -16,6 +16,7 @@ public class GitAnalysisResult {
     private double contributionRate;
 
     private CommitTypeCount commitTypeCount;
+    private Integer totalFileCount;
 
     private List<String> sampleMessages;
     private Map<String, Long> contributionAnalyze;

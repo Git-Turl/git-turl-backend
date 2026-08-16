@@ -5,7 +5,7 @@ import java.time.LocalDate;
 
 @Getter
 public class FileStat {
-    private final String filePath;
+    private String filePath;
     private int totalChangedLines = 0;
     private int commitCount = 0;
     private int userChangedLines = 0;
@@ -26,5 +26,9 @@ public class FileStat {
         if (lastModified == null || commitDate.isAfter(lastModified)) {
             lastModified = commitDate;
         }
+    }
+
+    public String getFilePath() {
+        return filePath;
     }
 }
